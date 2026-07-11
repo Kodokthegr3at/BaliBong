@@ -1,0 +1,27 @@
+<div class="app-layout-container">
+  <main class="app-main-content">
+    <router-outlet />
+  </main>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-nav">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
+      <div class="bottom-nav-icon-wrapper">
+        <i class="fa-solid fa-house"></i>
+      </div>
+      <span>{{ langService.t('home_tab') }}</span>
+    </a>
+    <a routerLink="/menu" routerLinkActive="active" class="bottom-nav-item">
+      <div class="bottom-nav-icon-wrapper">
+        <i class="fa-solid fa-utensils"></i>
+      </div>
+      <span>{{ langService.t('menu_tab') }}</span>
+    </a>
+    <a routerLink="/admin" routerLinkActive="active" class="bottom-nav-item">
+      <div class="bottom-nav-icon-wrapper">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <span>{{ langService.t('admin_tab') }}</span>
+    </a>
+  </nav>
+</div>

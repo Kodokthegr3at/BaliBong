@@ -1,0 +1,3639 @@
+{
+  "restaurant_info": [
+    {
+      "key": "about",
+      "lang": "id",
+      "content": "Konsep Bali Bong adalah tempat berkumpul untuk semua orang dengan sambutan hangat dari chef tercinta kami, Bli (sebutan \"Bang\" dalam bahasa Bali) Nyoman. Di sini Anda bisa bertukar ilmu bahasa dengan orang Jepang dan teman internasional, dan sudah pasti makanannya juga enak-enak. Visi dan misi kami memiliki filosofis yang mendalam: \"Yang Penting Happy\"."
+    },
+    {
+      "key": "about",
+      "lang": "ja",
+      "content": "バリボンのコンセプトは、愛されるシェフ「ブリ（バリ語で兄）」ニョマンの温かい歓迎とともに、みんなが集まる場所です。ここで日本人や国際的な友人と言葉を交わすことができ、もちろん料理もとても美味しいです。私たちの深い哲学を持つビジョンとミッションは「ハッピーであることが一番大切」です。"
+    },
+    {
+      "key": "about",
+      "lang": "zh",
+      "content": "Bali Bong 的理念是一个大家聚在一起的地方，受到我们敬爱的厨师 Bli（巴厘语中的“哥哥”）Nyoman 的热烈欢迎。在这里，您可以与日本和国际朋友交流语言，当然，食物也非常美味。我们拥有深刻哲理的愿景和使命是：“最重要的是开心”。"
+    },
+    {
+      "key": "about",
+      "lang": "ko",
+      "content": "발리 봉의 콘셉트는 사랑받는 셰프 블리(발리어로 \"형\") 뇨만의 따뜻한 환영과 함께 모두가 모이는 장소입니다. 이곳에서 일본인 및 다국적 친구들과 언어를 교환할 수 있으며, 물론 음식도 아주 맛있습니다. 우리의 깊은 철학을 담은 비전과 미션은 \"행복한 것이 가장 중요하다\"입니다."
+    },
+    {
+      "key": "about",
+      "lang": "es",
+      "content": "El concepto de Bali Bong es un lugar de encuentro para todos, con una cálida bienvenida por parte de nuestro querido chef Bli (hermano en balinés) Nyoman. Aquí puedes intercambiar idiomas con amigos japoneses e internacionales y, por supuesto, la comida es deliciosa. Nuestra visión y misión, que tiene una profunda filosofía, es: \"Lo importante es ser feliz\"."
+    },
+    {
+      "key": "transportation",
+      "lang": "id",
+      "content": "4 menit berjalan kaki dari Stasiun Abiko di Midosuji Line. (388 meter dari Abiko)"
+    },
+    {
+      "key": "transportation",
+      "lang": "ja",
+      "content": "御堂筋線あびこ駅から徒歩4分（あびこ駅から388m）"
+    },
+    {
+      "key": "transportation",
+      "lang": "zh",
+      "content": "从御堂筋线我孙子站（Abiko Sta.）步行 4 分钟。（距离我孙子站 388 米）"
+    },
+    {
+      "key": "transportation",
+      "lang": "ko",
+      "content": "미도스지선 아비코역(Abiko Sta.)에서 도보 4분 거리. (아비코역에서 388m)"
+    },
+    {
+      "key": "transportation",
+      "lang": "es",
+      "content": "A 4 minutos a pie de la estación de Abiko en la línea Midosuji. (A 388 metros de Abiko)"
+    },
+    {
+      "key": "contact",
+      "lang": "id",
+      "content": "Telepon: 06-6695-6267 | Alamat: 大阪府大阪市住吉区苅田3-16-11"
+    },
+    {
+      "key": "contact",
+      "lang": "ja",
+      "content": "電話番号: 06-6695-6267 | 住所: 大阪府大阪市住吉区苅田3-16-11"
+    },
+    {
+      "key": "contact",
+      "lang": "zh",
+      "content": "电话：06-6695-6267 | 地址：大阪府大阪市住吉区苅田3-16-11"
+    },
+    {
+      "key": "contact",
+      "lang": "ko",
+      "content": "전화번호: 06-6695-6267 | 주소: 大阪府大阪市住吉区苅田3-16-11"
+    },
+    {
+      "key": "contact",
+      "lang": "es",
+      "content": "Teléfono: 06-6695-6267 | Dirección: 大阪府大阪市住吉区苅田3-16-11"
+    },
+    {
+      "key": "hours",
+      "lang": "id",
+      "content": "Senin, Selasa, Kamis-Minggu: 11:30 - 14:30 & 17:30 - 00:00. Tutup: Rabu."
+    },
+    {
+      "key": "hours",
+      "lang": "ja",
+      "content": "月・火・木〜日: 11:30 - 14:30, 17:30 - 00:00. 定休日: 水曜日"
+    },
+    {
+      "key": "hours",
+      "lang": "zh",
+      "content": "周一、周二、周四至周日：11:30 - 14:30 & 17:30 - 00:00。 休息日：周三"
+    },
+    {
+      "key": "hours",
+      "lang": "ko",
+      "content": "월, 화, 목~일: 11:30 - 14:30 & 17:30 - 00:00. 휴무일: 수요일"
+    },
+    {
+      "key": "hours",
+      "lang": "es",
+      "content": "Lunes, Martes, Jueves-Domingo: 11:30 - 14:30 y 17:30 - 00:00. Cerrado: Miércoles."
+    }
+  ],
+  "menu_categories": [
+    {
+      "id": 5,
+      "slug": "rekomendasi"
+    },
+    {
+      "id": 1,
+      "slug": "makanan_berat"
+    },
+    {
+      "id": 2,
+      "slug": "makanan_sayur"
+    },
+    {
+      "id": 3,
+      "slug": "manisan"
+    },
+    {
+      "id": 4,
+      "slug": "ala_carte"
+    },
+    {
+      "id": 6,
+      "slug": "minuman_ringan"
+    },
+    {
+      "id": 7,
+      "slug": "bir"
+    },
+    {
+      "id": 8,
+      "slug": "koktail"
+    }
+  ],
+  "menu_category_translations": [
+    {
+      "category_id": 1,
+      "lang": "id",
+      "name": "Makanan Berat"
+    },
+    {
+      "category_id": 1,
+      "lang": "ja",
+      "name": "メインディッシュ"
+    },
+    {
+      "category_id": 1,
+      "lang": "zh",
+      "name": "主食"
+    },
+    {
+      "category_id": 1,
+      "lang": "ko",
+      "name": "식사류"
+    },
+    {
+      "category_id": 1,
+      "lang": "es",
+      "name": "Platos Fuertes"
+    },
+    {
+      "category_id": 2,
+      "lang": "id",
+      "name": "Makanan Sayur"
+    },
+    {
+      "category_id": 2,
+      "lang": "ja",
+      "name": "野菜料理"
+    },
+    {
+      "category_id": 2,
+      "lang": "zh",
+      "name": "蔬菜类"
+    },
+    {
+      "category_id": 2,
+      "lang": "ko",
+      "name": "야채 요리"
+    },
+    {
+      "category_id": 2,
+      "lang": "es",
+      "name": "Platos de Verduras"
+    },
+    {
+      "category_id": 3,
+      "lang": "id",
+      "name": "Manisan"
+    },
+    {
+      "category_id": 3,
+      "lang": "ja",
+      "name": "デザート"
+    },
+    {
+      "category_id": 3,
+      "lang": "zh",
+      "name": "甜点"
+    },
+    {
+      "category_id": 3,
+      "lang": "ko",
+      "name": "디저트"
+    },
+    {
+      "category_id": 3,
+      "lang": "es",
+      "name": "Postres"
+    },
+    {
+      "category_id": 4,
+      "lang": "id",
+      "name": "Ala Carte"
+    },
+    {
+      "category_id": 4,
+      "lang": "ja",
+      "name": "アラカルト"
+    },
+    {
+      "category_id": 4,
+      "lang": "zh",
+      "name": "单点"
+    },
+    {
+      "category_id": 4,
+      "lang": "ko",
+      "name": "일품 요리"
+    },
+    {
+      "category_id": 4,
+      "lang": "es",
+      "name": "A la Carta"
+    },
+    {
+      "category_id": 5,
+      "lang": "id",
+      "name": "Rekomendasi"
+    },
+    {
+      "category_id": 5,
+      "lang": "ja",
+      "name": "おすすめ"
+    },
+    {
+      "category_id": 5,
+      "lang": "zh",
+      "name": "推荐"
+    },
+    {
+      "category_id": 5,
+      "lang": "ko",
+      "name": "추천 메뉴"
+    },
+    {
+      "category_id": 5,
+      "lang": "es",
+      "name": "Recomendados"
+    },
+    {
+      "category_id": 6,
+      "lang": "id",
+      "name": "Minuman Ringan"
+    },
+    {
+      "category_id": 6,
+      "lang": "ja",
+      "name": "ソフトドリンク"
+    },
+    {
+      "category_id": 6,
+      "lang": "zh",
+      "name": "软饮料"
+    },
+    {
+      "category_id": 6,
+      "lang": "ko",
+      "name": "소프트 드링크"
+    },
+    {
+      "category_id": 6,
+      "lang": "es",
+      "name": "Refrescos"
+    },
+    {
+      "category_id": 7,
+      "lang": "id",
+      "name": "Bir"
+    },
+    {
+      "category_id": 7,
+      "lang": "ja",
+      "name": "ビール"
+    },
+    {
+      "category_id": 7,
+      "lang": "zh",
+      "name": "啤酒"
+    },
+    {
+      "category_id": 7,
+      "lang": "ko",
+      "name": "맥주"
+    },
+    {
+      "category_id": 7,
+      "lang": "es",
+      "name": "Cerveza"
+    },
+    {
+      "category_id": 8,
+      "lang": "id",
+      "name": "Koktail"
+    },
+    {
+      "category_id": 8,
+      "lang": "ja",
+      "name": "カクテル"
+    },
+    {
+      "category_id": 8,
+      "lang": "zh",
+      "name": "鸡尾酒"
+    },
+    {
+      "category_id": 8,
+      "lang": "ko",
+      "name": "칵테일"
+    },
+    {
+      "category_id": 8,
+      "lang": "es",
+      "name": "Cócteles"
+    }
+  ],
+  "menu_items": [
+    {
+      "id": 1,
+      "category_id": 1,
+      "price": 1280,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.707Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 2,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 3,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 4,
+      "category_id": 1,
+      "price": 1280,
+      "image_url": "http://localhost:5000/public/images/menu/1783706291399.jpg",
+      "is_recommended": true,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:58:40.159Z",
+      "allergy_info": "Ayam,Keju,Cabai"
+    },
+    {
+      "id": 5,
+      "category_id": 1,
+      "price": 990,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 6,
+      "category_id": 1,
+      "price": 1080,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 7,
+      "category_id": 1,
+      "price": 990,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 8,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 9,
+      "category_id": 1,
+      "price": 990,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 10,
+      "category_id": 1,
+      "price": 1300,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 11,
+      "category_id": 1,
+      "price": 990,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 12,
+      "category_id": 1,
+      "price": 990,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 13,
+      "category_id": 1,
+      "price": 1080,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 14,
+      "category_id": 1,
+      "price": 1080,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 15,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 16,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 17,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 18,
+      "category_id": 1,
+      "price": 990,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 19,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 20,
+      "category_id": 1,
+      "price": 990,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 21,
+      "category_id": 1,
+      "price": 990,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 22,
+      "category_id": 1,
+      "price": 750,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 23,
+      "category_id": 1,
+      "price": 750,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 24,
+      "category_id": 1,
+      "price": 680,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 25,
+      "category_id": 1,
+      "price": 680,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 26,
+      "category_id": 1,
+      "price": 680,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 27,
+      "category_id": 1,
+      "price": 620,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 28,
+      "category_id": 1,
+      "price": 690,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 29,
+      "category_id": 1,
+      "price": 690,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 30,
+      "category_id": 1,
+      "price": 990,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 31,
+      "category_id": 1,
+      "price": 500,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 32,
+      "category_id": 1,
+      "price": 980,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 33,
+      "category_id": 1,
+      "price": 500,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 34,
+      "category_id": 1,
+      "price": 990,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 35,
+      "category_id": 1,
+      "price": 500,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 36,
+      "category_id": 1,
+      "price": 1480,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 37,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 38,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 39,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 40,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 41,
+      "category_id": 1,
+      "price": 1080,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 42,
+      "category_id": 1,
+      "price": 1200,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 43,
+      "category_id": 1,
+      "price": 1080,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 44,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 45,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 46,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 47,
+      "category_id": 1,
+      "price": 1180,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 48,
+      "category_id": 2,
+      "price": 880,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 49,
+      "category_id": 2,
+      "price": 880,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 50,
+      "category_id": 2,
+      "price": 880,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 51,
+      "category_id": 2,
+      "price": 980,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 52,
+      "category_id": 2,
+      "price": 880,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 53,
+      "category_id": 2,
+      "price": 880,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 54,
+      "category_id": 3,
+      "price": 550,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 55,
+      "category_id": 3,
+      "price": 550,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 56,
+      "category_id": 3,
+      "price": 300,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 57,
+      "category_id": 3,
+      "price": 550,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 58,
+      "category_id": 4,
+      "price": 680,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 59,
+      "category_id": 4,
+      "price": 490,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 60,
+      "category_id": 4,
+      "price": 690,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 61,
+      "category_id": 4,
+      "price": 450,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 62,
+      "category_id": 4,
+      "price": 580,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 63,
+      "category_id": 4,
+      "price": 680,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 64,
+      "category_id": 4,
+      "price": 300,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 65,
+      "category_id": 4,
+      "price": 300,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 66,
+      "category_id": 4,
+      "price": 300,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 67,
+      "category_id": 5,
+      "price": 1600,
+      "image_url": null,
+      "is_recommended": true,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 68,
+      "category_id": 5,
+      "price": 1380,
+      "image_url": null,
+      "is_recommended": true,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 69,
+      "category_id": 5,
+      "price": 1500,
+      "image_url": null,
+      "is_recommended": true,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 70,
+      "category_id": 6,
+      "price": 400,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 71,
+      "category_id": 6,
+      "price": 300,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 72,
+      "category_id": 7,
+      "price": 600,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    },
+    {
+      "id": 73,
+      "category_id": 8,
+      "price": 800,
+      "image_url": null,
+      "is_recommended": false,
+      "is_available": true,
+      "created_at": "2026-07-10T17:50:47.708Z",
+      "updated_at": "2026-07-10T17:50:47.708Z"
+    }
+  ],
+  "menu_item_translations": [
+    {
+      "id": 1,
+      "menu_item_id": 1,
+      "lang": "id",
+      "name": "Bali Spicy Chicken",
+      "description": "Deskripsi untuk Bali Spicy Chicken"
+    },
+    {
+      "id": 2,
+      "menu_item_id": 1,
+      "lang": "ja",
+      "name": "バリ風スパイシーチキン",
+      "description": "Description for Bali Spicy Chicken in ja"
+    },
+    {
+      "id": 3,
+      "menu_item_id": 1,
+      "lang": "zh",
+      "name": "巴厘岛香辣鸡",
+      "description": "Description for Bali Spicy Chicken in zh"
+    },
+    {
+      "id": 4,
+      "menu_item_id": 1,
+      "lang": "ko",
+      "name": "발리 스타일 매운 치킨",
+      "description": "Description for Bali Spicy Chicken in ko"
+    },
+    {
+      "id": 5,
+      "menu_item_id": 1,
+      "lang": "es",
+      "name": "Pollo Picante de Bali",
+      "description": "Description for Bali Spicy Chicken in es"
+    },
+    {
+      "id": 6,
+      "menu_item_id": 2,
+      "lang": "id",
+      "name": "Ayam dan Tempe Goreng",
+      "description": "Deskripsi untuk Ayam dan Tempe Goreng"
+    },
+    {
+      "id": 7,
+      "menu_item_id": 2,
+      "lang": "ja",
+      "name": "鶏肉とテンペの唐揚げ",
+      "description": "Description for Ayam dan Tempe Goreng in ja"
+    },
+    {
+      "id": 8,
+      "menu_item_id": 2,
+      "lang": "zh",
+      "name": "炸鸡与印尼豆豉",
+      "description": "Description for Ayam dan Tempe Goreng in zh"
+    },
+    {
+      "id": 9,
+      "menu_item_id": 2,
+      "lang": "ko",
+      "name": "치킨과 템페 튀김",
+      "description": "Description for Ayam dan Tempe Goreng in ko"
+    },
+    {
+      "id": 10,
+      "menu_item_id": 2,
+      "lang": "es",
+      "name": "Pollo y Tempeh Frito",
+      "description": "Description for Ayam dan Tempe Goreng in es"
+    },
+    {
+      "id": 11,
+      "menu_item_id": 3,
+      "lang": "id",
+      "name": "Mie Ayam",
+      "description": "Deskripsi untuk Mie Ayam"
+    },
+    {
+      "id": 12,
+      "menu_item_id": 3,
+      "lang": "ja",
+      "name": "チキンラーメン",
+      "description": "Description for Mie Ayam in ja"
+    },
+    {
+      "id": 13,
+      "menu_item_id": 3,
+      "lang": "zh",
+      "name": "鸡肉面",
+      "description": "Description for Mie Ayam in zh"
+    },
+    {
+      "id": 14,
+      "menu_item_id": 3,
+      "lang": "ko",
+      "name": "미 아얌 (인도네시아식 닭고기 국수)",
+      "description": "Description for Mie Ayam in ko"
+    },
+    {
+      "id": 15,
+      "menu_item_id": 3,
+      "lang": "es",
+      "name": "Fideos de Pollo (Mie Ayam)",
+      "description": "Description for Mie Ayam in es"
+    },
+    {
+      "id": 16,
+      "menu_item_id": 4,
+      "lang": "id",
+      "name": "Ayam Geprek",
+      "description": "Deskripsi untuk Ayam Geprek"
+    },
+    {
+      "id": 17,
+      "menu_item_id": 4,
+      "lang": "ja",
+      "name": "アヤムゲプレック (スパイシー唐揚げ)",
+      "description": "Description for Ayam Geprek in ja"
+    },
+    {
+      "id": 18,
+      "menu_item_id": 4,
+      "lang": "zh",
+      "name": "印尼碎辣炸鸡",
+      "description": "Description for Ayam Geprek in zh"
+    },
+    {
+      "id": 19,
+      "menu_item_id": 4,
+      "lang": "ko",
+      "name": "아얌 게프렉 (매운 치킨)",
+      "description": "Description for Ayam Geprek in ko"
+    },
+    {
+      "id": 20,
+      "menu_item_id": 4,
+      "lang": "es",
+      "name": "Pollo Smashed Picante",
+      "description": "Description for Ayam Geprek in es"
+    },
+    {
+      "id": 21,
+      "menu_item_id": 5,
+      "lang": "id",
+      "name": "Bali Bong Hamburg",
+      "description": "Deskripsi untuk Bali Bong Hamburg"
+    },
+    {
+      "id": 22,
+      "menu_item_id": 5,
+      "lang": "ja",
+      "name": "バリボン・ハンバーグ",
+      "description": "Description for Bali Bong Hamburg in ja"
+    },
+    {
+      "id": 23,
+      "menu_item_id": 5,
+      "lang": "zh",
+      "name": "巴厘岛汉堡肉排",
+      "description": "Description for Bali Bong Hamburg in zh"
+    },
+    {
+      "id": 24,
+      "menu_item_id": 5,
+      "lang": "ko",
+      "name": "발리 봉 함박스테이크",
+      "description": "Description for Bali Bong Hamburg in ko"
+    },
+    {
+      "id": 25,
+      "menu_item_id": 5,
+      "lang": "es",
+      "name": "Hamburguesa Bali Bong",
+      "description": "Description for Bali Bong Hamburg in es"
+    },
+    {
+      "id": 26,
+      "menu_item_id": 6,
+      "lang": "id",
+      "name": "Pho Goreng (Standard)",
+      "description": "Deskripsi untuk Pho Goreng (Standard)"
+    },
+    {
+      "id": 27,
+      "menu_item_id": 6,
+      "lang": "ja",
+      "name": "焼きフォー (並)",
+      "description": "Description for Pho Goreng (Standard) in ja"
+    },
+    {
+      "id": 28,
+      "menu_item_id": 6,
+      "lang": "zh",
+      "name": "炒河粉 (标准)",
+      "description": "Description for Pho Goreng (Standard) in zh"
+    },
+    {
+      "id": 29,
+      "menu_item_id": 6,
+      "lang": "ko",
+      "name": "볶음 쌀국수 (보통)",
+      "description": "Description for Pho Goreng (Standard) in ko"
+    },
+    {
+      "id": 30,
+      "menu_item_id": 6,
+      "lang": "es",
+      "name": "Fideos Pho Fritos (Estándar)",
+      "description": "Description for Pho Goreng (Standard) in es"
+    },
+    {
+      "id": 31,
+      "menu_item_id": 7,
+      "lang": "id",
+      "name": "Bali Bong Original Coconut Mapo Toufu",
+      "description": "Deskripsi untuk Bali Bong Original Coconut Mapo Toufu"
+    },
+    {
+      "id": 32,
+      "menu_item_id": 7,
+      "lang": "ja",
+      "name": "バリボン特製ココナッツ麻婆豆腐",
+      "description": "Description for Bali Bong Original Coconut Mapo Toufu in ja"
+    },
+    {
+      "id": 33,
+      "menu_item_id": 7,
+      "lang": "zh",
+      "name": "巴厘岛椰香麻婆豆腐",
+      "description": "Description for Bali Bong Original Coconut Mapo Toufu in zh"
+    },
+    {
+      "id": 34,
+      "menu_item_id": 7,
+      "lang": "ko",
+      "name": "발리 봉 오리지널 코코넛 마파두부",
+      "description": "Description for Bali Bong Original Coconut Mapo Toufu in ko"
+    },
+    {
+      "id": 35,
+      "menu_item_id": 7,
+      "lang": "es",
+      "name": "Mapo Tofu de Coco Original",
+      "description": "Description for Bali Bong Original Coconut Mapo Toufu in es"
+    },
+    {
+      "id": 36,
+      "menu_item_id": 8,
+      "lang": "id",
+      "name": "Bubur Ayam",
+      "description": "Deskripsi untuk Bubur Ayam"
+    },
+    {
+      "id": 37,
+      "menu_item_id": 8,
+      "lang": "ja",
+      "name": "インドネシア風鶏粥",
+      "description": "Description for Bubur Ayam in ja"
+    },
+    {
+      "id": 38,
+      "menu_item_id": 8,
+      "lang": "zh",
+      "name": "鸡肉粥",
+      "description": "Description for Bubur Ayam in zh"
+    },
+    {
+      "id": 39,
+      "menu_item_id": 8,
+      "lang": "ko",
+      "name": "인도네시아식 닭죽",
+      "description": "Description for Bubur Ayam in ko"
+    },
+    {
+      "id": 40,
+      "menu_item_id": 8,
+      "lang": "es",
+      "name": "Gacha de Pollo (Bubur Ayam)",
+      "description": "Description for Bubur Ayam in es"
+    },
+    {
+      "id": 41,
+      "menu_item_id": 9,
+      "lang": "id",
+      "name": "Cumi-Cumi Goreng",
+      "description": "Deskripsi untuk Cumi-Cumi Goreng"
+    },
+    {
+      "id": 42,
+      "menu_item_id": 9,
+      "lang": "ja",
+      "name": "イカの唐揚げ",
+      "description": "Description for Cumi-Cumi Goreng in ja"
+    },
+    {
+      "id": 43,
+      "menu_item_id": 9,
+      "lang": "zh",
+      "name": "炸鱿鱼",
+      "description": "Description for Cumi-Cumi Goreng in zh"
+    },
+    {
+      "id": 44,
+      "menu_item_id": 9,
+      "lang": "ko",
+      "name": "오징어 튀김",
+      "description": "Description for Cumi-Cumi Goreng in ko"
+    },
+    {
+      "id": 45,
+      "menu_item_id": 9,
+      "lang": "es",
+      "name": "Calamar Frito",
+      "description": "Description for Cumi-Cumi Goreng in es"
+    },
+    {
+      "id": 46,
+      "menu_item_id": 10,
+      "lang": "id",
+      "name": "Gulai Kambing",
+      "description": "Deskripsi untuk Gulai Kambing"
+    },
+    {
+      "id": 47,
+      "menu_item_id": 10,
+      "lang": "ja",
+      "name": "ヤギ肉のカレー煮込み",
+      "description": "Description for Gulai Kambing in ja"
+    },
+    {
+      "id": 48,
+      "menu_item_id": 10,
+      "lang": "zh",
+      "name": "咖喱羊肉",
+      "description": "Description for Gulai Kambing in zh"
+    },
+    {
+      "id": 49,
+      "menu_item_id": 10,
+      "lang": "ko",
+      "name": "염소고기 굴라이 (카레)",
+      "description": "Description for Gulai Kambing in ko"
+    },
+    {
+      "id": 50,
+      "menu_item_id": 10,
+      "lang": "es",
+      "name": "Gulai de Cabra",
+      "description": "Description for Gulai Kambing in es"
+    },
+    {
+      "id": 51,
+      "menu_item_id": 11,
+      "lang": "id",
+      "name": "Tumis Leher Ayam",
+      "description": "Deskripsi untuk Tumis Leher Ayam"
+    },
+    {
+      "id": 52,
+      "menu_item_id": 11,
+      "lang": "ja",
+      "name": "鶏ネックの炒め物",
+      "description": "Description for Tumis Leher Ayam in ja"
+    },
+    {
+      "id": 53,
+      "menu_item_id": 11,
+      "lang": "zh",
+      "name": "炒鸡颈肉",
+      "description": "Description for Tumis Leher Ayam in zh"
+    },
+    {
+      "id": 54,
+      "menu_item_id": 11,
+      "lang": "ko",
+      "name": "닭목살 볶음",
+      "description": "Description for Tumis Leher Ayam in ko"
+    },
+    {
+      "id": 55,
+      "menu_item_id": 11,
+      "lang": "es",
+      "name": "Cuello de Pollo Salteado",
+      "description": "Description for Tumis Leher Ayam in es"
+    },
+    {
+      "id": 56,
+      "menu_item_id": 12,
+      "lang": "id",
+      "name": "Sayap Ayam Pedas",
+      "description": "Deskripsi untuk Sayap Ayam Pedas"
+    },
+    {
+      "id": 57,
+      "menu_item_id": 12,
+      "lang": "ja",
+      "name": "スパイシーチキンウィング",
+      "description": "Description for Sayap Ayam Pedas in ja"
+    },
+    {
+      "id": 58,
+      "menu_item_id": 12,
+      "lang": "zh",
+      "name": "辣鸡翅",
+      "description": "Description for Sayap Ayam Pedas in zh"
+    },
+    {
+      "id": 59,
+      "menu_item_id": 12,
+      "lang": "ko",
+      "name": "매콤 닭날개 구이",
+      "description": "Description for Sayap Ayam Pedas in ko"
+    },
+    {
+      "id": 60,
+      "menu_item_id": 12,
+      "lang": "es",
+      "name": "Alitas de Pollo Picantes",
+      "description": "Description for Sayap Ayam Pedas in es"
+    },
+    {
+      "id": 61,
+      "menu_item_id": 13,
+      "lang": "id",
+      "name": "Ayam Bumbu Bali",
+      "description": "Deskripsi untuk Ayam Bumbu Bali"
+    },
+    {
+      "id": 62,
+      "menu_item_id": 13,
+      "lang": "ja",
+      "name": "バリ風スパイス鶏肉煮込み",
+      "description": "Description for Ayam Bumbu Bali in ja"
+    },
+    {
+      "id": 63,
+      "menu_item_id": 13,
+      "lang": "zh",
+      "name": "巴厘岛香料鸡肉",
+      "description": "Description for Ayam Bumbu Bali in zh"
+    },
+    {
+      "id": 64,
+      "menu_item_id": 13,
+      "lang": "ko",
+      "name": "발리식 양념 치킨",
+      "description": "Description for Ayam Bumbu Bali in ko"
+    },
+    {
+      "id": 65,
+      "menu_item_id": 13,
+      "lang": "es",
+      "name": "Pollo en Salsa Bali",
+      "description": "Description for Ayam Bumbu Bali in es"
+    },
+    {
+      "id": 66,
+      "menu_item_id": 14,
+      "lang": "id",
+      "name": "Maboroshi no Java Curry",
+      "description": "Deskripsi untuk Maboroshi no Java Curry"
+    },
+    {
+      "id": 67,
+      "menu_item_id": 14,
+      "lang": "ja",
+      "name": "幻のジャワカレー",
+      "description": "Description for Maboroshi no Java Curry in ja"
+    },
+    {
+      "id": 68,
+      "menu_item_id": 14,
+      "lang": "zh",
+      "name": "幻之爪哇咖喱",
+      "description": "Description for Maboroshi no Java Curry in zh"
+    },
+    {
+      "id": 69,
+      "menu_item_id": 14,
+      "lang": "ko",
+      "name": "환상의 자바 카레",
+      "description": "Description for Maboroshi no Java Curry in ko"
+    },
+    {
+      "id": 70,
+      "menu_item_id": 14,
+      "lang": "es",
+      "name": "Curry de Java de Ensueño",
+      "description": "Description for Maboroshi no Java Curry in es"
+    },
+    {
+      "id": 71,
+      "menu_item_id": 15,
+      "lang": "id",
+      "name": "Nasi Goreng",
+      "description": "Deskripsi untuk Nasi Goreng"
+    },
+    {
+      "id": 72,
+      "menu_item_id": 15,
+      "lang": "ja",
+      "name": "ナシゴレン (インドネシア風炒飯)",
+      "description": "Description for Nasi Goreng in ja"
+    },
+    {
+      "id": 73,
+      "menu_item_id": 15,
+      "lang": "zh",
+      "name": "印尼炒饭",
+      "description": "Description for Nasi Goreng in zh"
+    },
+    {
+      "id": 74,
+      "menu_item_id": 15,
+      "lang": "ko",
+      "name": "나시고랭 (인도네시아식 볶음밥)",
+      "description": "Description for Nasi Goreng in ko"
+    },
+    {
+      "id": 75,
+      "menu_item_id": 15,
+      "lang": "es",
+      "name": "Arroz Frito (Nasi Goreng)",
+      "description": "Description for Nasi Goreng in es"
+    },
+    {
+      "id": 76,
+      "menu_item_id": 16,
+      "lang": "id",
+      "name": "Mie Goreng",
+      "description": "Deskripsi untuk Mie Goreng"
+    },
+    {
+      "id": 77,
+      "menu_item_id": 16,
+      "lang": "ja",
+      "name": "ミーゴレン (インドネシア風焼きそば)",
+      "description": "Description for Mie Goreng in ja"
+    },
+    {
+      "id": 78,
+      "menu_item_id": 16,
+      "lang": "zh",
+      "name": "印尼炒面",
+      "description": "Description for Mie Goreng in zh"
+    },
+    {
+      "id": 79,
+      "menu_item_id": 16,
+      "lang": "ko",
+      "name": "미고랭 (인도네시아식 볶음국수)",
+      "description": "Description for Mie Goreng in ko"
+    },
+    {
+      "id": 80,
+      "menu_item_id": 16,
+      "lang": "es",
+      "name": "Fideos Fritos (Mie Goreng)",
+      "description": "Description for Mie Goreng in es"
+    },
+    {
+      "id": 81,
+      "menu_item_id": 17,
+      "lang": "id",
+      "name": "Bihun Goreng",
+      "description": "Deskripsi untuk Bihun Goreng"
+    },
+    {
+      "id": 82,
+      "menu_item_id": 17,
+      "lang": "ja",
+      "name": "ビーフンゴレン",
+      "description": "Description for Bihun Goreng in ja"
+    },
+    {
+      "id": 83,
+      "menu_item_id": 17,
+      "lang": "zh",
+      "name": "炒米粉",
+      "description": "Description for Bihun Goreng in zh"
+    },
+    {
+      "id": 84,
+      "menu_item_id": 17,
+      "lang": "ko",
+      "name": "비훈고랭 (볶음 쌀국수)",
+      "description": "Description for Bihun Goreng in ko"
+    },
+    {
+      "id": 85,
+      "menu_item_id": 17,
+      "lang": "es",
+      "name": "Bihun Frito",
+      "description": "Description for Bihun Goreng in es"
+    },
+    {
+      "id": 86,
+      "menu_item_id": 18,
+      "lang": "id",
+      "name": "Ayam Goreng Bali Bong",
+      "description": "Deskripsi untuk Ayam Goreng Bali Bong"
+    },
+    {
+      "id": 87,
+      "menu_item_id": 18,
+      "lang": "ja",
+      "name": "バリボンフライドチキン",
+      "description": "Description for Ayam Goreng Bali Bong in ja"
+    },
+    {
+      "id": 88,
+      "menu_item_id": 18,
+      "lang": "zh",
+      "name": "巴厘岛炸鸡",
+      "description": "Description for Ayam Goreng Bali Bong in zh"
+    },
+    {
+      "id": 89,
+      "menu_item_id": 18,
+      "lang": "ko",
+      "name": "발리 봉 프라이드 치킨",
+      "description": "Description for Ayam Goreng Bali Bong in ko"
+    },
+    {
+      "id": 90,
+      "menu_item_id": 18,
+      "lang": "es",
+      "name": "Pollo Frito Bali Bong",
+      "description": "Description for Ayam Goreng Bali Bong in es"
+    },
+    {
+      "id": 91,
+      "menu_item_id": 19,
+      "lang": "id",
+      "name": "Ayam Bakar",
+      "description": "Deskripsi untuk Ayam Bakar"
+    },
+    {
+      "id": 92,
+      "menu_item_id": 19,
+      "lang": "ja",
+      "name": "鶏肉の炭火焼き",
+      "description": "Description for Ayam Bakar in ja"
+    },
+    {
+      "id": 93,
+      "menu_item_id": 19,
+      "lang": "zh",
+      "name": "烤鸡",
+      "description": "Description for Ayam Bakar in zh"
+    },
+    {
+      "id": 94,
+      "menu_item_id": 19,
+      "lang": "ko",
+      "name": "아얌 바카르 (닭구이)",
+      "description": "Description for Ayam Bakar in ko"
+    },
+    {
+      "id": 95,
+      "menu_item_id": 19,
+      "lang": "es",
+      "name": "Pollo a la Parrilla",
+      "description": "Description for Ayam Bakar in es"
+    },
+    {
+      "id": 96,
+      "menu_item_id": 20,
+      "lang": "id",
+      "name": "Opor Ayam",
+      "description": "Deskripsi untuk Opor Ayam"
+    },
+    {
+      "id": 97,
+      "menu_item_id": 20,
+      "lang": "ja",
+      "name": "鶏肉のココナッツミルク煮",
+      "description": "Description for Opor Ayam in ja"
+    },
+    {
+      "id": 98,
+      "menu_item_id": 20,
+      "lang": "zh",
+      "name": "椰汁鸡",
+      "description": "Description for Opor Ayam in zh"
+    },
+    {
+      "id": 99,
+      "menu_item_id": 20,
+      "lang": "ko",
+      "name": "오포르 아얌 (코코넛 치킨 스프)",
+      "description": "Description for Opor Ayam in ko"
+    },
+    {
+      "id": 100,
+      "menu_item_id": 20,
+      "lang": "es",
+      "name": "Pollo en Leche de Coco (Opor Ayam)",
+      "description": "Description for Opor Ayam in es"
+    },
+    {
+      "id": 101,
+      "menu_item_id": 21,
+      "lang": "id",
+      "name": "Telor Balado",
+      "description": "Deskripsi untuk Telor Balado"
+    },
+    {
+      "id": 102,
+      "menu_item_id": 21,
+      "lang": "ja",
+      "name": "ゆで卵のチリソース和え",
+      "description": "Description for Telor Balado in ja"
+    },
+    {
+      "id": 103,
+      "menu_item_id": 21,
+      "lang": "zh",
+      "name": "辣酱鸡蛋",
+      "description": "Description for Telor Balado in zh"
+    },
+    {
+      "id": 104,
+      "menu_item_id": 21,
+      "lang": "ko",
+      "name": "계란 발라도 (매운 계란)",
+      "description": "Description for Telor Balado in ko"
+    },
+    {
+      "id": 105,
+      "menu_item_id": 21,
+      "lang": "es",
+      "name": "Huevo Balado (Huevo con Chile)",
+      "description": "Description for Telor Balado in es"
+    },
+    {
+      "id": 106,
+      "menu_item_id": 22,
+      "lang": "id",
+      "name": "Tempe Manis",
+      "description": "Deskripsi untuk Tempe Manis"
+    },
+    {
+      "id": 107,
+      "menu_item_id": 22,
+      "lang": "ja",
+      "name": "甘辛テンペ炒め",
+      "description": "Description for Tempe Manis in ja"
+    },
+    {
+      "id": 108,
+      "menu_item_id": 22,
+      "lang": "zh",
+      "name": "甜味印尼豆豉",
+      "description": "Description for Tempe Manis in zh"
+    },
+    {
+      "id": 109,
+      "menu_item_id": 22,
+      "lang": "ko",
+      "name": "달콤한 템페 볶음",
+      "description": "Description for Tempe Manis in ko"
+    },
+    {
+      "id": 110,
+      "menu_item_id": 22,
+      "lang": "es",
+      "name": "Tempeh Dulce",
+      "description": "Description for Tempe Manis in es"
+    },
+    {
+      "id": 111,
+      "menu_item_id": 23,
+      "lang": "id",
+      "name": "Tempe Laksa",
+      "description": "Deskripsi untuk Tempe Laksa"
+    },
+    {
+      "id": 112,
+      "menu_item_id": 23,
+      "lang": "ja",
+      "name": "テンペラクサ",
+      "description": "Description for Tempe Laksa in ja"
+    },
+    {
+      "id": 113,
+      "menu_item_id": 23,
+      "lang": "zh",
+      "name": "印尼豆豉叻沙",
+      "description": "Description for Tempe Laksa in zh"
+    },
+    {
+      "id": 114,
+      "menu_item_id": 23,
+      "lang": "ko",
+      "name": "템페 락사",
+      "description": "Description for Tempe Laksa in ko"
+    },
+    {
+      "id": 115,
+      "menu_item_id": 23,
+      "lang": "es",
+      "name": "Tempeh Laksa",
+      "description": "Description for Tempe Laksa in es"
+    },
+    {
+      "id": 116,
+      "menu_item_id": 24,
+      "lang": "id",
+      "name": "Udang Cah Terong",
+      "description": "Deskripsi untuk Udang Cah Terong"
+    },
+    {
+      "id": 117,
+      "menu_item_id": 24,
+      "lang": "ja",
+      "name": "エビとナスの炒め物",
+      "description": "Description for Udang Cah Terong in ja"
+    },
+    {
+      "id": 118,
+      "menu_item_id": 24,
+      "lang": "zh",
+      "name": "茄子炒虾",
+      "description": "Description for Udang Cah Terong in zh"
+    },
+    {
+      "id": 119,
+      "menu_item_id": 24,
+      "lang": "ko",
+      "name": "새우 가지 볶음",
+      "description": "Description for Udang Cah Terong in ko"
+    },
+    {
+      "id": 120,
+      "menu_item_id": 24,
+      "lang": "es",
+      "name": "Camarones Salteados con Berenjena",
+      "description": "Description for Udang Cah Terong in es"
+    },
+    {
+      "id": 121,
+      "menu_item_id": 25,
+      "lang": "id",
+      "name": "Tempe Goreng",
+      "description": "Deskripsi untuk Tempe Goreng"
+    },
+    {
+      "id": 122,
+      "menu_item_id": 25,
+      "lang": "ja",
+      "name": "テンペの唐揚げ",
+      "description": "Description for Tempe Goreng in ja"
+    },
+    {
+      "id": 123,
+      "menu_item_id": 25,
+      "lang": "zh",
+      "name": "炸印尼豆豉",
+      "description": "Description for Tempe Goreng in zh"
+    },
+    {
+      "id": 124,
+      "menu_item_id": 25,
+      "lang": "ko",
+      "name": "템페 튀김",
+      "description": "Description for Tempe Goreng in ko"
+    },
+    {
+      "id": 125,
+      "menu_item_id": 25,
+      "lang": "es",
+      "name": "Tempeh Frito",
+      "description": "Description for Tempe Goreng in es"
+    },
+    {
+      "id": 126,
+      "menu_item_id": 26,
+      "lang": "id",
+      "name": "Perkedel Kentang",
+      "description": "Deskripsi untuk Perkedel Kentang"
+    },
+    {
+      "id": 127,
+      "menu_item_id": 26,
+      "lang": "ja",
+      "name": "インドネシア風ポテトコロッケ",
+      "description": "Description for Perkedel Kentang in ja"
+    },
+    {
+      "id": 128,
+      "menu_item_id": 26,
+      "lang": "zh",
+      "name": "马铃薯饼",
+      "description": "Description for Perkedel Kentang in zh"
+    },
+    {
+      "id": 129,
+      "menu_item_id": 26,
+      "lang": "ko",
+      "name": "인도네시아식 감자전",
+      "description": "Description for Perkedel Kentang in ko"
+    },
+    {
+      "id": 130,
+      "menu_item_id": 26,
+      "lang": "es",
+      "name": "Croqueta de Patata",
+      "description": "Description for Perkedel Kentang in es"
+    },
+    {
+      "id": 131,
+      "menu_item_id": 27,
+      "lang": "id",
+      "name": "Lumpia Goreng",
+      "description": "Deskripsi untuk Lumpia Goreng"
+    },
+    {
+      "id": 132,
+      "menu_item_id": 27,
+      "lang": "ja",
+      "name": "揚げ春巻き",
+      "description": "Description for Lumpia Goreng in ja"
+    },
+    {
+      "id": 133,
+      "menu_item_id": 27,
+      "lang": "zh",
+      "name": "炸春卷",
+      "description": "Description for Lumpia Goreng in zh"
+    },
+    {
+      "id": 134,
+      "menu_item_id": 27,
+      "lang": "ko",
+      "name": "튀긴 춘권",
+      "description": "Description for Lumpia Goreng in ko"
+    },
+    {
+      "id": 135,
+      "menu_item_id": 27,
+      "lang": "es",
+      "name": "Rollito de Primavera Frito",
+      "description": "Description for Lumpia Goreng in es"
+    },
+    {
+      "id": 136,
+      "menu_item_id": 28,
+      "lang": "id",
+      "name": "Perkedel Jagung",
+      "description": "Deskripsi untuk Perkedel Jagung"
+    },
+    {
+      "id": 137,
+      "menu_item_id": 28,
+      "lang": "ja",
+      "name": "コーンかき揚げ",
+      "description": "Description for Perkedel Jagung in ja"
+    },
+    {
+      "id": 138,
+      "menu_item_id": 28,
+      "lang": "zh",
+      "name": "玉米饼",
+      "description": "Description for Perkedel Jagung in zh"
+    },
+    {
+      "id": 139,
+      "menu_item_id": 28,
+      "lang": "ko",
+      "name": "옥수수전",
+      "description": "Description for Perkedel Jagung in ko"
+    },
+    {
+      "id": 140,
+      "menu_item_id": 28,
+      "lang": "es",
+      "name": "Buñuelo de Maíz",
+      "description": "Description for Perkedel Jagung in es"
+    },
+    {
+      "id": 141,
+      "menu_item_id": 29,
+      "lang": "id",
+      "name": "Telor Dadar",
+      "description": "Deskripsi untuk Telor Dadar"
+    },
+    {
+      "id": 142,
+      "menu_item_id": 29,
+      "lang": "ja",
+      "name": "インドネシア風オムレツ",
+      "description": "Description for Telor Dadar in ja"
+    },
+    {
+      "id": 143,
+      "menu_item_id": 29,
+      "lang": "zh",
+      "name": "煎蛋卷",
+      "description": "Description for Telor Dadar in zh"
+    },
+    {
+      "id": 144,
+      "menu_item_id": 29,
+      "lang": "ko",
+      "name": "인도네시아식 계란말이",
+      "description": "Description for Telor Dadar in ko"
+    },
+    {
+      "id": 145,
+      "menu_item_id": 29,
+      "lang": "es",
+      "name": "Tortilla de Huevo",
+      "description": "Description for Telor Dadar in es"
+    },
+    {
+      "id": 146,
+      "menu_item_id": 30,
+      "lang": "id",
+      "name": "Sate Ayam (4 tusuk)",
+      "description": "Deskripsi untuk Sate Ayam (4 tusuk)"
+    },
+    {
+      "id": 147,
+      "menu_item_id": 30,
+      "lang": "ja",
+      "name": "焼き鳥 (4本)",
+      "description": "Description for Sate Ayam (4 tusuk) in ja"
+    },
+    {
+      "id": 148,
+      "menu_item_id": 30,
+      "lang": "zh",
+      "name": "鸡肉沙爹 (4串)",
+      "description": "Description for Sate Ayam (4 tusuk) in zh"
+    },
+    {
+      "id": 149,
+      "menu_item_id": 30,
+      "lang": "ko",
+      "name": "닭꼬치 (사떼 아얌 4꼬치)",
+      "description": "Description for Sate Ayam (4 tusuk) in ko"
+    },
+    {
+      "id": 150,
+      "menu_item_id": 30,
+      "lang": "es",
+      "name": "Sate de Pollo (4 brochetas)",
+      "description": "Description for Sate Ayam (4 tusuk) in es"
+    },
+    {
+      "id": 151,
+      "menu_item_id": 31,
+      "lang": "id",
+      "name": "Sate Ayam (2 tusuk)",
+      "description": "Deskripsi untuk Sate Ayam (2 tusuk)"
+    },
+    {
+      "id": 152,
+      "menu_item_id": 31,
+      "lang": "ja",
+      "name": "焼き鳥 (2本)",
+      "description": "Description for Sate Ayam (2 tusuk) in ja"
+    },
+    {
+      "id": 153,
+      "menu_item_id": 31,
+      "lang": "zh",
+      "name": "鸡肉沙爹 (2串)",
+      "description": "Description for Sate Ayam (2 tusuk) in zh"
+    },
+    {
+      "id": 154,
+      "menu_item_id": 31,
+      "lang": "ko",
+      "name": "닭꼬치 (사떼 아얌 2꼬치)",
+      "description": "Description for Sate Ayam (2 tusuk) in ko"
+    },
+    {
+      "id": 155,
+      "menu_item_id": 31,
+      "lang": "es",
+      "name": "Sate de Pollo (2 brochetas)",
+      "description": "Description for Sate Ayam (2 tusuk) in es"
+    },
+    {
+      "id": 156,
+      "menu_item_id": 32,
+      "lang": "id",
+      "name": "Sate Kambing (4 tusuk)",
+      "description": "Deskripsi untuk Sate Kambing (4 tusuk)"
+    },
+    {
+      "id": 157,
+      "menu_item_id": 32,
+      "lang": "ja",
+      "name": "ヤギ肉の串焼き (4本)",
+      "description": "Description for Sate Kambing (4 tusuk) in ja"
+    },
+    {
+      "id": 158,
+      "menu_item_id": 32,
+      "lang": "zh",
+      "name": "羊肉沙爹 (4串)",
+      "description": "Description for Sate Kambing (4 tusuk) in zh"
+    },
+    {
+      "id": 159,
+      "menu_item_id": 32,
+      "lang": "ko",
+      "name": "양꼬치 (사떼 깜빙 4꼬치)",
+      "description": "Description for Sate Kambing (4 tusuk) in ko"
+    },
+    {
+      "id": 160,
+      "menu_item_id": 32,
+      "lang": "es",
+      "name": "Sate de Cabra (4 brochetas)",
+      "description": "Description for Sate Kambing (4 tusuk) in es"
+    },
+    {
+      "id": 161,
+      "menu_item_id": 33,
+      "lang": "id",
+      "name": "Sate Kambing (2 tusuk)",
+      "description": "Deskripsi untuk Sate Kambing (2 tusuk)"
+    },
+    {
+      "id": 162,
+      "menu_item_id": 33,
+      "lang": "ja",
+      "name": "ヤギ肉 di串焼き (2本)",
+      "description": "Description for Sate Kambing (2 tusuk) in ja"
+    },
+    {
+      "id": 163,
+      "menu_item_id": 33,
+      "lang": "zh",
+      "name": "羊肉沙爹 (2串)",
+      "description": "Description for Sate Kambing (2 tusuk) in zh"
+    },
+    {
+      "id": 164,
+      "menu_item_id": 33,
+      "lang": "ko",
+      "name": "양꼬치 (사떼 깜빙 2꼬치)",
+      "description": "Description for Sate Kambing (2 tusuk) in ko"
+    },
+    {
+      "id": 165,
+      "menu_item_id": 33,
+      "lang": "es",
+      "name": "Sate de Cabra (2 brochetas)",
+      "description": "Description for Sate Kambing (2 tusuk) in es"
+    },
+    {
+      "id": 166,
+      "menu_item_id": 34,
+      "lang": "id",
+      "name": "Sate Lilit (4 tusuk)",
+      "description": "Deskripsi untuk Sate Lilit (4 tusuk)"
+    },
+    {
+      "id": 167,
+      "menu_item_id": 34,
+      "lang": "ja",
+      "name": "サテ・リリット (白身魚のつくね串焼き 4本)",
+      "description": "Description for Sate Lilit (4 tusuk) in ja"
+    },
+    {
+      "id": 168,
+      "menu_item_id": 34,
+      "lang": "zh",
+      "name": "巴厘岛鱼肉沙爹 (4串)",
+      "description": "Description for Sate Lilit (4 tusuk) in zh"
+    },
+    {
+      "id": 169,
+      "menu_item_id": 34,
+      "lang": "ko",
+      "name": "사떼 릴릿 (발리식 생선꼬치 4꼬치)",
+      "description": "Description for Sate Lilit (4 tusuk) in ko"
+    },
+    {
+      "id": 170,
+      "menu_item_id": 34,
+      "lang": "es",
+      "name": "Sate Lilit (4 brochetas)",
+      "description": "Description for Sate Lilit (4 tusuk) in es"
+    },
+    {
+      "id": 171,
+      "menu_item_id": 35,
+      "lang": "id",
+      "name": "Sate Lilit (2 tusuk)",
+      "description": "Deskripsi untuk Sate Lilit (2 tusuk)"
+    },
+    {
+      "id": 172,
+      "menu_item_id": 35,
+      "lang": "ja",
+      "name": "サテ・リリット (白身魚のつくね串焼き 2本)",
+      "description": "Description for Sate Lilit (2 tusuk) in ja"
+    },
+    {
+      "id": 173,
+      "menu_item_id": 35,
+      "lang": "zh",
+      "name": "巴厘岛鱼肉沙爹 (2串)",
+      "description": "Description for Sate Lilit (2 tusuk) in zh"
+    },
+    {
+      "id": 174,
+      "menu_item_id": 35,
+      "lang": "ko",
+      "name": "사떼 릴릿 (발리식 생선꼬치 2꼬치)",
+      "description": "Description for Sate Lilit (2 tusuk) in ko"
+    },
+    {
+      "id": 175,
+      "menu_item_id": 35,
+      "lang": "es",
+      "name": "Sate Lilit (2 brochetas)",
+      "description": "Description for Sate Lilit (2 tusuk) in es"
+    },
+    {
+      "id": 176,
+      "menu_item_id": 36,
+      "lang": "id",
+      "name": "Sate Campur (masing-masing jenis 2 tusuk, total 6 tusuk)",
+      "description": "Deskripsi untuk Sate Campur (masing-masing jenis 2 tusuk, total 6 tusuk)"
+    },
+    {
+      "id": 177,
+      "menu_item_id": 36,
+      "lang": "ja",
+      "name": "サテ盛り合わせ (各2本、計6本)",
+      "description": "Description for Sate Campur (masing-masing jenis 2 tusuk, total 6 tusuk) in ja"
+    },
+    {
+      "id": 178,
+      "menu_item_id": 36,
+      "lang": "zh",
+      "name": "混合沙爹 (各2串，共6串)",
+      "description": "Description for Sate Campur (masing-masing jenis 2 tusuk, total 6 tusuk) in zh"
+    },
+    {
+      "id": 179,
+      "menu_item_id": 36,
+      "lang": "ko",
+      "name": "모듬 사떼 (각 2꼬치, 총 6꼬치)",
+      "description": "Description for Sate Campur (masing-masing jenis 2 tusuk, total 6 tusuk) in ko"
+    },
+    {
+      "id": 180,
+      "menu_item_id": 36,
+      "lang": "es",
+      "name": "Sate Mixto (2 de cada, total 6 brochetas)",
+      "description": "Description for Sate Campur (masing-masing jenis 2 tusuk, total 6 tusuk) in es"
+    },
+    {
+      "id": 181,
+      "menu_item_id": 37,
+      "lang": "id",
+      "name": "Soto Ayam",
+      "description": "Deskripsi untuk Soto Ayam"
+    },
+    {
+      "id": 182,
+      "menu_item_id": 37,
+      "lang": "ja",
+      "name": "ソトアヤム (鶏肉のスパイススープ)",
+      "description": "Description for Soto Ayam in ja"
+    },
+    {
+      "id": 183,
+      "menu_item_id": 37,
+      "lang": "zh",
+      "name": "鸡肉汤面",
+      "description": "Description for Soto Ayam in zh"
+    },
+    {
+      "id": 184,
+      "menu_item_id": 37,
+      "lang": "ko",
+      "name": "소토 아얌 (닭고기 스프)",
+      "description": "Description for Soto Ayam in ko"
+    },
+    {
+      "id": 185,
+      "menu_item_id": 37,
+      "lang": "es",
+      "name": "Sopa de Pollo (Soto Ayam)",
+      "description": "Description for Soto Ayam in es"
+    },
+    {
+      "id": 186,
+      "menu_item_id": 38,
+      "lang": "id",
+      "name": "Ayam dan Sayur Rice Noodle",
+      "description": "Deskripsi untuk Ayam dan Sayur Rice Noodle"
+    },
+    {
+      "id": 187,
+      "menu_item_id": 38,
+      "lang": "ja",
+      "name": "鶏肉と野菜のライスヌードル",
+      "description": "Description for Ayam dan Sayur Rice Noodle in ja"
+    },
+    {
+      "id": 188,
+      "menu_item_id": 38,
+      "lang": "zh",
+      "name": "鸡肉蔬菜米粉",
+      "description": "Description for Ayam dan Sayur Rice Noodle in zh"
+    },
+    {
+      "id": 189,
+      "menu_item_id": 38,
+      "lang": "ko",
+      "name": "닭고기 야채 쌀국수",
+      "description": "Description for Ayam dan Sayur Rice Noodle in ko"
+    },
+    {
+      "id": 190,
+      "menu_item_id": 38,
+      "lang": "es",
+      "name": "Fideos de Arroz con Pollo y Verduras",
+      "description": "Description for Ayam dan Sayur Rice Noodle in es"
+    },
+    {
+      "id": 191,
+      "menu_item_id": 39,
+      "lang": "id",
+      "name": "Bakso",
+      "description": "Deskripsi untuk Bakso"
+    },
+    {
+      "id": 192,
+      "menu_item_id": 39,
+      "lang": "ja",
+      "name": "バクソ (肉団子スープ)",
+      "description": "Description for Bakso in ja"
+    },
+    {
+      "id": 193,
+      "menu_item_id": 39,
+      "lang": "zh",
+      "name": "肉丸汤",
+      "description": "Description for Bakso in zh"
+    },
+    {
+      "id": 194,
+      "menu_item_id": 39,
+      "lang": "ko",
+      "name": "박소 (인도네시아식 미트볼 국수)",
+      "description": "Description for Bakso in ko"
+    },
+    {
+      "id": 195,
+      "menu_item_id": 39,
+      "lang": "es",
+      "name": "Sopa de Albóndigas (Bakso)",
+      "description": "Description for Bakso in es"
+    },
+    {
+      "id": 196,
+      "menu_item_id": 40,
+      "lang": "id",
+      "name": "Mie Laksa",
+      "description": "Deskripsi untuk Mie Laksa"
+    },
+    {
+      "id": 197,
+      "menu_item_id": 40,
+      "lang": "ja",
+      "name": "ミーラクサ",
+      "description": "Description for Mie Laksa in ja"
+    },
+    {
+      "id": 198,
+      "menu_item_id": 40,
+      "lang": "zh",
+      "name": "叻沙面",
+      "description": "Description for Mie Laksa in zh"
+    },
+    {
+      "id": 199,
+      "menu_item_id": 40,
+      "lang": "ko",
+      "name": "미 락사",
+      "description": "Description for Mie Laksa in ko"
+    },
+    {
+      "id": 200,
+      "menu_item_id": 40,
+      "lang": "es",
+      "name": "Fideos Laksa",
+      "description": "Description for Mie Laksa in es"
+    },
+    {
+      "id": 201,
+      "menu_item_id": 41,
+      "lang": "id",
+      "name": "Gaprao",
+      "description": "Deskripsi untuk Gaprao"
+    },
+    {
+      "id": 202,
+      "menu_item_id": 41,
+      "lang": "ja",
+      "name": "ガパオライス",
+      "description": "Description for Gaprao in ja"
+    },
+    {
+      "id": 203,
+      "menu_item_id": 41,
+      "lang": "zh",
+      "name": "打抛猪肉饭",
+      "description": "Description for Gaprao in zh"
+    },
+    {
+      "id": 204,
+      "menu_item_id": 41,
+      "lang": "ko",
+      "name": "바질 돼지고기 덮밥 (팟카프라우)",
+      "description": "Description for Gaprao in ko"
+    },
+    {
+      "id": 205,
+      "menu_item_id": 41,
+      "lang": "es",
+      "name": "Arroz con Cerdo y Albahaca (Gaprao)",
+      "description": "Description for Gaprao in es"
+    },
+    {
+      "id": 206,
+      "menu_item_id": 42,
+      "lang": "id",
+      "name": "Bali Bong Chicken Soup Curry",
+      "description": "Deskripsi untuk Bali Bong Chicken Soup Curry"
+    },
+    {
+      "id": 207,
+      "menu_item_id": 42,
+      "lang": "ja",
+      "name": "バリボン・スープカレー (鶏肉)",
+      "description": "Description for Bali Bong Chicken Soup Curry in ja"
+    },
+    {
+      "id": 208,
+      "menu_item_id": 42,
+      "lang": "zh",
+      "name": "巴厘岛鸡肉汤咖喱",
+      "description": "Description for Bali Bong Chicken Soup Curry in zh"
+    },
+    {
+      "id": 209,
+      "menu_item_id": 42,
+      "lang": "ko",
+      "name": "발리 봉 치킨 스프 카레",
+      "description": "Description for Bali Bong Chicken Soup Curry in ko"
+    },
+    {
+      "id": 210,
+      "menu_item_id": 42,
+      "lang": "es",
+      "name": "Sopa de Curry con Pollo Bali Bong",
+      "description": "Description for Bali Bong Chicken Soup Curry in es"
+    },
+    {
+      "id": 211,
+      "menu_item_id": 43,
+      "lang": "id",
+      "name": "Udon Coconut Curry",
+      "description": "Deskripsi untuk Udon Coconut Curry"
+    },
+    {
+      "id": 212,
+      "menu_item_id": 43,
+      "lang": "ja",
+      "name": "ココナッツカレーうどん",
+      "description": "Description for Udon Coconut Curry in ja"
+    },
+    {
+      "id": 213,
+      "menu_item_id": 43,
+      "lang": "zh",
+      "name": "椰香咖喱乌冬面",
+      "description": "Description for Udon Coconut Curry in zh"
+    },
+    {
+      "id": 214,
+      "menu_item_id": 43,
+      "lang": "ko",
+      "name": "코코넛 카레 우동",
+      "description": "Description for Udon Coconut Curry in ko"
+    },
+    {
+      "id": 215,
+      "menu_item_id": 43,
+      "lang": "es",
+      "name": "Fideos Udon con Curry de Coco",
+      "description": "Description for Udon Coconut Curry in es"
+    },
+    {
+      "id": 216,
+      "menu_item_id": 44,
+      "lang": "id",
+      "name": "Pho Goreng (Spesial)",
+      "description": "Deskripsi untuk Pho Goreng (Spesial)"
+    },
+    {
+      "id": 217,
+      "menu_item_id": 44,
+      "lang": "ja",
+      "name": "焼きフォー (大/スペシャル)",
+      "description": "Description for Pho Goreng (Spesial) in ja"
+    },
+    {
+      "id": 218,
+      "menu_item_id": 44,
+      "lang": "zh",
+      "name": "炒河粉 (豪华/大份)",
+      "description": "Description for Pho Goreng (Spesial) in zh"
+    },
+    {
+      "id": 219,
+      "menu_item_id": 44,
+      "lang": "ko",
+      "name": "볶음 쌀국수 (스페셜)",
+      "description": "Description for Pho Goreng (Spesial) in ko"
+    },
+    {
+      "id": 220,
+      "menu_item_id": 44,
+      "lang": "es",
+      "name": "Fideos Pho Fritos (Especial)",
+      "description": "Description for Pho Goreng (Spesial) in es"
+    },
+    {
+      "id": 221,
+      "menu_item_id": 45,
+      "lang": "id",
+      "name": "Ayam dan Sayur Pho",
+      "description": "Deskripsi untuk Ayam dan Sayur Pho"
+    },
+    {
+      "id": 222,
+      "menu_item_id": 45,
+      "lang": "ja",
+      "name": "鶏肉と野菜のフォー",
+      "description": "Description for Ayam dan Sayur Pho in ja"
+    },
+    {
+      "id": 223,
+      "menu_item_id": 45,
+      "lang": "zh",
+      "name": "鸡肉蔬菜河粉",
+      "description": "Description for Ayam dan Sayur Pho in zh"
+    },
+    {
+      "id": 224,
+      "menu_item_id": 45,
+      "lang": "ko",
+      "name": "닭고기 야채 쌀국수 (포)",
+      "description": "Description for Ayam dan Sayur Pho in ko"
+    },
+    {
+      "id": 225,
+      "menu_item_id": 45,
+      "lang": "es",
+      "name": "Pho de Pollo y Verduras",
+      "description": "Description for Ayam dan Sayur Pho in es"
+    },
+    {
+      "id": 226,
+      "menu_item_id": 46,
+      "lang": "id",
+      "name": "Coconut Curry Pho",
+      "description": "Deskripsi untuk Coconut Curry Pho"
+    },
+    {
+      "id": 227,
+      "menu_item_id": 46,
+      "lang": "ja",
+      "name": "ココナッツカレーフォー",
+      "description": "Description for Coconut Curry Pho in ja"
+    },
+    {
+      "id": 228,
+      "menu_item_id": 46,
+      "lang": "zh",
+      "name": "椰香咖喱河粉",
+      "description": "Description for Coconut Curry Pho in zh"
+    },
+    {
+      "id": 229,
+      "menu_item_id": 46,
+      "lang": "ko",
+      "name": "코코넛 카레 포",
+      "description": "Description for Coconut Curry Pho in ko"
+    },
+    {
+      "id": 230,
+      "menu_item_id": 46,
+      "lang": "es",
+      "name": "Pho de Curry de Coco",
+      "description": "Description for Coconut Curry Pho in es"
+    },
+    {
+      "id": 231,
+      "menu_item_id": 47,
+      "lang": "id",
+      "name": "Tom Yum Pho",
+      "description": "Deskripsi untuk Tom Yum Pho"
+    },
+    {
+      "id": 232,
+      "menu_item_id": 47,
+      "lang": "ja",
+      "name": "トムヤムフォー",
+      "description": "Description for Tom Yum Pho in ja"
+    },
+    {
+      "id": 233,
+      "menu_item_id": 47,
+      "lang": "zh",
+      "name": "冬阴功河粉",
+      "description": "Description for Tom Yum Pho in zh"
+    },
+    {
+      "id": 234,
+      "menu_item_id": 47,
+      "lang": "ko",
+      "name": "똠얌 쌀국수 (포)",
+      "description": "Description for Tom Yum Pho in ko"
+    },
+    {
+      "id": 235,
+      "menu_item_id": 47,
+      "lang": "es",
+      "name": "Pho Tom Yum",
+      "description": "Description for Tom Yum Pho in es"
+    },
+    {
+      "id": 236,
+      "menu_item_id": 48,
+      "lang": "id",
+      "name": "Gado-Gado",
+      "description": "Deskripsi untuk Gado-Gado"
+    },
+    {
+      "id": 237,
+      "menu_item_id": 48,
+      "lang": "ja",
+      "name": "ガドガド (温野菜のピーナッツソース和え)",
+      "description": "Description for Gado-Gado in ja"
+    },
+    {
+      "id": 238,
+      "menu_item_id": 48,
+      "lang": "zh",
+      "name": "印尼加多加多沙拉",
+      "description": "Description for Gado-Gado in zh"
+    },
+    {
+      "id": 239,
+      "menu_item_id": 48,
+      "lang": "ko",
+      "name": "가도가도 (인도네시아식 샐러드)",
+      "description": "Description for Gado-Gado in ko"
+    },
+    {
+      "id": 240,
+      "menu_item_id": 48,
+      "lang": "es",
+      "name": "Gado-Gado (Ensalada con salsa de cacahuete)",
+      "description": "Description for Gado-Gado in es"
+    },
+    {
+      "id": 241,
+      "menu_item_id": 49,
+      "lang": "id",
+      "name": "Bali Bong Original Salad",
+      "description": "Deskripsi untuk Bali Bong Original Salad"
+    },
+    {
+      "id": 242,
+      "menu_item_id": 49,
+      "lang": "ja",
+      "name": "バリボン・オリジナルサラダ",
+      "description": "Description for Bali Bong Original Salad in ja"
+    },
+    {
+      "id": 243,
+      "menu_item_id": 49,
+      "lang": "zh",
+      "name": "巴厘岛原创沙拉",
+      "description": "Description for Bali Bong Original Salad in zh"
+    },
+    {
+      "id": 244,
+      "menu_item_id": 49,
+      "lang": "ko",
+      "name": "발리 봉 오리지널 샐러드",
+      "description": "Description for Bali Bong Original Salad in ko"
+    },
+    {
+      "id": 245,
+      "menu_item_id": 49,
+      "lang": "es",
+      "name": "Ensalada Original Bali Bong",
+      "description": "Description for Bali Bong Original Salad in es"
+    },
+    {
+      "id": 246,
+      "menu_item_id": 50,
+      "lang": "id",
+      "name": "Lumpia Sayur",
+      "description": "Deskripsi untuk Lumpia Sayur"
+    },
+    {
+      "id": 247,
+      "menu_item_id": 50,
+      "lang": "ja",
+      "name": "野菜春巻き",
+      "description": "Description for Lumpia Sayur in ja"
+    },
+    {
+      "id": 248,
+      "menu_item_id": 50,
+      "lang": "zh",
+      "name": "蔬菜春卷",
+      "description": "Description for Lumpia Sayur in zh"
+    },
+    {
+      "id": 249,
+      "menu_item_id": 50,
+      "lang": "ko",
+      "name": "야채 춘권",
+      "description": "Description for Lumpia Sayur in ko"
+    },
+    {
+      "id": 250,
+      "menu_item_id": 50,
+      "lang": "es",
+      "name": "Rollito de Primavera de Verduras",
+      "description": "Description for Lumpia Sayur in es"
+    },
+    {
+      "id": 251,
+      "menu_item_id": 51,
+      "lang": "id",
+      "name": "Tumis Kangkung",
+      "description": "Deskripsi untuk Tumis Kangkung"
+    },
+    {
+      "id": 252,
+      "menu_item_id": 51,
+      "lang": "ja",
+      "name": "空心菜の炒め物",
+      "description": "Description for Tumis Kangkung in ja"
+    },
+    {
+      "id": 253,
+      "menu_item_id": 51,
+      "lang": "zh",
+      "name": "炒空心菜",
+      "description": "Description for Tumis Kangkung in zh"
+    },
+    {
+      "id": 254,
+      "menu_item_id": 51,
+      "lang": "ko",
+      "name": "모닝글로리 볶음 (공심채 볶음)",
+      "description": "Description for Tumis Kangkung in ko"
+    },
+    {
+      "id": 255,
+      "menu_item_id": 51,
+      "lang": "es",
+      "name": "Salteado de Espinaca de Agua (Kangkung)",
+      "description": "Description for Tumis Kangkung in es"
+    },
+    {
+      "id": 256,
+      "menu_item_id": 52,
+      "lang": "id",
+      "name": "Capcay Sayur",
+      "description": "Deskripsi untuk Capcay Sayur"
+    },
+    {
+      "id": 257,
+      "menu_item_id": 52,
+      "lang": "ja",
+      "name": "野菜チャプチャイ (インドネシア風八宝菜)",
+      "description": "Description for Capcay Sayur in ja"
+    },
+    {
+      "id": 258,
+      "menu_item_id": 52,
+      "lang": "zh",
+      "name": "什锦蔬菜",
+      "description": "Description for Capcay Sayur in zh"
+    },
+    {
+      "id": 259,
+      "menu_item_id": 52,
+      "lang": "ko",
+      "name": "찹차이 (인도네시아식 야채 볶음)",
+      "description": "Description for Capcay Sayur in ko"
+    },
+    {
+      "id": 260,
+      "menu_item_id": 52,
+      "lang": "es",
+      "name": "Salteado de Verduras Mixtas (Capcay)",
+      "description": "Description for Capcay Sayur in es"
+    },
+    {
+      "id": 261,
+      "menu_item_id": 53,
+      "lang": "id",
+      "name": "Pare Goreng",
+      "description": "Deskripsi untuk Pare Goreng"
+    },
+    {
+      "id": 262,
+      "menu_item_id": 53,
+      "lang": "ja",
+      "name": "ゴーヤのチャンプルー風炒め",
+      "description": "Description for Pare Goreng in ja"
+    },
+    {
+      "id": 263,
+      "menu_item_id": 53,
+      "lang": "zh",
+      "name": "炒苦瓜",
+      "description": "Description for Pare Goreng in zh"
+    },
+    {
+      "id": 264,
+      "menu_item_id": 53,
+      "lang": "ko",
+      "name": "여주 볶음",
+      "description": "Description for Pare Goreng in ko"
+    },
+    {
+      "id": 265,
+      "menu_item_id": 53,
+      "lang": "es",
+      "name": "Calabaza Amarga Frita (Pare)",
+      "description": "Description for Pare Goreng in es"
+    },
+    {
+      "id": 266,
+      "menu_item_id": 54,
+      "lang": "id",
+      "name": "Pisang Goreng (dengan es krim)",
+      "description": "Deskripsi untuk Pisang Goreng (dengan es krim)"
+    },
+    {
+      "id": 267,
+      "menu_item_id": 54,
+      "lang": "ja",
+      "name": "揚げバナナ (アイスクリーム添え)",
+      "description": "Description for Pisang Goreng (dengan es krim) in ja"
+    },
+    {
+      "id": 268,
+      "menu_item_id": 54,
+      "lang": "zh",
+      "name": "炸香蕉 (配冰淇淋)",
+      "description": "Description for Pisang Goreng (dengan es krim) in zh"
+    },
+    {
+      "id": 269,
+      "menu_item_id": 54,
+      "lang": "ko",
+      "name": "바나나 튀김 (아이스크림 곁들임)",
+      "description": "Description for Pisang Goreng (dengan es krim) in ko"
+    },
+    {
+      "id": 270,
+      "menu_item_id": 54,
+      "lang": "es",
+      "name": "Plátano Frito (con helado)",
+      "description": "Description for Pisang Goreng (dengan es krim) in es"
+    },
+    {
+      "id": 271,
+      "menu_item_id": 55,
+      "lang": "id",
+      "name": "Coconut Tapioka",
+      "description": "Deskripsi untuk Coconut Tapioka"
+    },
+    {
+      "id": 272,
+      "menu_item_id": 55,
+      "lang": "ja",
+      "name": "ココナッツタピオカ",
+      "description": "Description for Coconut Tapioka in ja"
+    },
+    {
+      "id": 273,
+      "menu_item_id": 55,
+      "lang": "zh",
+      "name": "椰香西米露",
+      "description": "Description for Coconut Tapioka in zh"
+    },
+    {
+      "id": 274,
+      "menu_item_id": 55,
+      "lang": "ko",
+      "name": "코코넛 타피오카",
+      "description": "Description for Coconut Tapioka in ko"
+    },
+    {
+      "id": 275,
+      "menu_item_id": 55,
+      "lang": "es",
+      "name": "Tapioca de Coco",
+      "description": "Description for Coconut Tapioka in es"
+    },
+    {
+      "id": 276,
+      "menu_item_id": 56,
+      "lang": "id",
+      "name": "Ice Cream",
+      "description": "Deskripsi untuk Ice Cream"
+    },
+    {
+      "id": 277,
+      "menu_item_id": 56,
+      "lang": "ja",
+      "name": "アイスクリーム",
+      "description": "Description for Ice Cream in ja"
+    },
+    {
+      "id": 278,
+      "menu_item_id": 56,
+      "lang": "zh",
+      "name": "冰淇淋",
+      "description": "Description for Ice Cream in zh"
+    },
+    {
+      "id": 279,
+      "menu_item_id": 56,
+      "lang": "ko",
+      "name": "아이스크림",
+      "description": "Description for Ice Cream in ko"
+    },
+    {
+      "id": 280,
+      "menu_item_id": 56,
+      "lang": "es",
+      "name": "Helado",
+      "description": "Description for Ice Cream in es"
+    },
+    {
+      "id": 281,
+      "menu_item_id": 57,
+      "lang": "id",
+      "name": "Waffle Ice Cream",
+      "description": "Deskripsi untuk Waffle Ice Cream"
+    },
+    {
+      "id": 282,
+      "menu_item_id": 57,
+      "lang": "ja",
+      "name": "ワッフルアイスクリーム",
+      "description": "Description for Waffle Ice Cream in ja"
+    },
+    {
+      "id": 283,
+      "menu_item_id": 57,
+      "lang": "zh",
+      "name": "ワッフルアイスクリーム",
+      "description": "Description for Waffle Ice Cream in zh"
+    },
+    {
+      "id": 284,
+      "menu_item_id": 57,
+      "lang": "ko",
+      "name": "와플 아이스크림",
+      "description": "Description for Waffle Ice Cream in ko"
+    },
+    {
+      "id": 285,
+      "menu_item_id": 57,
+      "lang": "es",
+      "name": "Gofre con Helado",
+      "description": "Description for Waffle Ice Cream in es"
+    },
+    {
+      "id": 286,
+      "menu_item_id": 58,
+      "lang": "id",
+      "name": "Udang Goreng Pedas",
+      "description": "Deskripsi untuk Udang Goreng Pedas"
+    },
+    {
+      "id": 287,
+      "menu_item_id": 58,
+      "lang": "ja",
+      "name": "エビのスパイシー唐揚げ",
+      "description": "Description for Udang Goreng Pedas in ja"
+    },
+    {
+      "id": 288,
+      "menu_item_id": 58,
+      "lang": "zh",
+      "name": "辣炸虾",
+      "description": "Description for Udang Goreng Pedas in zh"
+    },
+    {
+      "id": 289,
+      "menu_item_id": 58,
+      "lang": "ko",
+      "name": "매콤 새우 튀김",
+      "description": "Description for Udang Goreng Pedas in ko"
+    },
+    {
+      "id": 290,
+      "menu_item_id": 58,
+      "lang": "es",
+      "name": "Camarones Fritos Picantes",
+      "description": "Description for Udang Goreng Pedas in es"
+    },
+    {
+      "id": 291,
+      "menu_item_id": 59,
+      "lang": "id",
+      "name": "Kentang Sambal Keju",
+      "description": "Deskripsi untuk Kentang Sambal Keju"
+    },
+    {
+      "id": 292,
+      "menu_item_id": 59,
+      "lang": "ja",
+      "name": "ポテトのサンバルチーズがけ",
+      "description": "Description for Kentang Sambal Keju in ja"
+    },
+    {
+      "id": 293,
+      "menu_item_id": 59,
+      "lang": "zh",
+      "name": "印尼辣酱起司薯条",
+      "description": "Description for Kentang Sambal Keju in zh"
+    },
+    {
+      "id": 294,
+      "menu_item_id": 59,
+      "lang": "ko",
+      "name": "감자튀김 삼발 치즈",
+      "description": "Description for Kentang Sambal Keju in ko"
+    },
+    {
+      "id": 295,
+      "menu_item_id": 59,
+      "lang": "es",
+      "name": "Patatas con Sambal y Queso",
+      "description": "Description for Kentang Sambal Keju in es"
+    },
+    {
+      "id": 296,
+      "menu_item_id": 60,
+      "lang": "id",
+      "name": "Mini Ayam Geprek",
+      "description": "Deskripsi untuk Mini Ayam Geprek"
+    },
+    {
+      "id": 297,
+      "menu_item_id": 60,
+      "lang": "ja",
+      "name": "ミニ・アヤムゲプレック",
+      "description": "Description for Mini Ayam Geprek in ja"
+    },
+    {
+      "id": 298,
+      "menu_item_id": 60,
+      "lang": "zh",
+      "name": "迷你印尼碎辣炸鸡",
+      "description": "Description for Mini Ayam Geprek in zh"
+    },
+    {
+      "id": 299,
+      "menu_item_id": 60,
+      "lang": "ko",
+      "name": "미니 아얌 게프렉",
+      "description": "Description for Mini Ayam Geprek in ko"
+    },
+    {
+      "id": 300,
+      "menu_item_id": 60,
+      "lang": "es",
+      "name": "Mini Pollo Smashed Picante",
+      "description": "Description for Mini Ayam Geprek in es"
+    },
+    {
+      "id": 301,
+      "menu_item_id": 61,
+      "lang": "id",
+      "name": "Kentang Balado",
+      "description": "Deskripsi untuk Kentang Balado"
+    },
+    {
+      "id": 302,
+      "menu_item_id": 61,
+      "lang": "ja",
+      "name": "フライドポテト・バラドソース和え",
+      "description": "Description for Kentang Balado in ja"
+    },
+    {
+      "id": 303,
+      "menu_item_id": 61,
+      "lang": "zh",
+      "name": "辣酱薯条",
+      "description": "Description for Kentang Balado in zh"
+    },
+    {
+      "id": 304,
+      "menu_item_id": 61,
+      "lang": "ko",
+      "name": "감자튀김 발라도",
+      "description": "Description for Kentang Balado in ko"
+    },
+    {
+      "id": 305,
+      "menu_item_id": 61,
+      "lang": "es",
+      "name": "Patatas Fritas en Salsa Balado",
+      "description": "Description for Kentang Balado in es"
+    },
+    {
+      "id": 306,
+      "menu_item_id": 62,
+      "lang": "id",
+      "name": "Ikan Asam Manis",
+      "description": "Deskripsi untuk Ikan Asam Manis"
+    },
+    {
+      "id": 307,
+      "menu_item_id": 62,
+      "lang": "ja",
+      "name": "魚の甘酢あんかけ",
+      "description": "Description for Ikan Asam Manis in ja"
+    },
+    {
+      "id": 308,
+      "menu_item_id": 62,
+      "lang": "zh",
+      "name": "糖醋鱼",
+      "description": "Description for Ikan Asam Manis in zh"
+    },
+    {
+      "id": 309,
+      "menu_item_id": 62,
+      "lang": "ko",
+      "name": "생선 탕수육",
+      "description": "Description for Ikan Asam Manis in ko"
+    },
+    {
+      "id": 310,
+      "menu_item_id": 62,
+      "lang": "es",
+      "name": "Pescado Agridulce",
+      "description": "Description for Ikan Asam Manis in es"
+    },
+    {
+      "id": 311,
+      "menu_item_id": 63,
+      "lang": "id",
+      "name": "Udang Laksa",
+      "description": "Deskripsi untuk Udang Laksa"
+    },
+    {
+      "id": 312,
+      "menu_item_id": 63,
+      "lang": "ja",
+      "name": "エビのラクサ",
+      "description": "Description for Udang Laksa in ja"
+    },
+    {
+      "id": 313,
+      "menu_item_id": 63,
+      "lang": "zh",
+      "name": "虾肉叻沙",
+      "description": "Description for Udang Laksa in zh"
+    },
+    {
+      "id": 314,
+      "menu_item_id": 63,
+      "lang": "ko",
+      "name": "새우 락사",
+      "description": "Description for Udang Laksa in ko"
+    },
+    {
+      "id": 315,
+      "menu_item_id": 63,
+      "lang": "es",
+      "name": "Camarones Laksa",
+      "description": "Description for Udang Laksa in es"
+    },
+    {
+      "id": 316,
+      "menu_item_id": 64,
+      "lang": "id",
+      "name": "Kerupuk Udang",
+      "description": "Deskripsi untuk Kerupuk Udang"
+    },
+    {
+      "id": 317,
+      "menu_item_id": 64,
+      "lang": "ja",
+      "name": "エビせんべい",
+      "description": "Description for Kerupuk Udang in ja"
+    },
+    {
+      "id": 318,
+      "menu_item_id": 64,
+      "lang": "zh",
+      "name": "虾片",
+      "description": "Description for Kerupuk Udang in zh"
+    },
+    {
+      "id": 319,
+      "menu_item_id": 64,
+      "lang": "ko",
+      "name": "새우칩",
+      "description": "Description for Kerupuk Udang in ko"
+    },
+    {
+      "id": 320,
+      "menu_item_id": 64,
+      "lang": "es",
+      "name": "Galletas de Camarón",
+      "description": "Description for Kerupuk Udang in es"
+    },
+    {
+      "id": 321,
+      "menu_item_id": 65,
+      "lang": "id",
+      "name": "Acar",
+      "description": "Deskripsi untuk Acar"
+    },
+    {
+      "id": 322,
+      "menu_item_id": 65,
+      "lang": "ja",
+      "name": "インドネシア風ピクルス",
+      "description": "Description for Acar in ja"
+    },
+    {
+      "id": 323,
+      "menu_item_id": 65,
+      "lang": "zh",
+      "name": "印尼泡菜",
+      "description": "Description for Acar in zh"
+    },
+    {
+      "id": 324,
+      "menu_item_id": 65,
+      "lang": "ko",
+      "name": "아차르 (피클)",
+      "description": "Description for Acar in ko"
+    },
+    {
+      "id": 325,
+      "menu_item_id": 65,
+      "lang": "es",
+      "name": "Encurtidos (Acar)",
+      "description": "Description for Acar in es"
+    },
+    {
+      "id": 326,
+      "menu_item_id": 66,
+      "lang": "id",
+      "name": "Emping Melinjo",
+      "description": "Emping melinjo"
+    },
+    {
+      "id": 327,
+      "menu_item_id": 66,
+      "lang": "ja",
+      "name": "グネモンの実のチップス",
+      "description": "Description for Emping Melinjo in ja"
+    },
+    {
+      "id": 328,
+      "menu_item_id": 66,
+      "lang": "zh",
+      "name": "珍果脆片",
+      "description": "Description for Emping Melinjo in zh"
+    },
+    {
+      "id": 329,
+      "menu_item_id": 66,
+      "lang": "ko",
+      "name": "엠핑 멜린조 (칩)",
+      "description": "Description for Emping Melinjo in ko"
+    },
+    {
+      "id": 330,
+      "menu_item_id": 66,
+      "lang": "es",
+      "name": "Chips de Emping",
+      "description": "Description for Emping Melinjo in es"
+    },
+    {
+      "id": 331,
+      "menu_item_id": 67,
+      "lang": "id",
+      "name": "Nasi Campur",
+      "description": "Deskripsi untuk Nasi Campur"
+    },
+    {
+      "id": 332,
+      "menu_item_id": 67,
+      "lang": "ja",
+      "name": "ナシチャンプル (おかず盛り合わせご飯)",
+      "description": "Description for Nasi Campur in ja"
+    },
+    {
+      "id": 333,
+      "menu_item_id": 67,
+      "lang": "zh",
+      "name": "印尼什锦饭",
+      "description": "Description for Nasi Campur in zh"
+    },
+    {
+      "id": 334,
+      "menu_item_id": 67,
+      "lang": "ko",
+      "name": "나시 짬푸르 (인도네시아식 백반)",
+      "description": "Description for Nasi Campur in ko"
+    },
+    {
+      "id": 335,
+      "menu_item_id": 67,
+      "lang": "es",
+      "name": "Arroz Mixto (Nasi Campur)",
+      "description": "Description for Nasi Campur in es"
+    },
+    {
+      "id": 336,
+      "menu_item_id": 68,
+      "lang": "id",
+      "name": "Bali Bong Omurice",
+      "description": "Deskripsi untuk Bali Bong Omurice"
+    },
+    {
+      "id": 337,
+      "menu_item_id": 68,
+      "lang": "ja",
+      "name": "バリボン・オムライス",
+      "description": "Description for Bali Bong Omurice in ja"
+    },
+    {
+      "id": 338,
+      "menu_item_id": 68,
+      "lang": "zh",
+      "name": "巴厘岛原创蛋包饭",
+      "description": "Description for Bali Bong Omurice in zh"
+    },
+    {
+      "id": 339,
+      "menu_item_id": 68,
+      "lang": "ko",
+      "name": "발리 봉 오므라이스",
+      "description": "Description for Bali Bong Omurice in ko"
+    },
+    {
+      "id": 340,
+      "menu_item_id": 68,
+      "lang": "es",
+      "name": "Omurice Bali Bong",
+      "description": "Description for Bali Bong Omurice in es"
+    },
+    {
+      "id": 341,
+      "menu_item_id": 69,
+      "lang": "id",
+      "name": "Rendang",
+      "description": "Deskripsi untuk Rendang"
+    },
+    {
+      "id": 342,
+      "menu_item_id": 69,
+      "lang": "ja",
+      "name": "ルンダン (牛肉のスパイス煮込み)",
+      "description": "Description for Rendang in ja"
+    },
+    {
+      "id": 343,
+      "menu_item_id": 69,
+      "lang": "zh",
+      "name": "巴东烩牛肉",
+      "description": "Description for Rendang in zh"
+    },
+    {
+      "id": 344,
+      "menu_item_id": 69,
+      "lang": "ko",
+      "name": "렌당 (소고기 향신料 조림)",
+      "description": "Description for Rendang in ko"
+    },
+    {
+      "id": 345,
+      "menu_item_id": 69,
+      "lang": "es",
+      "name": "Rendang de Ternera (Curry seco)",
+      "description": "Description for Rendang in es"
+    },
+    {
+      "id": 346,
+      "menu_item_id": 70,
+      "lang": "id",
+      "name": "Jus Jeruk",
+      "description": "Deskripsi untuk Jus Jeruk"
+    },
+    {
+      "id": 347,
+      "menu_item_id": 70,
+      "lang": "ja",
+      "name": "オレンジジュース",
+      "description": "Description for Jus Jeruk in ja"
+    },
+    {
+      "id": 348,
+      "menu_item_id": 70,
+      "lang": "zh",
+      "name": "橙汁",
+      "description": "Description for Jus Jeruk in zh"
+    },
+    {
+      "id": 349,
+      "menu_item_id": 70,
+      "lang": "ko",
+      "name": "오렌지 주스",
+      "description": "Description for Jus Jeruk in ko"
+    },
+    {
+      "id": 350,
+      "menu_item_id": 70,
+      "lang": "es",
+      "name": "Jugo de Naranja",
+      "description": "Description for Jus Jeruk in es"
+    },
+    {
+      "id": 351,
+      "menu_item_id": 71,
+      "lang": "id",
+      "name": "Teh Manis",
+      "description": "Deskripsi untuk Teh Manis"
+    },
+    {
+      "id": 352,
+      "menu_item_id": 71,
+      "lang": "ja",
+      "name": "甘い紅茶",
+      "description": "Description for Teh Manis in ja"
+    },
+    {
+      "id": 353,
+      "menu_item_id": 71,
+      "lang": "zh",
+      "name": "甜茶",
+      "description": "Description for Teh Manis in zh"
+    },
+    {
+      "id": 354,
+      "menu_item_id": 71,
+      "lang": "ko",
+      "name": "스위트 티",
+      "description": "Description for Teh Manis in ko"
+    },
+    {
+      "id": 355,
+      "menu_item_id": 71,
+      "lang": "es",
+      "name": "Té Dulce",
+      "description": "Description for Teh Manis in es"
+    },
+    {
+      "id": 356,
+      "menu_item_id": 72,
+      "lang": "id",
+      "name": "Bintang Beer",
+      "description": "Deskripsi untuk Bintang Beer"
+    },
+    {
+      "id": 357,
+      "menu_item_id": 72,
+      "lang": "ja",
+      "name": "ビンタンビール",
+      "description": "Description for Bintang Beer in ja"
+    },
+    {
+      "id": 358,
+      "menu_item_id": 72,
+      "lang": "zh",
+      "name": "星琥啤酒",
+      "description": "Description for Bintang Beer in zh"
+    },
+    {
+      "id": 359,
+      "menu_item_id": 72,
+      "lang": "ko",
+      "name": "빈탕 맥주",
+      "description": "Description for Bintang Beer in ko"
+    },
+    {
+      "id": 360,
+      "menu_item_id": 72,
+      "lang": "es",
+      "name": "Cerveza Bintang",
+      "description": "Description for Bintang Beer in es"
+    },
+    {
+      "id": 361,
+      "menu_item_id": 73,
+      "lang": "id",
+      "name": "Arak Bali Attack",
+      "description": "Deskripsi untuk Arak Bali Attack"
+    },
+    {
+      "id": 362,
+      "menu_item_id": 73,
+      "lang": "ja",
+      "name": "アラックバリアタック",
+      "description": "Description for Arak Bali Attack in ja"
+    },
+    {
+      "id": 363,
+      "menu_item_id": 73,
+      "lang": "zh",
+      "name": "巴厘岛米酒特调",
+      "description": "Description for Arak Bali Attack in zh"
+    },
+    {
+      "id": 364,
+      "menu_item_id": 73,
+      "lang": "ko",
+      "name": "아락 발리 어택",
+      "description": "Description for Arak Bali Attack in ko"
+    },
+    {
+      "id": 365,
+      "menu_item_id": 73,
+      "lang": "es",
+      "name": "Arak Bali Attack",
+      "description": "Description for Arak Bali Attack in es"
+    }
+  ],
+  "qr_codes": [],
+  "admin_users": [
+    {
+      "id": 1,
+      "email": "admin@balibong.com",
+      "password_hash": "$2a$10$MIt2pu94cbLKiE4ZhhSgo./be9L4tUf7z1VqluZ9CS.nK9UBiYjve",
+      "role": "admin"
+    }
+  ]
+}

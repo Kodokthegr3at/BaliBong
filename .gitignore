@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Build output
+frontend/dist/
+frontend/.angular/
+
+# Environment variables
+backend/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temp files
+update_about.js
+update_db_about.js
+
+# IDE
+.vscode/
+.idea/
+
+# Agent folders
+.agent/
+.agents/
