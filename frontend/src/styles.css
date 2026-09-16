@@ -1,17 +1,17 @@
 /* Design System for Bali Bong — warm base, three semantic accents */
 :root {
   --ink: #1c1a17;           /* near-black warm charcoal, primary text */
-  --paper: #f7ecdd;         /* warm cream, page background */
-  --paper-dim: #efdcc0;     /* subtle section separation, never a gradient */
-  --surface: #fffaf3;
-  --line: #ddc9a8;          /* hairline borders/dividers */
+  --paper: #f5b978;         /* warm orange, page background — matches the storefront sign */
+  --paper-dim: #eda355;     /* deeper orange for alternating sections, never a gradient */
+  --surface: #fff6ea;       /* warm near-white for cards/panels, keeps dense text readable */
+  --line: #d98a3e;          /* hairline borders/dividers */
   --accent: #a8551f;        /* burnt orange — primary accent: brand, recommended, CTAs */
   --accent-dim: #c9793f;
   --accent-green: #4c7a3d;  /* available/positive state */
   --accent-green-dim: #6d9c5c;
   --accent-red: #a8362a;    /* sold-out/negative state */
   --accent-red-dim: #c4574a;
-  --muted: #8a7a5a;
+  --muted: #7a4a1f;
 
   /* Back-compat aliases so existing component rules (still written against
      these names) inherit the new restrained palette without a full rewrite. */
@@ -149,7 +149,7 @@ a {
 
 .main-header.header-scrolled {
   padding: 12px 0;
-  background: rgba(247, 236, 221, 0.82);
+  background: rgba(245, 185, 120, 0.82);
   backdrop-filter: blur(14px) saturate(160%);
   -webkit-backdrop-filter: blur(14px) saturate(160%);
   border-bottom-color: transparent;
