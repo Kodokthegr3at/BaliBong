@@ -193,6 +193,19 @@ import { getApiBase } from './api-base';
       max-height: 620px;
       overflow: hidden;
     }
+    /* The source photo is portrait (taller than wide). A vh-based height
+       tracks the VIEWPORT's aspect ratio, not the photo's — on a wide
+       1080p+ monitor that meant a short, very wide crop window showing only
+       a thin sliver of the image (the sign cut in half, mostly empty wall
+       visible). aspect-ratio ties the crop to the photo's own proportions
+       instead, so it stays a consistent, sane composition at any width. */
+    @media (min-width: 1200px) {
+      .hero-photo {
+        height: auto;
+        aspect-ratio: 2.1 / 1;
+        max-height: 900px;
+      }
+    }
     .hero-photo img {
       width: 100%;
       height: 100%;
