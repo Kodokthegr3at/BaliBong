@@ -193,7 +193,7 @@ interface MenuItem {
             <div class="detail-price-status">
               <span class="detail-price">¥ {{ formatPrice(selectedItem()?.price) }}</span>
               <span class="status-badge" [class.badge-available]="selectedItem()?.is_available" [class.badge-unavailable]="!selectedItem()?.is_available">
-                {{ selectedItem()?.is_available ? 'Tersedia' : 'Habis' }}
+                {{ selectedItem()?.is_available ? langService.t('available') : langService.t('sold_out') }}
               </span>
             </div>
             
