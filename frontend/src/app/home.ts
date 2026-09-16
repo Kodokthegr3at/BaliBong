@@ -188,9 +188,9 @@ import { getApiBase } from './api-base';
     /* Hero: a contained photo band, then quiet text on plain paper below it —
        no overlay/gradient/vignette needed since text never sits on the image. */
     .hero-photo {
-      height: 46vh;
-      min-height: 320px;
-      max-height: 480px;
+      height: 58vh;
+      min-height: 420px;
+      max-height: 620px;
       overflow: hidden;
     }
     .hero-photo img {
@@ -208,7 +208,7 @@ import { getApiBase } from './api-base';
     }
     .hero-mark {
       display: block;
-      height: 60px;
+      height: 110px;
       width: auto;
       object-fit: contain;
       margin: 0 auto 28px auto;
@@ -406,14 +406,14 @@ import { getApiBase } from './api-base';
     }
     @media (max-width: 768px) {
       .hero-photo {
-        height: 34vh;
-        min-height: 220px;
+        height: 42vh;
+        min-height: 280px;
       }
       .hero-content {
         padding: 40px 24px 48px;
       }
       .hero-mark {
-        height: 46px;
+        height: 76px;
         margin: 0 auto 20px auto;
       }
       .hero-headline {
