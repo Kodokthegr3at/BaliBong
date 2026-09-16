@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 
-export type LanguageCode = 'id' | 'ja' | 'zh' | 'ko' | 'es';
+export type LanguageCode = 'id' | 'en' | 'ja' | 'zh' | 'ko' | 'es';
 
 export interface LanguageOption {
   code: LanguageCode;
@@ -13,6 +13,7 @@ export interface LanguageOption {
 export class LanguageService {
   readonly languages: LanguageOption[] = [
     { code: 'id', name: 'Indonesia' },
+    { code: 'en', name: 'English' },
     { code: 'ja', name: '日本語' },
     { code: 'zh', name: '简体中文' },
     { code: 'ko', name: '한국어' },
@@ -86,7 +87,64 @@ export class LanguageService {
       feature_solo: 'Makan Sendiri',
       map_button: 'Buka di Google Maps',
       review_quote: '"Ini adalah restoran favorit saya. Saya berkunjung bersama suami saat makan siang hari Sabtu... Pilihan yang sangat tepat!"',
-      menu_seo_desc: 'Menu digital Bali Bong dalam 5 bahasa — masakan otentik Bali & Indonesia di Osaka. Pindai QR di meja Anda untuk melihat menu lengkap.',
+      menu_seo_desc: 'Menu digital Bali Bong dalam 6 bahasa — masakan otentik Bali & Indonesia di Osaka. Pindai QR di meja Anda untuk melihat menu lengkap.',
+      menu_seo_title: 'Menu — BALI BONG'
+    },
+    en: {
+      about_title: 'About Us',
+      transport_title: 'Access & Transportation',
+      contact_title: 'Contact & Information',
+      hours_title: 'Opening Hours',
+      view_menu: 'View Menu',
+      back_home: 'Back to Home',
+      menu_title: 'Menu',
+      search_placeholder: 'Search for delicious dishes...',
+      price_label: 'Price',
+      recommended_label: 'Featured Menu',
+      all_categories: 'All Categories',
+      sold_out: 'Sold Out',
+      available: 'Available',
+      admin_login: 'Admin Login',
+      admin_logout: 'Log Out',
+      admin_panel: 'Admin Panel',
+      table_label: 'Table Number',
+      generate_qr: 'Generate QR Code',
+      download: 'Download',
+      save: 'Save',
+      edit: 'Edit',
+      delete: 'Delete',
+      add_item: 'Add Menu Item',
+      restaurant_info_tab: 'Restaurant Info',
+      menu_items_tab: 'Menu Management',
+      qr_codes_tab: 'Manage QR Codes',
+      login_btn: 'Log In',
+      email_placeholder: 'Email Address',
+      password_placeholder: 'Password',
+      loading: 'Loading...',
+      all_rights: 'All Rights Reserved.',
+      info_error: 'Information is currently unavailable.',
+      menu_error: 'The menu could not be loaded right now. Please try again.',
+      retry_button: 'Retry',
+      footer_tagline: 'Bringing the traditional taste of the island of Bali and the delicious flavors of the Indonesian archipelago to your table.',
+      footer_nav_title: 'Navigation',
+      concept_story: 'Our Story & Concept',
+      transport_how: 'How to Get to Bali Bong',
+      our_location: 'Our Location',
+      home_tab: 'Home',
+      menu_tab: 'Menu',
+      admin_tab: 'Admin',
+      hero_subtitle: 'Authentic Bali & Indonesian Cuisine',
+      hero_desc: 'Yang Penting Happy — warm hospitality and authentic Indonesian spices in every bite of our signature Balinese dishes.',
+      spices_title: '100% Comfort and Warmth',
+      spices_desc: 'We are dedicated to creating the most comfortable and welcoming atmosphere for every guest, because your happiness is our top priority.',
+      reviews_title: 'Customer Reviews',
+      review_source: 'Tabelog (90 Reviews)',
+      feature_curry: 'Indonesian Curry',
+      feature_family: 'Family Friendly',
+      feature_solo: 'Great for Solo Dining',
+      map_button: 'Open in Google Maps',
+      review_quote: '"This is my favorite restaurant. I visited with my husband for Saturday lunch... There is no wrong choice here!"',
+      menu_seo_desc: "Bali Bong's digital menu in 6 languages — authentic Bali & Indonesian cuisine in Osaka. Scan the QR code at your table to see the full menu.",
       menu_seo_title: 'Menu — BALI BONG'
     },
     ja: {
@@ -143,7 +201,7 @@ export class LanguageService {
       feature_solo: 'お一人様歓迎',
       map_button: 'Google マップで開く',
       review_quote: '"一番好きなレストランです。土曜日のランチに夫と訪問しました... どれを選んでも間違いありません！"',
-      menu_seo_desc: 'バリボンのデジタルメニュー、5言語対応 — 大阪で味わう本格バリ・インドネシア料理。テーブルのQRコードをスキャンして全メニューをご覧ください。',
+      menu_seo_desc: 'バリボンのデジタルメニュー、6言語対応 — 大阪で味わう本格バリ・インドネシア料理。テーブルのQRコードをスキャンして全メニューをご覧ください。',
       menu_seo_title: 'メニュー — BALI BONG'
     },
     zh: {
@@ -200,7 +258,7 @@ export class LanguageService {
       feature_solo: '适合独自用餐',
       map_button: '在谷歌地图中打开',
       review_quote: '"这是我最喜欢的餐厅。周六午餐时间和丈夫一起去的... 在这里怎么点都不会错！"',
-      menu_seo_desc: 'Bali Bong 数字菜单，支持5种语言 — 大阪正宗巴厘岛与印尼美食。扫描桌上的二维码查看完整菜单。',
+      menu_seo_desc: 'Bali Bong 数字菜单，支持6种语言 — 大阪正宗巴厘岛与印尼美食。扫描桌上的二维码查看完整菜单。',
       menu_seo_title: '菜单 — BALI BONG'
     },
     ko: {
@@ -257,7 +315,7 @@ export class LanguageService {
       feature_solo: '혼밥 환영',
       map_button: '구글 지도에서 열기',
       review_quote: '"제가 가장 좋아하는 레스토랑입니다. 토요일 점심에 남편과 함께 방문했습니다... 어떤 메뉴를 선택해도 후회 없습니다!"',
-      menu_seo_desc: '발리 봉 디지털 메뉴, 5개 언어 지원 — 오사카에서 맛보는 정통 발리 & 인도네시아 요리. 테이블의 QR코드를 스캔해 전체 메뉴를 확인하세요.',
+      menu_seo_desc: '발리 봉 디지털 메뉴, 6개 언어 지원 — 오사카에서 맛보는 정통 발리 & 인도네시아 요리. 테이블의 QR코드를 스캔해 전체 메뉴를 확인하세요.',
       menu_seo_title: '메뉴 — BALI BONG'
     },
     es: {
@@ -314,7 +372,7 @@ export class LanguageService {
       feature_solo: 'Ideal para Comer Solo',
       map_button: 'Abrir en Google Maps',
       review_quote: '"Este es mi restaurante favorito. Fui con mi esposo un sábado al mediodía... ¡Aquí no hay elección equivocada!"',
-      menu_seo_desc: 'Menú digital de Bali Bong en 5 idiomas — auténtica cocina de Bali e Indonesia en Osaka. Escanea el código QR de tu mesa para ver el menú completo.',
+      menu_seo_desc: 'Menú digital de Bali Bong en 6 idiomas — auténtica cocina de Bali e Indonesia en Osaka. Escanea el código QR de tu mesa para ver el menú completo.',
       menu_seo_title: 'Menú — BALI BONG'
     }
   };
@@ -322,13 +380,13 @@ export class LanguageService {
   private getInitialLanguage(): LanguageCode {
     if (typeof window !== 'undefined' && window.localStorage) {
       const stored = localStorage.getItem('balibong_lang') as LanguageCode;
-      if (stored && ['id', 'ja', 'zh', 'ko', 'es'].includes(stored)) {
+      if (stored && ['id', 'en', 'ja', 'zh', 'ko', 'es'].includes(stored)) {
         return stored;
       }
 
       // Check browser default
       const browserLang = navigator.language.split('-')[0] as LanguageCode;
-      if (browserLang && ['id', 'ja', 'zh', 'ko', 'es'].includes(browserLang)) {
+      if (browserLang && ['id', 'en', 'ja', 'zh', 'ko', 'es'].includes(browserLang)) {
         return browserLang;
       }
     }

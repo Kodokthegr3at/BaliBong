@@ -25,6 +25,8 @@ interface AdminMenuItem {
   is_available: boolean;
   name_id?: string;
   desc_id?: string;
+  name_en?: string;
+  desc_en?: string;
   name_ja?: string;
   desc_ja?: string;
   name_zh?: string;
@@ -460,6 +462,13 @@ interface AdminMenuItem {
                       <textarea name="desc_id" [(ngModel)]="modalItem.desc_id" rows="3"></textarea>
                     </div>
                     
+                    <div *ngIf="modalActiveLang() === 'en'" class="form-group">
+                      <label>Nama Menu (Inggris)</label>
+                      <input type="text" name="name_en" [(ngModel)]="modalItem.name_en" />
+                      <label class="mt-2">Deskripsi (Inggris)</label>
+                      <textarea name="desc_en" [(ngModel)]="modalItem.desc_en" rows="3"></textarea>
+                    </div>
+
                     <div *ngIf="modalActiveLang() === 'ja'" class="form-group">
                       <label>Nama Menu (Jepang)</label>
                       <input type="text" name="name_ja" [(ngModel)]="modalItem.name_ja" />
@@ -1176,6 +1185,7 @@ export class AdminComponent implements OnInit {
     if (query) {
       items = items.filter(i => {
         return (i.name_id && i.name_id.toLowerCase().includes(query)) ||
+               (i.name_en && i.name_en.toLowerCase().includes(query)) ||
                (i.name_ja && i.name_ja.toLowerCase().includes(query)) ||
                (i.name_es && i.name_es.toLowerCase().includes(query));
       });
@@ -1354,6 +1364,7 @@ export class AdminComponent implements OnInit {
       is_recommended: false,
       is_available: true,
       name_id: '', desc_id: '',
+      name_en: '', desc_en: '',
       name_ja: '', desc_ja: '',
       name_zh: '', desc_zh: '',
       name_ko: '', desc_ko: '',
@@ -1425,7 +1436,7 @@ export class AdminComponent implements OnInit {
 
     // Build payload and fallback default translations if empty
     const payload = { ...this.modalItem };
-    const langs: LanguageCode[] = ['ja', 'zh', 'ko', 'es'];
+    const langs: LanguageCode[] = ['en', 'ja', 'zh', 'ko', 'es'];
     langs.forEach(lang => {
       if (!payload[`name_${lang}` as keyof AdminMenuItem]) {
         (payload as any)[`name_${lang}`] = payload.name_id;

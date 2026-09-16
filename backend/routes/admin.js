@@ -175,7 +175,7 @@ router.get('/menu', authenticateToken, async (req, res) => {
 router.post('/menu', authenticateToken, async (req, res) => {
   const { category_id, price, image_url, is_recommended, is_available, allergy_info } = req.body;
   // Translations from body: name_id, desc_id, name_ja, desc_ja, etc.
-  const langs = ['id', 'ja', 'zh', 'ko', 'es'];
+  const langs = ['id', 'en', 'ja', 'zh', 'ko', 'es'];
 
   try {
     if (db.useFallback()) {
@@ -244,7 +244,7 @@ router.post('/menu', authenticateToken, async (req, res) => {
 router.put('/menu/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { category_id, price, image_url, is_recommended, is_available, allergy_info } = req.body;
-  const langs = ['id', 'ja', 'zh', 'ko', 'es'];
+  const langs = ['id', 'en', 'ja', 'zh', 'ko', 'es'];
 
   try {
     if (db.useFallback()) {
