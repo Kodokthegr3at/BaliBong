@@ -543,10 +543,6 @@ interface MenuItem {
         top: 60px; /* Offset for mobile header */
         z-index: 90;
       }
-      .category-tabs {
-        border-radius: 30px;
-        padding: 6px;
-      }
       .category-tab {
         padding: 10px 20px;
         font-size: 0.9rem;
