@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -12,7 +12,7 @@ import { getApiBase } from './api-base';
   imports: [CommonModule, RouterLink],
   template: `
     <!-- Header with Language Switcher -->
-    <header class="main-header">
+    <header class="main-header" [class.header-scrolled]="headerScrolled()">
       <div class="container header-container">
         <a routerLink="/" class="logo">
           <img src="/public/images/assets/logo.png" alt="BALI BONG Logo" class="header-logo-img">
@@ -435,7 +435,7 @@ import { getApiBase } from './api-base';
     }
   `]
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   langService = inject(LanguageService);
   private readonly http = inject(HttpClient);
   private readonly titleService = inject(Title);
@@ -474,9 +474,22 @@ export class HomeComponent implements OnInit {
 
   private observer: any = null;
 
+  readonly headerScrolled = signal(false);
+  private onWindowScroll = () => {
+    this.headerScrolled.set(window.scrollY > 24);
+  };
+
   ngOnInit() {
     if (typeof window !== 'undefined') {
       setTimeout(() => this.setupScrollObserver(), 50); // Wait for DOM render
+      window.addEventListener('scroll', this.onWindowScroll, { passive: true });
+      this.onWindowScroll();
+    }
+  }
+
+  ngOnDestroy() {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('scroll', this.onWindowScroll);
     }
   }
 

@@ -139,7 +139,17 @@ a {
   z-index: 100;
   background: var(--paper);
   border-bottom: 1px solid var(--line);
-  padding: 18px 0;
+  padding: 22px 0;
+  transition: padding 0.35s ease, background-color 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.main-header.header-scrolled {
+  padding: 12px 0;
+  background: rgba(247, 236, 221, 0.82);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-bottom-color: transparent;
+  box-shadow: 0 12px 30px rgba(28, 26, 23, 0.08);
 }
 
 .header-container {
@@ -159,9 +169,14 @@ a {
 }
 
 .header-logo-img {
-  height: 34px;
+  height: 52px;
   width: auto;
   object-fit: contain;
+  transition: height 0.35s ease;
+}
+
+.header-scrolled .header-logo-img {
+  height: 38px;
 }
 
 .nav-links {
@@ -401,7 +416,11 @@ footer {
   }
 
   .header-logo-img {
-    height: 28px;
+    height: 40px;
+  }
+
+  .header-scrolled .header-logo-img {
+    height: 32px;
   }
 
   /* Hide page links in top header on mobile */

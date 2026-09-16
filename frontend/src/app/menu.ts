@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -31,7 +31,7 @@ interface MenuItem {
   imports: [CommonModule, RouterLink],
   template: `
     <!-- Header -->
-    <header class="main-header">
+    <header class="main-header" [class.header-scrolled]="headerScrolled()">
       <div class="container header-container">
         <a routerLink="/" class="logo">
           <img src="/public/images/assets/logo.png" alt="BALI BONG Logo" class="header-logo-img">
@@ -738,7 +738,7 @@ interface MenuItem {
     }
   `]
 })
-export class MenuComponent implements OnInit {
+export class MenuComponent implements OnInit, OnDestroy {
   langService = inject(LanguageService);
   private readonly http = inject(HttpClient);
   private readonly titleService = inject(Title);
@@ -806,8 +806,23 @@ export class MenuComponent implements OnInit {
     });
   }
 
+  readonly headerScrolled = signal(false);
+  private onWindowScroll = () => {
+    this.headerScrolled.set(window.scrollY > 24);
+  };
+
   ngOnInit() {
     this.fetchDesignSettings();
+    if (typeof window !== 'undefined') {
+      window.addEventListener('scroll', this.onWindowScroll, { passive: true });
+      this.onWindowScroll();
+    }
+  }
+
+  ngOnDestroy() {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('scroll', this.onWindowScroll);
+    }
   }
 
   fetchDesignSettings() {
