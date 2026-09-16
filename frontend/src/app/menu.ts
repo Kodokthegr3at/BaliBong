@@ -80,9 +80,9 @@ interface MenuItem {
       <!-- Error state: never show fabricated menu data on a real failure -->
       <div class="menu-status-state menu-status-error" *ngIf="!menuLoading() && menuLoadError()">
         <i class="fa-solid fa-triangle-exclamation"></i>
-        <p>Menu tidak dapat dimuat saat ini. Silakan coba lagi.</p>
+        <p>{{ langService.t('menu_error') }}</p>
         <button class="btn btn-primary btn-sm" (click)="retryFetchMenu()">
-          <i class="fa-solid fa-rotate-right"></i> Coba Lagi
+          <i class="fa-solid fa-rotate-right"></i> {{ langService.t('retry_button') }}
         </button>
       </div>
 
@@ -213,10 +213,10 @@ interface MenuItem {
       <div class="container footer-grid">
         <div class="footer-info">
           <h3>BALI BONG</h3>
-          <p>Membawa cita rasa tradisional pulau Dewata Bali dan kelezatan hidangan Nusantara ke meja makan Anda.</p>
+          <p>{{ langService.t('footer_tagline') }}</p>
         </div>
         <div class="footer-links">
-          <h4>Navigasi</h4>
+          <h4>{{ langService.t('footer_nav_title') }}</h4>
           <ul>
             <li><a routerLink="/">{{ langService.t('about_title') }}</a></li>
             <li><a routerLink="/menu">{{ langService.t('menu_title') }}</a></li>
@@ -225,7 +225,7 @@ interface MenuItem {
         </div>
         <div class="footer-hours">
           <h4>{{ langService.t('hours_title') }}</h4>
-          <p>Setiap Hari: 11:00 - 23:00 (Pemesanan Terakhir 22:30)</p>
+          <p *ngIf="restaurantHours()">{{ restaurantHours() }}</p>
         </div>
       </div>
       <div class="footer-bottom">
@@ -754,6 +754,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   readonly selectedItem = signal<MenuItem | null>(null);
   readonly menuLoading = signal<boolean>(true);
   readonly menuLoadError = signal<boolean>(false);
+  readonly restaurantHours = signal<string>('');
 
   private observer: any = null;
 
@@ -765,6 +766,7 @@ export class MenuComponent implements OnInit, OnDestroy {
       const lang = this.langService.currentLang();
       if (this.isBrowser) {
         this.fetchMenu(lang);
+        this.fetchHours(lang);
       }
     });
 
@@ -927,5 +929,13 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   retryFetchMenu() {
     this.fetchMenu(this.langService.currentLang());
+  }
+
+  private fetchHours(lang: LanguageCode) {
+    const apiBase = getApiBase();
+    this.http.get<{ hours?: string }>(`${apiBase}/restaurant-info?lang=${lang}`).subscribe({
+      next: (data) => this.restaurantHours.set(data.hours || ''),
+      error: (err) => console.error('Error fetching restaurant hours', err)
+    });
   }
 }

@@ -148,9 +148,9 @@ import { getApiBase } from './api-base';
         <i class="fa-solid fa-spinner fa-spin"></i> {{ langService.t('loading') }}
       </div>
       <div class="loading-placeholder loading-error" *ngIf="infoLoadError()">
-        <i class="fa-solid fa-triangle-exclamation"></i> Informasi tidak tersedia saat ini.
+        <i class="fa-solid fa-triangle-exclamation"></i> {{ langService.t('info_error') }}
         <button class="btn btn-outline btn-sm" (click)="fetchInfo(langService.currentLang())">
-          <i class="fa-solid fa-rotate-right"></i> Coba Lagi
+          <i class="fa-solid fa-rotate-right"></i> {{ langService.t('retry_button') }}
         </button>
       </div>
     </ng-template>
@@ -160,10 +160,10 @@ import { getApiBase } from './api-base';
       <div class="container footer-grid">
         <div class="footer-info">
           <h3>BALI BONG</h3>
-          <p>Membawa cita rasa tradisional pulau Dewata Bali dan kelezatan hidangan Nusantara ke meja makan Anda.</p>
+          <p>{{ langService.t('footer_tagline') }}</p>
         </div>
         <div class="footer-links">
-          <h4>Navigasi</h4>
+          <h4>{{ langService.t('footer_nav_title') }}</h4>
           <ul>
             <li><a routerLink="/">{{ langService.t('about_title') }}</a></li>
             <li><a routerLink="/menu">{{ langService.t('menu_title') }}</a></li>
