@@ -201,61 +201,68 @@ interface AdminMenuItem {
                 >
                   <i class="fa-solid fa-border-all"></i> Semua
                 </button>
-                <button 
-                  class="admin-cat-tab" 
-                  [class.active]="adminFilterCategory() === 1" 
+                <button
+                  class="admin-cat-tab"
+                  [class.active]="adminFilterCategory() === 1"
                   (click)="adminFilterCategory.set(1)"
                 >
-                  <i class="fa-solid fa-bowl-food"></i> Makanan Berat
+                  <i class="fa-solid fa-drumstick-bite"></i> Ayam
                 </button>
-                <button 
-                  class="admin-cat-tab" 
-                  [class.active]="adminFilterCategory() === 2" 
+                <button
+                  class="admin-cat-tab"
+                  [class.active]="adminFilterCategory() === 2"
                   (click)="adminFilterCategory.set(2)"
                 >
-                  <i class="fa-solid fa-leaf"></i> Makanan Sayur
+                  <i class="fa-solid fa-leaf"></i> Sayuran & Tahu-Tempe
                 </button>
-                <button 
-                  class="admin-cat-tab" 
-                  [class.active]="adminFilterCategory() === 3" 
+                <button
+                  class="admin-cat-tab"
+                  [class.active]="adminFilterCategory() === 3"
                   (click)="adminFilterCategory.set(3)"
                 >
                   <i class="fa-solid fa-ice-cream"></i> Manisan
                 </button>
-                <button 
-                  class="admin-cat-tab" 
-                  [class.active]="adminFilterCategory() === 4" 
+                <button
+                  class="admin-cat-tab"
+                  [class.active]="adminFilterCategory() === 4"
                   (click)="adminFilterCategory.set(4)"
                 >
-                  <i class="fa-solid fa-utensils"></i> Ala Carte
+                  <i class="fa-solid fa-utensils"></i> Camilan
                 </button>
-                <button 
-                  class="admin-cat-tab" 
-                  [class.active]="adminFilterCategory() === 5" 
+                <button
+                  class="admin-cat-tab"
+                  [class.active]="adminFilterCategory() === 5"
                   (click)="adminFilterCategory.set(5)"
                 >
-                  <i class="fa-solid fa-star"></i> Rekomendasi
+                  <i class="fa-solid fa-bone"></i> Kambing & Sapi
                 </button>
-                <button 
-                  class="admin-cat-tab" 
-                  [class.active]="adminFilterCategory() === 6" 
+                <button
+                  class="admin-cat-tab"
+                  [class.active]="adminFilterCategory() === 6"
                   (click)="adminFilterCategory.set(6)"
                 >
                   <i class="fa-solid fa-mug-hot"></i> Minuman
                 </button>
-                <button 
-                  class="admin-cat-tab" 
-                  [class.active]="adminFilterCategory() === 7" 
+                <button
+                  class="admin-cat-tab"
+                  [class.active]="adminFilterCategory() === 7"
                   (click)="adminFilterCategory.set(7)"
                 >
-                  <i class="fa-solid fa-beer-mug-empty"></i> Bir
+                  <i class="fa-solid fa-shrimp"></i> Seafood
                 </button>
-                <button 
-                  class="admin-cat-tab" 
-                  [class.active]="adminFilterCategory() === 8" 
+                <button
+                  class="admin-cat-tab"
+                  [class.active]="adminFilterCategory() === 8"
                   (click)="adminFilterCategory.set(8)"
                 >
-                  <i class="fa-solid fa-martini-glass-citrus"></i> Koktail
+                  <i class="fa-solid fa-fire"></i> Sate
+                </button>
+                <button
+                  class="admin-cat-tab"
+                  [class.active]="adminFilterCategory() === 9"
+                  (click)="adminFilterCategory.set(9)"
+                >
+                  <i class="fa-solid fa-bowl-rice"></i> Nasi, Mie & Sup
                 </button>
               </div>
             </div>
@@ -394,14 +401,15 @@ interface AdminMenuItem {
                     <div class="form-group">
                       <label>Kategori</label>
                       <select name="modalCategory" [(ngModel)]="modalItem.category_id" required>
-                        <option [value]="1">Makanan Berat</option>
-                        <option [value]="2">Makanan Sayur</option>
+                        <option [value]="1">Ayam</option>
+                        <option [value]="2">Sayuran & Tahu-Tempe</option>
                         <option [value]="3">Manisan</option>
-                        <option [value]="4">Ala Carte</option>
-                        <option [value]="5">Rekomendasi</option>
-                        <option [value]="6">Minuman Ringan</option>
-                        <option [value]="7">Bir</option>
-                        <option [value]="8">Koktail</option>
+                        <option [value]="4">Camilan</option>
+                        <option [value]="5">Kambing & Sapi</option>
+                        <option [value]="6">Minuman</option>
+                        <option [value]="7">Seafood</option>
+                        <option [value]="8">Sate</option>
+                        <option [value]="9">Nasi, Mie & Sup</option>
                       </select>
                     </div>
                     
@@ -1338,14 +1346,15 @@ export class AdminComponent implements OnInit {
 
   getCategoryLabel(id: number): string {
     const labels: Record<number, string> = {
-      1: 'Makanan Berat',
-      2: 'Makanan Sayur',
+      1: 'Ayam',
+      2: 'Sayuran & Tahu-Tempe',
       3: 'Manisan',
-      4: 'Ala Carte',
-      5: 'Rekomendasi',
-      6: 'Minuman Ringan',
-      7: 'Bir',
-      8: 'Koktail'
+      4: 'Camilan',
+      5: 'Kambing & Sapi',
+      6: 'Minuman',
+      7: 'Seafood',
+      8: 'Sate',
+      9: 'Nasi, Mie & Sup'
     };
     return labels[id] || 'Menu';
   }

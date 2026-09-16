@@ -110,7 +110,7 @@ interface MenuItem {
       </div>
 
       <!-- Recommended Spotlight: one feature photo + an elegant text list, not repeated placeholder cards -->
-      <div class="spotlight-section scroll-reveal" *ngIf="recommendedItems().length > 0 && (activeCategorySlug() === 'all' || activeCategorySlug() === 'rekomendasi')">
+      <div class="spotlight-section" [class.category-fade-out]="categoryTransitioning()" *ngIf="recommendedItems().length > 0 && activeCategorySlug() === 'all'">
         <div class="spotlight-header">
           <h2>{{ langService.t('recommended_label') }}</h2>
         </div>
@@ -133,7 +133,7 @@ interface MenuItem {
       </div>
 
       <!-- Menu listing: typography-led rows, the standard format for a restaurant menu without a photo per dish -->
-      <div class="menu-list-section scroll-reveal">
+      <div class="menu-list-section" [class.category-fade-out]="categoryTransitioning()">
         <h2 class="grid-title" *ngIf="activeCategorySlug() !== 'all'">
           {{ getActiveCategoryName() }}
         </h2>
@@ -156,8 +156,9 @@ interface MenuItem {
                 <span class="menu-row-price">¥ {{ formatPrice(item.price) }}</span>
               </div>
               <p class="menu-row-desc">{{ item.description }}</p>
-              <div class="menu-row-tags" *ngIf="item.is_recommended || !item.is_available || item.allergy_info">
+              <div class="menu-row-tags" *ngIf="item.is_recommended || !item.is_available || item.allergy_info || isSpicy(item.name)">
                 <span class="tag tag-rec" *ngIf="item.is_recommended"><i class="fa-solid fa-star"></i> {{ langService.t('recommended_label') }}</span>
+                <span class="tag tag-spicy" *ngIf="isSpicy(item.name)">🌶️ {{ langService.t('spicy_label') }}</span>
                 <span class="tag tag-soldout" *ngIf="!item.is_available">{{ langService.t('sold_out') }}</span>
                 <span class="tag tag-allergy" *ngIf="item.allergy_info"><i class="fa-solid fa-triangle-exclamation"></i> {{ item.allergy_info }}</span>
               </div>
@@ -303,6 +304,16 @@ interface MenuItem {
     .scroll-reveal.is-visible {
       opacity: 1;
       transform: translateY(0);
+    }
+
+    /* Category switch: a deliberate fade tied to the click, not a scroll-in
+       effect — the content isn't being scrolled to, it's being swapped. */
+    .spotlight-section, .menu-list-section {
+      opacity: 1;
+      transition: opacity 0.16s ease;
+    }
+    .category-fade-out {
+      opacity: 0;
     }
 
     /* Content Area */
@@ -469,6 +480,9 @@ interface MenuItem {
     }
     .tag-rec {
       color: var(--accent);
+    }
+    .tag-spicy {
+      color: var(--accent-red);
     }
     .tag-soldout {
       color: var(--accent-red);
@@ -846,8 +860,18 @@ export class MenuComponent implements OnInit, OnDestroy {
     this.langOpen.set(false);
   }
 
+  readonly categoryTransitioning = signal(false);
+
+  // Category switches used to swap content instantly, which read as a glitch
+  // rather than a deliberate change. Fade out, swap the underlying data, then
+  // fade back in — one intentional motion tied to the click instead of a jump cut.
   setActiveCategory(slug: string) {
-    this.activeCategorySlug.set(slug);
+    if (this.activeCategorySlug() === slug) return;
+    this.categoryTransitioning.set(true);
+    setTimeout(() => {
+      this.activeCategorySlug.set(slug);
+      requestAnimationFrame(() => this.categoryTransitioning.set(false));
+    }, 160);
   }
 
   getActiveCategoryName(): string {
@@ -856,18 +880,19 @@ export class MenuComponent implements OnInit, OnDestroy {
     return this.categories().find(c => c.slug === slug)?.name || slug;
   }
 
+  private readonly spicyKeywords = ['pedas', 'spicy', 'スパイシー', '辣', '매콤', 'picante'];
+  isSpicy(name: string): boolean {
+    const lower = name.toLowerCase();
+    return this.spicyKeywords.some(k => lower.includes(k));
+  }
+
   // Filter items dynamically based on category
   readonly filteredItems = computed(() => {
     let items = this.menuItems();
     const activeSlug = this.activeCategorySlug();
 
-    // Filter by Category
     if (activeSlug !== 'all') {
-      if (activeSlug === 'rekomendasi') {
-        items = items.filter(i => i.is_recommended);
-      } else {
-        items = items.filter(i => i.category_slug === activeSlug);
-      }
+      items = items.filter(i => i.category_slug === activeSlug);
     }
 
     return items;
