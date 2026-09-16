@@ -1,13 +1,13 @@
 /* Design System for Bali Bong — quiet, restrained, one accent */
 :root {
   --ink: #1c1a17;           /* near-black warm charcoal, primary text */
-  --paper: #f7f4ee;         /* warm off-white, page background */
-  --paper-dim: #eeeae1;     /* subtle section separation, never a gradient */
-  --surface: #ffffff;
-  --line: #d8d2c4;          /* hairline borders/dividers */
-  --accent: #6b4226;        /* deep clay/umber — the one accent, used sparingly */
-  --accent-dim: #8a5a3a;
-  --muted: #7a7266;
+  --paper: #f7ecdd;         /* warm cream, page background */
+  --paper-dim: #efdcc0;     /* subtle section separation, never a gradient */
+  --surface: #fffaf3;
+  --line: #ddc9a8;          /* hairline borders/dividers */
+  --accent: #a8551f;        /* burnt orange — the one accent, used sparingly */
+  --accent-dim: #c9793f;
+  --muted: #8a7a5a;
 
   /* Back-compat aliases so existing component rules (still written against
      these names) inherit the new restrained palette without a full rewrite. */
