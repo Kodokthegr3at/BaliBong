@@ -1,28 +1,41 @@
-const { Pool } = require('pg');
+// Neon's serverless driver is a drop-in replacement for pg's Pool/Client that
+// uses HTTP/WebSocket transport instead of a raw TCP connection — the latter
+// doesn't reliably survive Neon's compute-suspend cold starts within a
+// serverless function's short lifetime, which caused frequent, hard-to-debug
+// false fallbacks to the local JSON store in production.
+const { Pool } = require('@neondatabase/serverless');
+const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config();
 
 const dbPath = path.join(__dirname, 'data_fallback.json');
-let useFallback = false;
 
-const pool = new Pool({
+// The JSON fallback exists purely so this project can run locally without a
+// real Postgres instance. It is never a production failure mode: once
+// DATABASE_URL is configured, Postgres is authoritative and a query error
+// propagates to the caller as a real error instead of silently substituting
+// fake data. (A one-time connection test used to decide this instead — if
+// that single attempt was slow, e.g. Neon waking from a suspended compute,
+// the whole serverless instance stayed wrongly stuck on the fallback for its
+// entire lifetime, serving fake data indefinitely even though Postgres was
+// actually fine on the very next request.)
+const useFallback = !process.env.DATABASE_URL;
+
+const pool = useFallback ? null : new Pool({
   connectionString: process.env.DATABASE_URL,
-  connectionTimeoutMillis: 2000, // Quick fail if postgres not running
+  connectionTimeoutMillis: 10000,
 });
 
-// Test connection
-pool.connect((err, client, release) => {
-  if (err) {
-    console.warn('⚠️  PostgreSQL connection failed. Falling back to local JSON database:');
-    console.warn(`   Reason: ${err.message}`);
-    useFallback = true;
-    initializeFallbackData();
-  } else {
-    console.log('✅ Connected to PostgreSQL database successfully.');
-    release();
+if (useFallback) {
+  console.warn('⚠️  DATABASE_URL is not set. Using the local JSON fallback database (development only).');
+  if (!process.env.ADMIN_PASSWORD) {
+    console.warn('⚠️  ADMIN_PASSWORD is not set — the fallback admin account is using a well-known default password. Set ADMIN_PASSWORD in your .env before deploying.');
   }
-});
+  initializeFallbackData();
+} else {
+  console.log('✅ DATABASE_URL is configured — using PostgreSQL for every query.');
+}
 
 // Initial mock data structure
 const defaultData = {
@@ -117,8 +130,7 @@ const defaultData = {
     {
       id: 1,
       email: process.env.ADMIN_EMAIL || 'admin@balibong.com',
-      // Hash for 'adminbalibong123' using bcryptjs (pre-hashed to avoid synchronous bcrypt dependency on start)
-      password_hash: '$2a$10$MIt2pu94cbLKiE4ZhhSgo./be9L4tUf7z1VqluZ9CS.nK9UBiYjve',
+      password_hash: bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'adminbalibong123', 10),
       role: 'admin'
     }
   ]

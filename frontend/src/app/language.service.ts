@@ -5,7 +5,6 @@ export type LanguageCode = 'id' | 'ja' | 'zh' | 'ko' | 'es';
 export interface LanguageOption {
   code: LanguageCode;
   name: string;
-  flag: string;
 }
 
 @Injectable({
@@ -13,11 +12,11 @@ export interface LanguageOption {
 })
 export class LanguageService {
   readonly languages: LanguageOption[] = [
-    { code: 'id', name: 'Indonesia', flag: '🇮🇩' },
-    { code: 'ja', name: '日本語', flag: '🇯🇵' },
-    { code: 'zh', name: '简体中文', flag: '🇨🇳' },
-    { code: 'ko', name: '한국어', flag: '🇰🇷' },
-    { code: 'es', name: 'Español', flag: '🇪🇸' }
+    { code: 'id', name: 'Indonesia' },
+    { code: 'ja', name: '日本語' },
+    { code: 'zh', name: '简体中文' },
+    { code: 'ko', name: '한국어' },
+    { code: 'es', name: 'Español' }
   ];
 
   // Current language signal
@@ -29,9 +28,7 @@ export class LanguageService {
     return this.languages.find(l => l.code === this.currentLang())?.name || 'Indonesia';
   });
 
-  readonly currentLangFlag = computed(() => {
-    return this.languages.find(l => l.code === this.currentLang())?.flag || '🇮🇩';
-  });
+  readonly currentLangCode = computed(() => this.currentLang().toUpperCase());
 
   // UI Translations
   private readonly uiTranslations: Record<LanguageCode, Record<string, string>> = {
@@ -82,7 +79,9 @@ export class LanguageService {
       feature_family: 'Cocok untuk Keluarga',
       feature_solo: 'Makan Sendiri',
       map_button: 'Buka di Google Maps',
-      review_quote: '"Ini adalah restoran favorit saya. Saya berkunjung bersama suami saat makan siang hari Sabtu... Pilihan yang sangat tepat!"'
+      review_quote: '"Ini adalah restoran favorit saya. Saya berkunjung bersama suami saat makan siang hari Sabtu... Pilihan yang sangat tepat!"',
+      menu_seo_desc: 'Menu digital Bali Bong dalam 5 bahasa — masakan otentik Bali & Indonesia di Osaka. Pindai QR di meja Anda untuk melihat menu lengkap.',
+      menu_seo_title: 'Menu — BALI BONG'
     },
     ja: {
       about_title: 'バリボンについて',
@@ -131,7 +130,9 @@ export class LanguageService {
       feature_family: '家族向け',
       feature_solo: 'お一人様歓迎',
       map_button: 'Google マップで開く',
-      review_quote: '"一番好きなレストランです。土曜日のランチに夫と訪問しました... どれを選んでも間違いありません！"'
+      review_quote: '"一番好きなレストランです。土曜日のランチに夫と訪問しました... どれを選んでも間違いありません！"',
+      menu_seo_desc: 'バリボンのデジタルメニュー、5言語対応 — 大阪で味わう本格バリ・インドネシア料理。テーブルのQRコードをスキャンして全メニューをご覧ください。',
+      menu_seo_title: 'メニュー — BALI BONG'
     },
     zh: {
       about_title: '关于我们',
@@ -180,7 +181,9 @@ export class LanguageService {
       feature_family: '适合家庭',
       feature_solo: '适合独自用餐',
       map_button: '在谷歌地图中打开',
-      review_quote: '"这是我最喜欢的餐厅。周六午餐时间和丈夫一起去的... 在这里怎么点都不会错！"'
+      review_quote: '"这是我最喜欢的餐厅。周六午餐时间和丈夫一起去的... 在这里怎么点都不会错！"',
+      menu_seo_desc: 'Bali Bong 数字菜单，支持5种语言 — 大阪正宗巴厘岛与印尼美食。扫描桌上的二维码查看完整菜单。',
+      menu_seo_title: '菜单 — BALI BONG'
     },
     ko: {
       about_title: '레스토랑 소개',
@@ -229,7 +232,9 @@ export class LanguageService {
       feature_family: '가족 친화적',
       feature_solo: '혼밥 환영',
       map_button: '구글 지도에서 열기',
-      review_quote: '"제가 가장 좋아하는 레스토랑입니다. 토요일 점심에 남편과 함께 방문했습니다... 어떤 메뉴를 선택해도 후회 없습니다!"'
+      review_quote: '"제가 가장 좋아하는 레스토랑입니다. 토요일 점심에 남편과 함께 방문했습니다... 어떤 메뉴를 선택해도 후회 없습니다!"',
+      menu_seo_desc: '발리 봉 디지털 메뉴, 5개 언어 지원 — 오사카에서 맛보는 정통 발리 & 인도네시아 요리. 테이블의 QR코드를 스캔해 전체 메뉴를 확인하세요.',
+      menu_seo_title: '메뉴 — BALI BONG'
     },
     es: {
       about_title: 'Sobre Nosotros',
@@ -278,7 +283,9 @@ export class LanguageService {
       feature_family: 'Ambiente Familiar',
       feature_solo: 'Ideal para Comer Solo',
       map_button: 'Abrir en Google Maps',
-      review_quote: '"Este es mi restaurante favorito. Fui con mi esposo un sábado al mediodía... ¡Aquí no hay elección equivocada!"'
+      review_quote: '"Este es mi restaurante favorito. Fui con mi esposo un sábado al mediodía... ¡Aquí no hay elección equivocada!"',
+      menu_seo_desc: 'Menú digital de Bali Bong en 5 idiomas — auténtica cocina de Bali e Indonesia en Osaka. Escanea el código QR de tu mesa para ver el menú completo.',
+      menu_seo_title: 'Menú — BALI BONG'
     }
   };
 

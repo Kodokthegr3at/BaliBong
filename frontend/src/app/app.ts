@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { LanguageService } from './language.service';
+import { getApiBase } from './api-base';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +25,7 @@ export class App implements OnInit {
   }
 
   loadDesignSettings() {
-    const apiBase = `http://${window.location.hostname}:5000/api`;
+    const apiBase = getApiBase();
     this.http.get<any>(`${apiBase}/admin/design`).subscribe({
       next: (settings) => {
         if (settings.background_url) {

@@ -10,6 +10,10 @@ frontend/.angular/
 # Environment variables
 backend/.env
 
+# Generated local dev database (regenerated automatically; contains a hashed
+# admin password derived from ADMIN_PASSWORD and should never be committed)
+backend/data_fallback.json
+
 # OS files
 .DS_Store
 Thumbs.db
@@ -25,3 +29,5 @@ update_db_about.js
 # Agent folders
 .agent/
 .agents/
+.vercel
+.env*

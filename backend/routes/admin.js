@@ -3,11 +3,20 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const qrCode = require('qrcode');
+const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
+const { put } = require('@vercel/blob');
 const fs = require('fs');
 const path = require('path');
 const db = require('../db');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkeyforbalibonghomepage2026';
+// Never fall back to a fixed, publicly-known secret: generate a random one if
+// JWT_SECRET isn't configured. Tokens won't survive a restart in that case,
+// which is fine for local testing but must not happen in a real deployment.
+const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
+if (!process.env.JWT_SECRET) {
+  console.warn('⚠️  JWT_SECRET is not set. Using a random secret for this process only — admin sessions will not survive a restart. Set JWT_SECRET in your .env before deploying.');
+}
 const fallbackDbPath = path.join(__dirname, '../data_fallback.json');
 
 // Middleware to authenticate JWT
@@ -34,8 +43,16 @@ function writeFallback(data) {
   fs.writeFileSync(fallbackDbPath, JSON.stringify(data, null, 2));
 }
 
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many login attempts. Please try again later.' }
+});
+
 // POST /api/admin/auth/login
-router.post('/auth/login', async (req, res) => {
+router.post('/auth/login', loginLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -77,21 +94,30 @@ router.post('/auth/login', async (req, res) => {
   }
 });
 
+const ALLOWED_IMAGE_TYPES = { png: 'png', jpeg: 'jpg', jpg: 'jpg', webp: 'webp', gif: 'gif' };
+
 // POST /api/admin/upload-image
-router.post('/upload-image', authenticateToken, (req, res) => {
+// Uses Vercel Blob storage rather than the local filesystem: serverless
+// functions on Vercel run on a read-only filesystem outside of /tmp, so
+// fs.writeFileSync() here would fail on every deploy (EROFS).
+router.post('/upload-image', authenticateToken, async (req, res) => {
   const { imageBase64, type } = req.body;
   if (!imageBase64) return res.status(400).json({ error: 'No image provided' });
   try {
     const matches = imageBase64.match(/^data:image\/([a-zA-Z0-9-+\/]+);base64,(.+)$/);
     if (!matches || matches.length !== 3) return res.status(400).json({ error: 'Invalid base64 string' });
-    const extension = matches[1] === 'jpeg' ? 'jpg' : matches[1];
+    const mimeSubtype = matches[1].toLowerCase();
+    const extension = ALLOWED_IMAGE_TYPES[mimeSubtype];
+    if (!extension) return res.status(400).json({ error: 'Unsupported image type' });
     const base64Data = matches[2];
     const buffer = Buffer.from(base64Data, 'base64');
     const filename = `${Date.now()}.${extension}`;
     const folder = type === 'assets' ? 'assets' : 'menu';
-    const filepath = path.join(__dirname, '../public/images', folder, filename);
-    fs.writeFileSync(filepath, buffer);
-    res.json({ imageUrl: `/public/images/${folder}/${filename}` });
+    const blob = await put(`images/${folder}/${filename}`, buffer, {
+      access: 'public',
+      contentType: `image/${mimeSubtype}`
+    });
+    res.json({ imageUrl: blob.url });
   } catch (err) {
     console.error('Error uploading image:', err);
     res.status(500).json({ error: 'Failed to upload image' });
@@ -282,12 +308,18 @@ router.put('/menu/:id', authenticateToken, async (req, res) => {
       for (const lang of langs) {
         const name = req.body[`name_${lang}`];
         const description = req.body[`desc_${lang}`];
+        // A partial update (e.g. only the Indonesian fields changed) must not
+        // blank out or crash on languages the request simply didn't include —
+        // leave those translations exactly as they were.
+        if (name === undefined && description === undefined) continue;
 
         await db.query(
-          `INSERT INTO menu_item_translations (menu_item_id, lang, name, description) 
-           VALUES ($1, $2, $3, $4)
-           ON CONFLICT (menu_item_id, lang) 
-           DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description`,
+          `INSERT INTO menu_item_translations (menu_item_id, lang, name, description)
+           VALUES ($1, $2, COALESCE($3, ''), $4)
+           ON CONFLICT (menu_item_id, lang)
+           DO UPDATE SET
+             name = COALESCE($3, menu_item_translations.name),
+             description = COALESCE($4, menu_item_translations.description)`,
           [id, lang, name, description]
         );
       }

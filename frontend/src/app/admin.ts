@@ -3,7 +3,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { LanguageService, LanguageCode } from './language.service';
+import { getApiBase } from './api-base';
 
 interface QrCode {
   id: number;
@@ -133,7 +135,7 @@ interface AdminMenuItem {
             <div class="info-lang-switcher">
               <label>Pilih Bahasa Edit:</label>
               <select [(ngModel)]="infoEditLang" (change)="loadRestaurantInfoForEdit()">
-                <option *ngFor="let l of langService.languages" [value]="l.code">{{ l.flag }} {{ l.name }}</option>
+                <option *ngFor="let l of langService.languages" [value]="l.code">{{ l.name }}</option>
               </select>
             </div>
           </div>
@@ -444,7 +446,7 @@ interface AdminMenuItem {
                         [class.active]="modalActiveLang() === l.code"
                         (click)="modalActiveLang.set(l.code)"
                       >
-                        {{ l.flag }}
+                        {{ l.code.toUpperCase() }}
                       </button>
                     </div>
                   </div>
@@ -549,7 +551,7 @@ interface AdminMenuItem {
       background: var(--surface-light);
       border-radius: var(--border-radius-lg);
       box-shadow: var(--box-shadow);
-      border: 1px solid rgba(125, 34, 17, 0.08);
+      border: 1px solid rgba(28, 26, 23, 0.08);
     }
     .login-header {
       text-align: center;
@@ -596,7 +598,7 @@ interface AdminMenuItem {
       backdrop-filter: blur(12px);
       border-radius: 40px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      border: 1px solid rgba(125, 34, 17, 0.05);
+      border: 1px solid rgba(28, 26, 23, 0.05);
     }
     .tab-links::-webkit-scrollbar {
       display: none;
@@ -623,7 +625,7 @@ interface AdminMenuItem {
     .tab-link.active {
       color: white;
       background: var(--primary-color);
-      box-shadow: 0 4px 10px rgba(125, 34, 17, 0.2);
+      box-shadow: 0 4px 10px rgba(28, 26, 23, 0.2);
     }
 
     .tab-content {
@@ -631,7 +633,7 @@ interface AdminMenuItem {
       background: var(--surface-light);
       border-radius: var(--border-radius-md);
       box-shadow: var(--box-shadow);
-      border: 1px solid rgba(125, 34, 17, 0.06);
+      border: 1px solid rgba(28, 26, 23, 0.06);
     }
 
     /* Forms */
@@ -651,7 +653,7 @@ interface AdminMenuItem {
     .form-group select {
       padding: 12px 16px;
       border-radius: var(--border-radius-sm);
-      border: 1px solid rgba(125, 34, 17, 0.15);
+      border: 1px solid rgba(28, 26, 23, 0.15);
       font-family: var(--font-sans);
       font-size: 0.95rem;
       background: #FFFFFF;
@@ -662,7 +664,7 @@ interface AdminMenuItem {
     .form-group select:focus {
       outline: none;
       border-color: var(--secondary-color);
-      box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
+      box-shadow: 0 0 0 3px rgba(107, 66, 38, 0.15);
     }
     .w-full {
       width: 100%;
@@ -726,12 +728,12 @@ interface AdminMenuItem {
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
     .admin-table th {
-      background: rgba(125, 34, 17, 0.02);
+      background: rgba(28, 26, 23, 0.02);
       color: var(--primary-color);
       font-weight: 700;
     }
     .admin-table tbody tr:hover {
-      background: rgba(125, 34, 17, 0.01);
+      background: rgba(28, 26, 23, 0.01);
     }
     .font-semibold {
       font-weight: 600;
@@ -745,7 +747,7 @@ interface AdminMenuItem {
       text-transform: uppercase;
     }
     .badge-available {
-      background: rgba(125, 34, 17, 0.1);
+      background: rgba(28, 26, 23, 0.1);
       color: var(--primary-color);
     }
     .badge-unavailable {
@@ -777,7 +779,7 @@ interface AdminMenuItem {
       transition: var(--transition);
     }
     .edit-btn {
-      background: rgba(197, 160, 89, 0.1);
+      background: rgba(107, 66, 38, 0.1);
       color: var(--secondary-dark);
     }
     .edit-btn:hover {
@@ -899,7 +901,7 @@ interface AdminMenuItem {
       padding: 10px 20px;
       border-radius: 50px;
       background: white;
-      border: 1px solid rgba(125, 34, 17, 0.15);
+      border: 1px solid rgba(28, 26, 23, 0.15);
       color: var(--primary-color);
       font-weight: 600;
       font-size: 0.95rem;
@@ -909,14 +911,14 @@ interface AdminMenuItem {
       box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
     .admin-cat-tab:hover {
-      background: rgba(226, 109, 63, 0.1);
+      background: rgba(107, 66, 38, 0.1);
       transform: translateY(-2px);
     }
     .admin-cat-tab.active {
       background: var(--primary-color);
       color: white;
       border-color: var(--primary-color);
-      box-shadow: 0 4px 15px rgba(125, 34, 17, 0.2);
+      box-shadow: 0 4px 15px rgba(28, 26, 23, 0.2);
     }
     .admin-toolbar {
       display: flex;
@@ -954,7 +956,7 @@ interface AdminMenuItem {
       width: 100%;
       padding: 12px 16px 12px 42px;
       border-radius: 50px;
-      border: 1px solid rgba(125, 34, 17, 0.15);
+      border: 1px solid rgba(28, 26, 23, 0.15);
       background: white;
       font-size: 0.95rem;
       transition: all 0.3s;
@@ -963,7 +965,7 @@ interface AdminMenuItem {
     .admin-search-input:focus {
       outline: none;
       border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
+      box-shadow: 0 0 0 3px rgba(107, 66, 38, 0.15);
     }
     @media (min-width: 768px) {
       .admin-toolbar {
@@ -983,7 +985,7 @@ interface AdminMenuItem {
       padding: 20px;
       border-radius: var(--border-radius-sm);
       margin-bottom: 24px;
-      border: 1px solid rgba(125, 34, 17, 0.05);
+      border: 1px solid rgba(28, 26, 23, 0.05);
     }
     .modal-actions {
       display: flex;
@@ -1010,7 +1012,7 @@ interface AdminMenuItem {
       border: 1px solid rgba(0, 0, 0, 0.05);
       padding: 24px;
       border-radius: var(--border-radius-md);
-      background: rgba(125, 34, 17, 0.01);
+      background: rgba(28, 26, 23, 0.01);
     }
     .qr-form-card h3,
     .qr-list-card h3 {
@@ -1123,6 +1125,8 @@ interface AdminMenuItem {
 export class AdminComponent implements OnInit {
   langService = inject(LanguageService);
   private readonly http = inject(HttpClient);
+  private readonly titleService = inject(Title);
+  private readonly meta = inject(Meta);
 
   // States
   readonly isLoggedIn = signal<boolean>(false);
@@ -1196,6 +1200,10 @@ export class AdminComponent implements OnInit {
   uploadingDesign = signal<boolean>(false);
 
   constructor() {
+    // Admin panel is a private management interface, not a page for search results
+    this.titleService.setTitle('Admin — BALI BONG');
+    this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
+
     effect(() => {
       if (this.isLoggedIn()) {
         const tab = this.activeTab();
@@ -1226,7 +1234,7 @@ export class AdminComponent implements OnInit {
     this.loading.set(true);
     this.loginError.set('');
 
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    const apiBase = getApiBase();
     this.http.post<any>(`${apiBase}/admin/auth/login`, {
       email: this.loginEmail,
       password: this.loginPassword
@@ -1268,7 +1276,7 @@ export class AdminComponent implements OnInit {
 
   // --- TAB 1: RESTAURANT INFO ---
   loadRestaurantInfoForEdit() {
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    const apiBase = getApiBase();
     this.http.get<any>(`${apiBase}/restaurant-info?lang=${this.infoEditLang}`).subscribe({
       next: (data) => {
         this.infoAbout = data.about || '';
@@ -1285,7 +1293,7 @@ export class AdminComponent implements OnInit {
   saveRestaurantInfo(event: Event) {
     event.preventDefault();
     this.loading.set(true);
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    const apiBase = getApiBase();
     
     this.http.put<any>(`${apiBase}/admin/restaurant-info`, {
       lang: this.infoEditLang,
@@ -1307,7 +1315,7 @@ export class AdminComponent implements OnInit {
 
   // --- TAB 2: MENU ITEMS CRUD ---
   loadAdminMenu() {
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    const apiBase = getApiBase();
     this.http.get<AdminMenuItem[]>(`${apiBase}/admin/menu`, { headers: this.getAuthHeaders() }).subscribe({
       next: (data) => {
         this.menuItems.set(data || []);
@@ -1378,7 +1386,7 @@ export class AdminComponent implements OnInit {
     const reader = new FileReader();
     reader.onload = (e) => {
       const base64 = e.target?.result as string;
-      const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+      const apiBase = getApiBase();
       
       this.http.post<any>(`${apiBase}/admin/upload-image`, {
         imageBase64: base64,
@@ -1386,7 +1394,7 @@ export class AdminComponent implements OnInit {
       }, { headers: this.getAuthHeaders() }).subscribe({
         next: (res) => {
           this.uploadingImage.set(false);
-          this.modalItem.image_url = `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:5000${res.imageUrl}`;
+          this.modalItem.image_url = res.imageUrl;
         },
         error: (err) => {
           this.uploadingImage.set(false);
@@ -1413,7 +1421,7 @@ export class AdminComponent implements OnInit {
   saveMenuItem(event: Event) {
     event.preventDefault();
     this.loading.set(true);
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    const apiBase = getApiBase();
 
     // Build payload and fallback default translations if empty
     const payload = { ...this.modalItem };
@@ -1458,7 +1466,7 @@ export class AdminComponent implements OnInit {
 
   deleteMenuItem(id: number) {
     if (confirm('Apakah Anda yakin ingin menghapus hidangan ini secara permanen?')) {
-      const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+      const apiBase = getApiBase();
       this.http.delete<any>(`${apiBase}/admin/menu/${id}`, { headers: this.getAuthHeaders() }).subscribe({
         next: () => {
           this.loadAdminMenu();
@@ -1472,7 +1480,7 @@ export class AdminComponent implements OnInit {
 
   // --- TAB 3: QR CODES ---
   loadQrCodes() {
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    const apiBase = getApiBase();
     this.http.get<QrCode[]>(`${apiBase}/admin/qr`, { headers: this.getAuthHeaders() }).subscribe({
       next: (data) => {
         this.qrCodes.set(data || []);
@@ -1486,7 +1494,7 @@ export class AdminComponent implements OnInit {
   generateQrCode(event: Event) {
     event.preventDefault();
     this.loading.set(true);
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    const apiBase = getApiBase();
 
     this.http.post<any>(`${apiBase}/admin/qr`, {
       table_label: this.qrTableLabel,
@@ -1586,7 +1594,7 @@ export class AdminComponent implements OnInit {
 
   // --- TAB 4: DESIGN SETTINGS ---
   loadDesignSettings() {
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    const apiBase = getApiBase();
     this.http.get<any>(`${apiBase}/admin/design`).subscribe({
       next: (data) => {
         this.designBgUrl = data.background_url || '';
@@ -1602,7 +1610,7 @@ export class AdminComponent implements OnInit {
   saveDesignSettings(event: Event) {
     event.preventDefault();
     this.loading.set(true);
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    const apiBase = getApiBase();
     this.http.put<any>(`${apiBase}/admin/design`, {
       background_url: this.designBgUrl,
       garuda_url: this.designGarudaUrl,
@@ -1627,7 +1635,7 @@ export class AdminComponent implements OnInit {
     const reader = new FileReader();
     reader.onload = (e) => {
       const base64 = e.target?.result as string;
-      const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+      const apiBase = getApiBase();
       
       this.http.post<any>(`${apiBase}/admin/upload-image`, {
         imageBase64: base64,
@@ -1635,10 +1643,9 @@ export class AdminComponent implements OnInit {
       }, { headers: this.getAuthHeaders() }).subscribe({
         next: (res) => {
           this.uploadingDesign.set(false);
-          const fullUrl = `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:5000${res.imageUrl}`;
-          if (key === 'background_url') this.designBgUrl = fullUrl;
-          if (key === 'garuda_url') this.designGarudaUrl = fullUrl;
-          if (key === 'barong_url') this.designBarongUrl = fullUrl;
+          if (key === 'background_url') this.designBgUrl = res.imageUrl;
+          if (key === 'garuda_url') this.designGarudaUrl = res.imageUrl;
+          if (key === 'barong_url') this.designBarongUrl = res.imageUrl;
         },
         error: (err) => {
           this.uploadingDesign.set(false);

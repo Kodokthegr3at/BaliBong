@@ -1,11 +1,22 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Vercel (and most serverless hosts) sit behind a reverse proxy and set
+// X-Forwarded-For; without this, express-rate-limit can't safely determine
+// the real client IP and throws on every request to a rate-limited route.
+app.set('trust proxy', 1);
+
 // Middleware
+app.use(helmet({
+  // Cross-origin resource policy would block the frontend (served from a
+  // different port/origin in dev) from loading uploaded menu/asset images.
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
+}));
 app.use(cors());
 app.use(express.json({ limit: '10mb' })); // Support larger payloads for Base64 QR codes or images
 const path = require('path');

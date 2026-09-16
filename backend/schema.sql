@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS menu_items (
     category_id INT REFERENCES menu_categories(id) ON DELETE SET NULL,
     price INT NOT NULL,               -- dalam IDR
     image_url TEXT,
+    allergy_info TEXT,
     is_recommended BOOLEAN DEFAULT FALSE,
     is_available BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT NOW(),

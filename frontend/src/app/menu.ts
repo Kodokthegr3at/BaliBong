@@ -2,7 +2,9 @@ import { Component, OnInit, inject, signal, effect, computed } from '@angular/co
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { LanguageService, LanguageCode } from './language.service';
+import { getApiBase } from './api-base';
 
 interface Category {
   id: number;
@@ -41,18 +43,16 @@ interface MenuItem {
           
           <div class="lang-switcher">
             <button class="lang-btn" (click)="langOpen.set(!langOpen())">
-              <span>{{ langService.currentLangFlag() }}</span>
-              <span>{{ langService.currentLangName() }}</span>
+              <span>{{ langService.currentLangCode() }}</span>
               <i class="fa-solid fa-chevron-down"></i>
             </button>
             <div class="lang-dropdown" [class.open]="langOpen()">
-              <button 
-                *ngFor="let lang of langService.languages" 
-                class="lang-option" 
+              <button
+                *ngFor="let lang of langService.languages"
+                class="lang-option"
                 [class.active]="langService.currentLang() === lang.code"
                 (click)="selectLanguage(lang.code)"
               >
-                <span>{{ lang.flag }}</span>
                 <span>{{ lang.name }}</span>
               </button>
             </div>
@@ -61,80 +61,79 @@ interface MenuItem {
       </div>
     </header>
 
-    <!-- Menu Title and Assets -->
+    <!-- Menu Title -->
     <section class="menu-hero">
-      <div class="container animate-fade-in">
+      <div class="container">
         <h1 class="menu-hero-title">{{ langService.t('menu_title') }}</h1>
-        <p class="menu-hero-subtitle">Authentic Balinese & Indonesian Specialties</p>
+        <p class="menu-hero-subtitle">{{ langService.t('hero_subtitle') }}</p>
       </div>
     </section>
 
     <!-- Main Content -->
     <main class="menu-content container">
+      <!-- Loading state -->
+      <div class="menu-status-state" *ngIf="menuLoading()">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <p>{{ langService.t('loading') }}</p>
+      </div>
+
+      <!-- Error state: never show fabricated menu data on a real failure -->
+      <div class="menu-status-state menu-status-error" *ngIf="!menuLoading() && menuLoadError()">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <p>Menu tidak dapat dimuat saat ini. Silakan coba lagi.</p>
+        <button class="btn btn-primary btn-sm" (click)="retryFetchMenu()">
+          <i class="fa-solid fa-rotate-right"></i> Coba Lagi
+        </button>
+      </div>
+
+      <ng-container *ngIf="!menuLoading() && !menuLoadError()">
       <!-- Category Tabs -->
-      <div class="category-tabs-wrapper animate-fade-in stagger-1">
+      <div class="category-tabs-wrapper">
         <div class="category-tabs">
-          <button 
-            class="category-tab" 
+          <button
+            class="category-tab"
             [class.active]="activeCategorySlug() === 'all'"
             (click)="setActiveCategory('all')"
           >
-            <i class="fa-solid fa-border-all"></i>
-            <span>{{ langService.t('all_categories') }}</span>
+            {{ langService.t('all_categories') }}
           </button>
-          
-          <button 
+
+          <button
             *ngFor="let cat of categories()"
             class="category-tab"
             [class.active]="activeCategorySlug() === cat.slug"
             (click)="setActiveCategory(cat.slug)"
           >
-            <i [class]="getCategoryIcon(cat.slug)"></i>
-            <span>{{ cat.name }}</span>
+            {{ cat.name }}
           </button>
         </div>
       </div>
 
-      <!-- Recommended Section Spotlight (Only visible when "All" or "Rekomendasi" is selected) -->
-      <div class="spotlight-section animate-fade-in stagger-2" *ngIf="recommendedItems().length > 0 && (activeCategorySlug() === 'all' || activeCategorySlug() === 'rekomendasi')">
+      <!-- Recommended Spotlight: one feature photo + an elegant text list, not repeated placeholder cards -->
+      <div class="spotlight-section scroll-reveal" *ngIf="recommendedItems().length > 0 && (activeCategorySlug() === 'all' || activeCategorySlug() === 'rekomendasi')">
         <div class="spotlight-header">
-          <i class="fa-solid fa-star gold-star animate-pop-in"></i>
           <h2>{{ langService.t('recommended_label') }}</h2>
         </div>
-        
-        <div class="menu-grid spotlight-grid">
-          <div 
-            *ngFor="let item of recommendedItems(); let idx = index" 
-            class="menu-card spotlight-card card scroll-reveal"
-            [class.sold-out-card]="!item.is_available"
-            (click)="openItemDetail(item)"
-            style="cursor: pointer;"
-          >
-            <div class="card-image-placeholder" [style.background-image]="item.image_url ? 'url(' + item.image_url + ')' : null" [style.background-size]="'cover'" [style.background-position]="'center'">
-              <i *ngIf="!item.image_url" [class]="getFoodPlaceholderIcon(item.category_slug)"></i>
-              <span class="recommended-badge" *ngIf="item.is_recommended">
-                <i class="fa-solid fa-star"></i>
-              </span>
-              <span class="sold-out-badge" *ngIf="!item.is_available">
-                {{ langService.t('sold_out') }}
-              </span>
-            </div>
-            <div class="card-details">
-              <div class="card-header-row">
-                <h3 class="item-name">{{ item.name }}</h3>
-                <span class="item-price">¥ {{ formatPrice(item.price) }}</span>
-              </div>
-              <p class="item-desc">{{ item.description }}</p>
-              <div class="allergy-info" *ngIf="item.allergy_info">
-                <i class="fa-solid fa-triangle-exclamation"></i> Alergi: {{ item.allergy_info }}
-              </div>
-            </div>
+
+        <div class="spotlight-layout">
+          <div class="spotlight-photo">
+            <img src="/public/images/assets/dish-featured.webp" alt="Hidangan rekomendasi Bali Bong">
           </div>
+          <ul class="spotlight-list">
+            <li *ngFor="let item of recommendedItems()" (click)="openItemDetail(item)" [class.sold-out-row]="!item.is_available">
+              <div class="spotlight-list-row">
+                <span class="spotlight-list-name">{{ item.name }}</span>
+                <span class="spotlight-list-price">¥ {{ formatPrice(item.price) }}</span>
+              </div>
+              <p class="spotlight-list-desc">{{ item.description }}</p>
+              <span class="sold-out-badge" *ngIf="!item.is_available">{{ langService.t('sold_out') }}</span>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <!-- Regular Menu Grid -->
-      <div class="menu-list-section animate-fade-in stagger-3">
+      <!-- Menu listing: typography-led rows, the standard format for a restaurant menu without a photo per dish -->
+      <div class="menu-list-section scroll-reveal">
         <h2 class="grid-title" *ngIf="activeCategorySlug() !== 'all'">
           {{ getActiveCategoryName() }}
         </h2>
@@ -142,36 +141,31 @@ interface MenuItem {
           {{ langService.t('all_categories') }}
         </h2>
 
-        <div class="menu-grid" *ngIf="filteredItems().length > 0; else noItemsTemp">
-          <div 
-            *ngFor="let item of filteredItems(); let idx = index" 
-            class="menu-card card scroll-reveal"
-            [class.sold-out-card]="!item.is_available"
+        <ul class="menu-rows" *ngIf="filteredItems().length > 0; else noItemsTemp">
+          <li
+            *ngFor="let item of filteredItems()"
+            class="menu-row"
+            [class.sold-out-row]="!item.is_available"
             (click)="openItemDetail(item)"
-            style="cursor: pointer;"
           >
-            <div class="card-image-placeholder" [style.background-image]="item.image_url ? 'url(' + item.image_url + ')' : null" [style.background-size]="'cover'" [style.background-position]="'center'">
-              <i *ngIf="!item.image_url" [class]="getFoodPlaceholderIcon(item.category_slug)"></i>
-              <span class="recommended-badge" *ngIf="item.is_recommended">
-                <i class="fa-solid fa-star"></i>
-              </span>
-              <span class="sold-out-badge" *ngIf="!item.is_available">
-                {{ langService.t('sold_out') }}
-              </span>
-            </div>
-            <div class="card-details">
-              <div class="card-header-row">
-                <h3 class="item-name">{{ item.name }}</h3>
-                <span class="item-price">¥ {{ formatPrice(item.price) }}</span>
+            <img *ngIf="item.image_url" [src]="item.image_url" class="menu-row-thumb" [alt]="item.name">
+            <div class="menu-row-body">
+              <div class="menu-row-top">
+                <h3 class="menu-row-name">{{ item.name }}</h3>
+                <span class="menu-row-dots"></span>
+                <span class="menu-row-price">¥ {{ formatPrice(item.price) }}</span>
               </div>
-              <p class="item-desc">{{ item.description }}</p>
-              <div class="allergy-info" *ngIf="item.allergy_info">
-                <i class="fa-solid fa-triangle-exclamation"></i> Alergi: {{ item.allergy_info }}
+              <p class="menu-row-desc">{{ item.description }}</p>
+              <div class="menu-row-tags" *ngIf="item.is_recommended || !item.is_available || item.allergy_info">
+                <span class="tag tag-rec" *ngIf="item.is_recommended"><i class="fa-solid fa-star"></i> {{ langService.t('recommended_label') }}</span>
+                <span class="tag tag-soldout" *ngIf="!item.is_available">{{ langService.t('sold_out') }}</span>
+                <span class="tag tag-allergy" *ngIf="item.allergy_info"><i class="fa-solid fa-triangle-exclamation"></i> {{ item.allergy_info }}</span>
               </div>
             </div>
-          </div>
-        </div>
+          </li>
+        </ul>
       </div>
+      </ng-container>
     </main>
 
     <ng-template #noItemsTemp>
@@ -241,73 +235,63 @@ interface MenuItem {
   `,
   styles: [`
     .menu-hero {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-      color: var(--text-light);
-      padding: 60px 0 80px;
+      padding: 56px 0 36px;
       text-align: center;
-      position: relative;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 32px;
     }
     .menu-hero-title {
-      font-size: 3rem;
-      font-weight: 800;
-      color: var(--text-light);
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--ink);
       margin-bottom: 8px;
     }
     .menu-hero-subtitle {
-      font-size: 1.1rem;
-      color: var(--secondary-color);
-      letter-spacing: 2px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      letter-spacing: 1.5px;
       text-transform: uppercase;
       font-weight: 600;
-      margin-bottom: 32px;
     }
-    
-    /* Category Tabs */
+
+    /* Category Tabs — flat underline tabs, no pills or glass blur */
     .category-tabs-wrapper {
-      margin: -30px auto 40px;
       position: sticky;
-      top: 76px; /* Offset to stick exactly under the 76px tall main header */
+      top: 60px;
       z-index: 90;
-      max-width: 1000px;
-      transition: all 0.3s ease;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 40px;
     }
     .category-tabs {
       display: flex;
-      gap: 12px;
+      gap: 4px;
       overflow-x: auto;
-      padding: 8px;
-      background: rgba(255, 255, 255, 0.85); /* Glassmorphism */
-      backdrop-filter: blur(12px);
-      border-radius: 50px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1); /* Floating shadow */
-      border: 1px solid rgba(125, 34, 17, 0.05);
-      scrollbar-width: none; /* Firefox */
+      scrollbar-width: none;
     }
     .category-tabs::-webkit-scrollbar {
-      display: none; /* Safari and Chrome */
+      display: none;
     }
     .category-tab {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 24px;
-      border-radius: 40px;
+      padding: 14px 16px;
       border: none;
+      border-bottom: 2px solid transparent;
       background: transparent;
       font-family: var(--font-sans);
       font-weight: 600;
-      color: var(--primary-color);
+      font-size: 0.85rem;
+      color: var(--muted);
       cursor: pointer;
       white-space: nowrap;
       transition: var(--transition);
     }
     .category-tab:hover {
-      background: rgba(226, 109, 63, 0.1);
+      color: var(--ink);
     }
     .category-tab.active {
-      background: var(--primary-color);
-      color: var(--text-light);
-      box-shadow: 0 4px 15px rgba(125, 34, 17, 0.2);
+      color: var(--ink);
+      border-bottom-color: var(--accent);
     }
 
     .scroll-reveal {
@@ -319,37 +303,6 @@ interface MenuItem {
     .scroll-reveal.is-visible {
       opacity: 1;
       transform: translateY(0);
-    }
-
-    .menu-card {
-      background: var(--surface-light);
-      border-radius: var(--border-radius-lg);
-      overflow: hidden;
-      box-shadow: var(--box-shadow);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      border: 1px solid rgba(0,0,0,0.03);
-      position: relative;
-    }
-    .menu-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      border-radius: inherit;
-      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0);
-      transition: all 0.4s ease;
-      pointer-events: none;
-      z-index: 5;
-    }
-    .menu-card:hover {
-      transform: translateY(-10px) scale(1.02);
-      box-shadow: 0 20px 40px rgba(125, 34, 17, 0.2);
-    }
-    .menu-card:hover::before {
-      box-shadow: inset 0 0 0 2px rgba(226, 109, 63, 0.4);
     }
 
     /* Content Area */
@@ -372,140 +325,161 @@ interface MenuItem {
       background: var(--secondary-color);
     }
 
-    /* Spotlights / Recommendations */
+    /* Recommended spotlight: one real photo + an elegant text list */
     .spotlight-section {
-      background: rgba(226, 109, 63, 0.06);
-      border-radius: var(--border-radius-lg);
-      padding: 40px 32px;
-      margin-bottom: 56px;
-      border: 1px dashed rgba(226, 109, 63, 0.3);
+      margin-bottom: 64px;
     }
     .spotlight-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
       margin-bottom: 28px;
     }
-    .gold-star {
-      color: var(--secondary-color);
-      font-size: 1.6rem;
-    }
     .spotlight-header h2 {
-      font-size: 1.6rem;
-      color: var(--primary-color);
+      font-size: 1.4rem;
+      color: var(--ink);
     }
-
-    /* Menu Cards */
-    .menu-grid {
+    .spotlight-layout {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 28px;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 40px;
+      align-items: stretch;
+      border: 1px solid var(--line);
+      overflow: hidden;
     }
-    .menu-card {
+    .spotlight-photo {
+      min-height: 280px;
+    }
+    .spotlight-photo img {
+      width: 100%;
       height: 100%;
-      display: flex;
-      flex-direction: column;
-      background: var(--surface-light);
+      object-fit: cover;
+      display: block;
     }
-    .card-image-placeholder {
-      height: 180px;
-      background: linear-gradient(135deg, #F9F7F2 0%, #EFEBE0 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3.5rem;
-      color: var(--primary-color);
-      position: relative;
+    .spotlight-list {
+      list-style: none;
+      padding: 32px 32px 32px 0;
+      margin: 0;
+    }
+    .spotlight-list li {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
       transition: var(--transition);
-      border-bottom: 1px solid rgba(0,0,0,0.03);
     }
-    .menu-card:hover .card-image-placeholder {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
-      color: var(--secondary-color);
-    }
-    .recommended-badge {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 36px;
-      height: 36px;
-      background: var(--secondary-color);
-      color: var(--primary-color);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.95rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .sold-out-badge {
-      position: absolute;
-      top: 16px;
-      left: 16px;
-      background: var(--accent-color);
-      color: var(--text-light);
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .card-details {
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-    }
-    .card-header-row {
+    .spotlight-list li:first-child { padding-top: 0; }
+    .spotlight-list li:last-child { border-bottom: none; padding-bottom: 0; }
+    .spotlight-list li:hover .spotlight-list-name { color: var(--accent); }
+    .spotlight-list-row {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 12px;
+      align-items: baseline;
+      gap: 16px;
     }
-    .item-name {
-      font-size: 1.15rem;
+    .spotlight-list-name {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
       font-weight: 700;
-      color: var(--primary-color);
-      line-height: 1.3;
+      color: var(--ink);
+      transition: var(--transition);
     }
-    .item-price {
-      font-family: var(--font-sans);
+    .spotlight-list-price {
       font-weight: 700;
-      color: var(--secondary-dark);
-      font-size: 1.05rem;
+      color: var(--ink);
       white-space: nowrap;
+      font-variant-numeric: tabular-nums;
     }
-    .item-desc {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      margin-top: auto;
-    }
-    
-    /* Sold out state */
-    .sold-out-card {
-      opacity: 0.65;
-    }
-    .sold-out-card .card-image-placeholder {
-      filter: grayscale(1);
+    .spotlight-list-desc {
+      margin-top: 4px;
+      font-size: 0.9rem;
+      color: var(--muted);
     }
 
-    .allergy-info {
-      margin-top: 12px;
-      font-size: 0.8rem;
-      color: #e74c3c;
-      background: rgba(231, 76, 60, 0.1);
-      padding: 6px 10px;
-      border-radius: 4px;
+    /* Menu listing: typography-led rows — the standard format for a menu
+       without a photo per dish, rather than placeholder-icon cards. */
+    .menu-rows {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-width: 780px;
+    }
+    .menu-row {
+      display: flex;
+      gap: 20px;
+      padding: 22px 4px;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .menu-row:first-child { padding-top: 4px; }
+    .menu-row:hover {
+      background: var(--paper-dim);
+      padding-left: 16px;
+      padding-right: 16px;
+      margin: 0 -16px;
+    }
+    .menu-row-thumb {
+      width: 68px;
+      height: 68px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    .menu-row-body {
+      flex-grow: 1;
+      min-width: 0;
+    }
+    .menu-row-top {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .menu-row-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .menu-row-dots {
+      flex-grow: 1;
+      border-bottom: 1px dotted var(--line);
+      transform: translateY(-4px);
+    }
+    .menu-row-price {
+      font-weight: 700;
+      color: var(--ink);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+    .menu-row-desc {
+      margin-top: 4px;
+      font-size: 0.88rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .menu-row-tags {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .tag {
+      font-size: 0.74rem;
+      font-weight: 600;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-weight: 600;
+      gap: 5px;
+    }
+    .tag-rec {
+      color: var(--accent);
+    }
+    .tag-soldout {
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .tag-allergy {
+      color: var(--muted);
+    }
+    .sold-out-row {
+      opacity: 0.55;
     }
 
     .no-items {
@@ -516,6 +490,25 @@ interface MenuItem {
     .no-items i {
       font-size: 2.5rem;
       margin-bottom: 16px;
+    }
+
+    .menu-status-state {
+      text-align: center;
+      padding: 100px 0;
+      color: var(--text-muted);
+    }
+    .menu-status-state i {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+      display: block;
+      color: var(--primary-color);
+    }
+    .menu-status-state p {
+      margin-bottom: 20px;
+      font-size: 1.05rem;
+    }
+    .menu-status-error i {
+      color: var(--accent-color);
     }
 
     @media (max-width: 768px) {
@@ -544,88 +537,46 @@ interface MenuItem {
         padding: 10px 20px;
         font-size: 0.9rem;
       }
-      .spotlight-section {
-        padding: 24px 16px;
-        margin-bottom: 40px;
-      }
       .spotlight-header h2 {
         font-size: 1.3rem;
       }
-      .menu-grid {
-        gap: 20px;
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      .spotlight-layout {
+        grid-template-columns: 1fr;
       }
-      .card-image-placeholder {
-        height: 140px;
-        font-size: 2.8rem;
+      .spotlight-photo {
+        min-height: 200px;
       }
-      .card-details {
-        padding: 16px;
+      .spotlight-list {
+        padding: 24px 20px;
       }
-      .item-name {
+      .menu-row {
+        padding: 18px 2px;
+        gap: 14px;
+      }
+      .menu-row-thumb {
+        width: 56px;
+        height: 56px;
+      }
+      .menu-row-name {
         font-size: 1rem;
       }
-      .item-price {
+      .menu-row-price {
         font-size: 0.95rem;
       }
-      .item-desc {
-        font-size: 0.82rem;
+      .menu-row-desc {
+        font-size: 0.84rem;
       }
     }
-    
+
     @media (max-width: 480px) {
-      .menu-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
+      .menu-row-top, .spotlight-list-row {
+        flex-wrap: wrap;
       }
-      .menu-card {
-        flex-direction: row;
-        height: 130px;
-        align-items: center;
+      .menu-row-name, .spotlight-list-name {
+        white-space: normal;
       }
-      .card-image-placeholder {
-        width: 130px;
-        height: 100%;
-        border-bottom: none;
-        border-right: 1px solid rgba(0,0,0,0.03);
-        flex-shrink: 0;
-        font-size: 2.2rem;
-      }
-      .card-details {
-        padding: 12px;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-      }
-      .card-header-row {
-        flex-direction: column;
-        gap: 4px;
-        margin-bottom: 6px;
-        align-items: flex-start;
-      }
-      .item-name {
-        font-size: 1.05rem;
-      }
-      .item-price {
-        font-size: 0.95rem;
-      }
-      .item-desc {
-        font-size: 0.8rem;
-        -webkit-line-clamp: 2;
-      }
-      .recommended-badge {
-        width: 24px;
-        height: 24px;
-        font-size: 0.65rem;
-        top: 8px;
-        right: 8px;
-      }
-      .sold-out-badge {
-        top: 8px;
-        left: 8px;
-        padding: 2px 6px;
-        font-size: 0.6rem;
+      .menu-row-dots {
+        display: none;
       }
       .detail-modal {
         padding: 0;
@@ -656,50 +607,42 @@ interface MenuItem {
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0, 0, 0, 0.7);
+      background: rgba(28, 26, 23, 0.5);
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
-      backdrop-filter: blur(8px);
-      animation: fadeIn 0.3s ease forwards;
     }
-    
+
     .modal-card {
-      background: #FFFFFF;
-      border-radius: var(--border-radius-lg);
+      background: var(--surface);
+      border: 1px solid var(--line);
       position: relative;
       width: 100%;
       max-width: 800px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-      animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    
+
     .close-btn {
       position: absolute;
       top: 16px;
       right: 16px;
-      background: rgba(255,255,255,0.9);
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       cursor: pointer;
-      color: var(--text-dark);
+      color: var(--ink);
       z-index: 10;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: all 0.2s ease;
+      transition: var(--transition);
     }
     .close-btn:hover {
-      background: var(--primary-color);
-      color: white;
-      transform: scale(1.1);
+      border-color: var(--ink);
     }
     
     .detail-content {
@@ -737,83 +680,70 @@ interface MenuItem {
     }
     
     .detail-title {
-      font-size: 2rem;
-      color: var(--primary-color);
+      font-size: 1.8rem;
+      color: var(--ink);
       margin-bottom: 16px;
       line-height: 1.2;
     }
-    
+
     .detail-price-status {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 24px;
       padding-bottom: 24px;
-      border-bottom: 1px solid rgba(0,0,0,0.08);
+      border-bottom: 1px solid var(--line);
     }
-    
+
     .detail-price {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: var(--text-dark);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--ink);
     }
-    
+
     .detail-desc {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       line-height: 1.8;
-      color: #555;
+      color: var(--muted);
       margin-bottom: 32px;
     }
-    
+
     .detail-allergy {
-      background: #FFF4E5;
-      border-left: 4px solid #E64C2E;
-      padding: 16px 20px;
-      border-radius: 0 8px 8px 0;
+      border-left: 2px solid var(--accent);
+      padding: 12px 16px;
     }
     .detail-allergy h4 {
-      color: #D35400;
-      font-size: 0.95rem;
-      margin-bottom: 8px;
+      color: var(--ink);
+      font-size: 0.9rem;
+      margin-bottom: 6px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
     .detail-allergy p {
-      color: #D35400;
+      color: var(--muted);
       font-size: 0.9rem;
       margin: 0;
     }
-    
+
     .status-badge {
-      padding: 6px 16px;
-      border-radius: 20px;
-      font-size: 0.9rem;
-      font-weight: bold;
+      font-size: 0.85rem;
+      font-weight: 600;
     }
     .badge-available {
-      background: #E8F5E9;
-      color: #2E7D32;
+      color: var(--accent);
     }
     .badge-unavailable {
-      background: #FFEBEE;
-      color: #C62828;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.95) translateY(20px); }
-      to { opacity: 1; transform: scale(1) translateY(0); }
+      color: var(--muted);
     }
   `]
 })
 export class MenuComponent implements OnInit {
   langService = inject(LanguageService);
   private readonly http = inject(HttpClient);
-  
+  private readonly titleService = inject(Title);
+  private readonly meta = inject(Meta);
+
   langOpen = signal(false);
 
   readonly categories = signal<Category[]>([]);
@@ -821,6 +751,8 @@ export class MenuComponent implements OnInit {
   readonly activeCategorySlug = signal<string>('all');
   readonly designSettings = signal<any>(null);
   readonly selectedItem = signal<MenuItem | null>(null);
+  readonly menuLoading = signal<boolean>(true);
+  readonly menuLoadError = signal<boolean>(false);
 
   private observer: any = null;
 
@@ -829,7 +761,17 @@ export class MenuComponent implements OnInit {
     effect(() => {
       this.fetchMenu(this.langService.currentLang());
     });
-    
+
+    // Keep the page title and meta description in sync with the active language
+    effect(() => {
+      const title = this.langService.t('menu_seo_title');
+      const description = this.langService.t('menu_seo_desc');
+      this.titleService.setTitle(title);
+      this.meta.updateTag({ name: 'description', content: description });
+      this.meta.updateTag({ property: 'og:title', content: title });
+      this.meta.updateTag({ property: 'og:description', content: description });
+    });
+
     // Re-attach observer whenever items list changes
     effect(() => {
       const slug = this.activeCategorySlug();
@@ -869,7 +811,7 @@ export class MenuComponent implements OnInit {
   }
 
   fetchDesignSettings() {
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    const apiBase = getApiBase();
     this.http.get<any>(`${apiBase}/admin/design`).subscribe({
       next: (data) => this.designSettings.set(data),
       error: (err) => console.error('Error fetching design', err)
@@ -927,20 +869,6 @@ export class MenuComponent implements OnInit {
     this.selectedItem.set(null);
   }
 
-  getCategoryIcon(slug: string): string {
-    const icons: Record<string, string> = {
-      makanan_berat: 'fa-solid fa-bowl-food',
-      makanan_sayur: 'fa-solid fa-leaf',
-      manisan: 'fa-solid fa-ice-cream',
-      ala_carte: 'fa-solid fa-plate-wheat',
-      rekomendasi: 'fa-solid fa-award',
-      soft_drink: 'fa-solid fa-glass-water',
-      beer: 'fa-solid fa-beer-mug-empty',
-      cocktail: 'fa-solid fa-martini-glass-citrus'
-    };
-    return icons[slug] || 'fa-solid fa-utensils';
-  }
-
   getFoodPlaceholderIcon(slug: string): string {
     const icons: Record<string, string> = {
       makanan_berat: 'fa-solid fa-bowl-rice',
@@ -948,48 +876,35 @@ export class MenuComponent implements OnInit {
       manisan: 'fa-solid fa-cookie-bite',
       ala_carte: 'fa-solid fa-egg',
       rekomendasi: 'fa-solid fa-fire',
-      soft_drink: 'fa-solid fa-bottle-water',
-      beer: 'fa-solid fa-wine-bottle',
-      cocktail: 'fa-solid fa-martini-glass'
+      minuman_ringan: 'fa-solid fa-bottle-water',
+      bir: 'fa-solid fa-wine-bottle',
+      koktail: 'fa-solid fa-martini-glass'
     };
     return icons[slug] || 'fa-solid fa-shrimp';
   }
 
   private fetchMenu(lang: LanguageCode) {
-    const apiBase = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000/api` : 'http://localhost:5000/api';
+    this.menuLoading.set(true);
+    this.menuLoadError.set(false);
+    const apiBase = getApiBase();
     this.http.get<{ categories: Category[], items: MenuItem[] }>(`${apiBase}/menu?lang=${lang}`).subscribe({
       next: (data) => {
         this.categories.set(data.categories || []);
         this.menuItems.set(data.items || []);
+        this.menuLoading.set(false);
       },
       error: (err) => {
-        console.error('Error fetching menu from backend, falling back to local client seed data', err);
-        // Fallback static data if backend not active
-        this.categories.set([
-          { id: 1, slug: 'makanan_berat', name: this.langService.t('makanan_berat') || 'Makanan Berat' },
-          { id: 2, slug: 'makanan_sayur', name: this.langService.t('makanan_sayur') || 'Makanan Sayur' },
-          { id: 3, slug: 'manisan', name: this.langService.t('manisan') || 'Manisan' },
-          { id: 4, slug: 'ala_carte', name: this.langService.t('ala_carte') || 'Ala Carte' },
-          { id: 5, slug: 'rekomendasi', name: this.langService.t('rekomendasi') || 'Rekomendasi' },
-          { id: 6, slug: 'soft_drink', name: 'Minuman Ringan' },
-          { id: 7, slug: 'beer', name: 'Bir' },
-          { id: 8, slug: 'cocktail', name: 'Koktail' }
-        ]);
-
-        const mockItems: MenuItem[] = [
-          { id: 1, category_id: 1, price: 1280, image_url: null, allergy_info: null, is_recommended: false, is_available: true, name: 'Bali Spicy Chicken', description: 'Chicken prepared with hot Balinese spices.', category_slug: 'makanan_berat' },
-          { id: 2, category_id: 1, price: 1180, image_url: null, allergy_info: null, is_recommended: false, is_available: true, name: 'Ayam dan Tempe Goreng', description: 'Fried chicken served with traditional soybean cake.', category_slug: 'makanan_berat' },
-          { id: 4, category_id: 1, price: 1280, image_url: null, allergy_info: null, is_recommended: false, is_available: true, name: 'Ayam Geprek', description: 'Crushed crispy fried chicken mixed with hot sambal.', category_slug: 'makanan_berat' },
-          { id: 92, category_id: 1, price: 1180, image_url: null, allergy_info: null, is_recommended: false, is_available: true, name: 'Nasi Goreng', description: 'Traditional Indonesian fried rice.', category_slug: 'makanan_berat' },
-          { id: 93, category_id: 1, price: 1180, image_url: null, allergy_info: null, is_recommended: false, is_available: true, name: 'Mie Goreng', description: 'Flavorful Indonesian fried noodles.', category_slug: 'makanan_berat' },
-          { id: 131, category_id: 2, price: 880, image_url: null, allergy_info: null, is_recommended: false, is_available: true, name: 'Gado-Gado', description: 'Indonesian mixed salad with peanut sauce.', category_slug: 'makanan_sayur' },
-          { id: 134, category_id: 2, price: 980, image_url: null, allergy_info: null, is_recommended: false, is_available: true, name: 'Tumis Kangkung', description: 'Stir-fried water spinach with garlic.', category_slug: 'makanan_sayur' },
-          { id: 141, category_id: 3, price: 550, image_url: null, allergy_info: null, is_recommended: false, is_available: true, name: 'Pisang Goreng (dengan es krim)', description: 'Crispy fried banana served with vanilla ice cream.', category_slug: 'manisan' },
-          { id: 162, category_id: 5, price: 1600, image_url: null, allergy_info: null, is_recommended: true, is_available: true, name: 'Nasi Campur', description: 'Balinese mixed rice served with various side dishes.', category_slug: 'rekomendasi' },
-          { id: 164, category_id: 5, price: 1500, image_url: null, allergy_info: null, is_recommended: true, is_available: true, name: 'Rendang', description: 'Slow cooked beef in rich coconut spice sauce.', category_slug: 'rekomendasi' }
-        ];
-        this.menuItems.set(mockItems);
+        // Never show fabricated menu data to a real customer: prices and
+        // availability here are what someone orders and pays for, so a
+        // failed fetch must surface as an error state, not silent mock data.
+        console.error('Error fetching menu from backend', err);
+        this.menuLoading.set(false);
+        this.menuLoadError.set(true);
       }
     });
+  }
+
+  retryFetchMenu() {
+    this.fetchMenu(this.langService.currentLang());
   }
 }

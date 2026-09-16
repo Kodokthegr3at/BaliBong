@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-const { Pool } = require('pg');
+const { Pool } = require('@neondatabase/serverless');
 require('dotenv').config();
 
 const pool = new Pool({
@@ -27,7 +27,10 @@ async function seed() {
       { id: 2, slug: 'makanan_sayur' },
       { id: 3, slug: 'manisan' },
       { id: 4, slug: 'ala_carte' },
-      { id: 5, slug: 'rekomendasi' }
+      { id: 5, slug: 'rekomendasi' },
+      { id: 6, slug: 'minuman_ringan' },
+      { id: 7, slug: 'bir' },
+      { id: 8, slug: 'koktail' }
     ];
     
     for (const cat of categories) {
@@ -70,7 +73,25 @@ async function seed() {
       { category_id: 5, lang: 'ja', name: 'おすすめ' },
       { category_id: 5, lang: 'zh', name: '推荐' },
       { category_id: 5, lang: 'ko', name: '추천 메뉴' },
-      { category_id: 5, lang: 'es', name: 'Recomendados' }
+      { category_id: 5, lang: 'es', name: 'Recomendados' },
+
+      { category_id: 6, lang: 'id', name: 'Minuman Ringan' },
+      { category_id: 6, lang: 'ja', name: 'ソフトドリンク' },
+      { category_id: 6, lang: 'zh', name: '软饮料' },
+      { category_id: 6, lang: 'ko', name: '청량 음료' },
+      { category_id: 6, lang: 'es', name: 'Refresco' },
+
+      { category_id: 7, lang: 'id', name: 'Bir' },
+      { category_id: 7, lang: 'ja', name: 'ビール' },
+      { category_id: 7, lang: 'zh', name: '啤酒' },
+      { category_id: 7, lang: 'ko', name: '맥주' },
+      { category_id: 7, lang: 'es', name: 'Cerveza' },
+
+      { category_id: 8, lang: 'id', name: 'Koktail' },
+      { category_id: 8, lang: 'ja', name: 'カクテル' },
+      { category_id: 8, lang: 'zh', name: '鸡尾酒' },
+      { category_id: 8, lang: 'ko', name: '칵테일' },
+      { category_id: 8, lang: 'es', name: 'Cóctel' }
     ];
     
     for (const trans of catTranslations) {
@@ -85,29 +106,29 @@ async function seed() {
     // 4. Seed Restaurant Info
     console.log('Seeding restaurant info...');
     const info = [
-      { key: 'about', lang: 'id', content: 'Bali Bong adalah restoran dengan menu masakan Indonesia (khususnya Bali) yang menyajikan masakan tradisional yang lezat dan otentik.' },
-      { key: 'about', lang: 'ja', content: 'バリボン（Bali Bong）は、美味しくて本格的なインドネシア料理（特にバリ料理）を提供するレストランです。' },
-      { key: 'about', lang: 'zh', content: 'Bali Bong 是一家提供美味正宗印尼料理（尤其是巴厘岛料理）的餐厅。' },
-      { key: 'about', lang: 'ko', content: 'Bali Bong은 맛있고 정통 인도네시아 요리(특히 발리 요리)를 제공하는 레스토랑입니다.' },
-      { key: 'about', lang: 'es', content: 'Bali Bong es un restaurante que ofrece deliciosa y auténtica comida indonesia, especialmente cocina de Bali.' },
-      
-      { key: 'transportation', lang: 'id', content: 'Berlokasi di pusat kota Bali Bong. Dapat diakses dengan taksi (15 menit dari bandara) atau bus rute 10.' },
-      { key: 'transportation', lang: 'ja', content: 'バリボン中心部に位置しています。タクシー（空港から15分）または路線バス10番でアクセス可能です。' },
-      { key: 'transportation', lang: 'zh', content: '位于巴厘岛市中心。可搭乘出租车（距离机场15分钟路程）或10路公交车前往。' },
-      { key: 'transportation', lang: 'ko', content: '발리 시내 중심부에 위치하고 있습니다. 택시(공항에서 15분 거리)나 10번 버스를 이용해 오실 수 있습니다.' },
-      { key: 'transportation', lang: 'es', content: 'Ubicado en el centro de Bali Bong. Accesible en taxi (a 15 minutos del aeropuerto) o autobús línea 10.' },
-      
-      { key: 'contact', lang: 'id', content: 'Telepon: +62 361 123456 | Email: info@balibong.com | Alamat: Jl. Raya Bali Bong No. 88, Kuta, Bali' },
-      { key: 'contact', lang: 'ja', content: '電話：+62 361 123456 | メール：info@balibong.com | 住所：Jl. Raya Bali Bong No. 88, Kuta, Bali' },
-      { key: 'contact', lang: 'zh', content: '电话：+62 361 123456 | 电子邮件：info@balibong.com | 地址：Jl. Raya Bali Bong No. 88, Kuta, Bali' },
-      { key: 'contact', lang: 'ko', content: '전화번호: +62 361 123456 | 이메일: info@balibong.com | 주소: Jl. Raya Bali Bong No. 88, Kuta, Bali' },
-      { key: 'contact', lang: 'es', content: 'Teléfono: +62 361 123456 | Correo electrónico: info@balibong.com | Dirección: Jl. Raya Bali Bong No. 88, Kuta, Bali' },
-      
-      { key: 'hours', lang: 'id', content: 'Setiap Hari: 11:00 - 23:00 (Pemesanan Terakhir 22:30)' },
-      { key: 'hours', lang: 'ja', content: '毎日：11:00 - 23:00（ラストオーダー 22:30）' },
-      { key: 'hours', lang: 'zh', content: '每天：11:00 - 23:00（截止点餐 22:30）' },
-      { key: 'hours', lang: 'ko', content: '매일: 11:00 - 23:00 (라스트 오더 22:30)' },
-      { key: 'hours', lang: 'es', content: 'Todos los días: 11:00 - 23:00 (Último pedido 22:30)' }
+      { key: 'about', lang: 'id', content: 'Konsep Bali Bong adalah tempat berkumpul untuk semua orang dengan sambutan hangat dari chef tercinta kami, Bli (sebutan "Bang" dalam bahasa Bali) Nyoman. Di sini Anda bisa bertukar ilmu bahasa dengan orang Jepang dan teman internasional, dan sudah pasti makanannya juga enak-enak. Visi dan misi kami memiliki filosofis yang mendalam: "Yang Penting Happy".' },
+      { key: 'about', lang: 'ja', content: 'バリボンのコンセプトは、愛されるシェフ「ブリ（バリ語で兄）」ニョマンの温かい歓迎とともに、みんなが集まる場所です。ここで日本人や国際的な友人と言葉を交わすことができ、もちろん料理もとても美味しいです。私たちの深い哲学を持つビジョンとミッションは「ハッピーであることが一番大切」です。' },
+      { key: 'about', lang: 'zh', content: 'Bali Bong 的理念是一个大家聚在一起的地方，受到我们敬爱的厨师 Bli（巴厘语中的“哥哥”）Nyoman 的热烈欢迎。在这里，您可以与日本和国际朋友交流语言，当然，食物也非常美味。我们拥有深刻哲理的愿景和使命是：“最重要的是开心”。' },
+      { key: 'about', lang: 'ko', content: '발리 봉의 콘셉트는 사랑받는 셰프 블리(발리어로 "형") 뇨만의 따뜻한 환영과 함께 모두가 모이는 장소입니다. 이곳에서 일본인 및 다국적 친구들과 언어를 교환할 수 있으며, 물론 음식도 아주 맛있습니다. 우리의 깊은 철학을 담은 비전과 미션은 "행복한 것이 가장 중요하다"입니다.' },
+      { key: 'about', lang: 'es', content: 'El concepto de Bali Bong es un lugar de encuentro para todos, con una cálida bienvenida por parte de nuestro querido chef Bli (hermano en balinés) Nyoman. Aquí puedes intercambiar idiomas con amigos japoneses e internacionales y, por supuesto, la comida es deliciosa. Nuestra visión y misión, que tiene una profunda filosofía, es: "Lo importante es ser feliz".' },
+
+      { key: 'transportation', lang: 'id', content: '4 menit berjalan kaki dari Stasiun Abiko di Midosuji Line. (388 meter dari Abiko)' },
+      { key: 'transportation', lang: 'ja', content: '御堂筋線あびこ駅から徒歩4分（あびこ駅から388m）' },
+      { key: 'transportation', lang: 'zh', content: '从御堂筋线我孙子站（Abiko Sta.）步行 4 分钟。（距离我孙子站 388 米）' },
+      { key: 'transportation', lang: 'ko', content: '미도스지선 아비코역(Abiko Sta.)에서 도보 4분 거리. (아비코역에서 388m)' },
+      { key: 'transportation', lang: 'es', content: 'A 4 minutos a pie de la estación de Abiko en la línea Midosuji. (A 388 metros de Abiko)' },
+
+      { key: 'contact', lang: 'id', content: 'Telepon: 06-6695-6267 | Alamat: 大阪府大阪市住吉区苅田3-16-11' },
+      { key: 'contact', lang: 'ja', content: '電話番号: 06-6695-6267 | 住所: 大阪府大阪市住吉区苅田3-16-11' },
+      { key: 'contact', lang: 'zh', content: '电话：06-6695-6267 | 地址：大阪府大阪市住吉区苅田3-16-11' },
+      { key: 'contact', lang: 'ko', content: '전화번호: 06-6695-6267 | 주소: 大阪府大阪市住吉区苅田3-16-11' },
+      { key: 'contact', lang: 'es', content: 'Teléfono: 06-6695-6267 | Dirección: 大阪府大阪市住吉区苅田3-16-11' },
+
+      { key: 'hours', lang: 'id', content: 'Senin, Selasa, Kamis-Minggu: 11:30 - 14:30 & 17:30 - 00:00. Tutup: Rabu.' },
+      { key: 'hours', lang: 'ja', content: '月・火・木〜日: 11:30 - 14:30, 17:30 - 00:00. 定休日: 水曜日' },
+      { key: 'hours', lang: 'zh', content: '周一、周二、周四至周日：11:30 - 14:30 & 17:30 - 00:00。 休息日：周三' },
+      { key: 'hours', lang: 'ko', content: '월, 화, 목~일: 11:30 - 14:30 & 17:30 - 00:00. 휴무일: 수요일' },
+      { key: 'hours', lang: 'es', content: 'Lunes, Martes, Jueves-Domingo: 11:30 - 14:30 y 17:30 - 00:00. Cerrado: Miércoles.' }
     ];
     
     for (const item of info) {
@@ -212,7 +233,17 @@ async function seed() {
       // Rekomendasi
       { cat: 5, name: 'Nasi Campur', price: 1600, translations: { ja: 'ナシチャンプル', zh: '印尼什锦饭', ko: '나시 짬푸르', es: 'Nasi Campur (Arroz Mixto)' }, isRec: true },
       { cat: 5, name: 'Bali Bong Omurice', price: 1380, translations: { ja: 'バリボン・オムライス', zh: '巴厘岛原创蛋包饭', ko: '발리 봉 오므라이스', es: 'Omurice Bali Bong' }, isRec: true },
-      { cat: 5, name: 'Rendang', price: 1500, translations: { ja: 'ルンダン (牛肉スパイシー煮込み)', zh: '巴东烩牛肉', ko: '렌당', es: 'Rendang de Ternera' }, isRec: true }
+      { cat: 5, name: 'Rendang', price: 1500, translations: { ja: 'ルンダン (牛肉スパイシー煮込み)', zh: '巴东烩牛肉', ko: '렌당', es: 'Rendang de Ternera' }, isRec: true },
+
+      // Minuman Ringan
+      { cat: 6, name: 'Jus Jeruk', price: 400, translations: { ja: 'オレンジジュース', zh: '橙汁', ko: '오렌지 주스', es: 'Jugo de Naranja' } },
+      { cat: 6, name: 'Teh Manis', price: 300, translations: { ja: '甘い紅茶', zh: '甜茶', ko: '스위트 티', es: 'Té Dulce' } },
+
+      // Bir
+      { cat: 7, name: 'Bintang Beer', price: 600, translations: { ja: 'ビンタンビール', zh: '星琥啤酒', ko: '빈탕 맥주', es: 'Cerveza Bintang' } },
+
+      // Koktail
+      { cat: 8, name: 'Arak Bali Attack', price: 800, translations: { ja: 'アラックバリアタック', zh: '巴厘岛米酒特调', ko: '아락 발리 어택', es: 'Arak Bali Attack' } }
     ];
 
     // Seed Menu Items and Translations
