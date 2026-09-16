@@ -471,7 +471,7 @@ interface MenuItem {
       color: var(--accent);
     }
     .tag-soldout {
-      color: var(--muted);
+      color: var(--accent-red);
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
@@ -731,10 +731,10 @@ interface MenuItem {
       font-weight: 600;
     }
     .badge-available {
-      color: var(--accent);
+      color: var(--accent-green);
     }
     .badge-unavailable {
-      color: var(--muted);
+      color: var(--accent-red);
     }
   `]
 })

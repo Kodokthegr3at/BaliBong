@@ -293,7 +293,7 @@ import { getApiBase } from './api-base';
 
     /* Info Cards */
     .info-section {
-      background: linear-gradient(180deg, #FDF9F5 0%, #F5ECE2 100%);
+      background: var(--paper-dim);
     }
     .info-grid {
       display: grid;
@@ -365,7 +365,7 @@ import { getApiBase } from './api-base';
       font-family: var(--font-display);
       font-size: 2.2rem;
       font-weight: 700;
-      color: var(--ink);
+      color: var(--accent-green);
       line-height: 1;
     }
     .score-source {

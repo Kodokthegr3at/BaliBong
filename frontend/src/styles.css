@@ -1,12 +1,16 @@
-/* Design System for Bali Bong — quiet, restrained, one accent */
+/* Design System for Bali Bong — warm base, three semantic accents */
 :root {
   --ink: #1c1a17;           /* near-black warm charcoal, primary text */
   --paper: #f7ecdd;         /* warm cream, page background */
   --paper-dim: #efdcc0;     /* subtle section separation, never a gradient */
   --surface: #fffaf3;
   --line: #ddc9a8;          /* hairline borders/dividers */
-  --accent: #a8551f;        /* burnt orange — the one accent, used sparingly */
+  --accent: #a8551f;        /* burnt orange — primary accent: brand, recommended, CTAs */
   --accent-dim: #c9793f;
+  --accent-green: #4c7a3d;  /* available/positive state */
+  --accent-green-dim: #6d9c5c;
+  --accent-red: #a8362a;    /* sold-out/negative state */
+  --accent-red-dim: #c4574a;
   --muted: #8a7a5a;
 
   /* Back-compat aliases so existing component rules (still written against
