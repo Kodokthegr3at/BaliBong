@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { LanguageService, LanguageCode } from './language.service';
@@ -440,6 +440,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly titleService = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   readonly restaurantInfo = signal<{
     about: string;
@@ -456,9 +457,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   langOpen = signal(false);
 
   constructor() {
-    // Re-fetch when language changes
+    // Re-fetch when language changes — browser only, since the backend
+    // isn't reachable during build-time prerendering and baking a failed
+    // fetch into the static HTML causes a stale error state after hydration.
     effect(() => {
-      this.fetchInfo(this.langService.currentLang());
+      const lang = this.langService.currentLang();
+      if (this.isBrowser) {
+        this.fetchInfo(lang);
+      }
     });
 
     // Keep the page title and meta description in sync with the active language

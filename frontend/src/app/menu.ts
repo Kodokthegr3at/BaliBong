@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, inject, signal, effect, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect, computed, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { LanguageService, LanguageCode } from './language.service';
@@ -743,6 +743,7 @@ export class MenuComponent implements OnInit, OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly titleService = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   langOpen = signal(false);
 
@@ -756,10 +757,15 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   private observer: any = null;
 
-  // Auto reload when language changes
+  // Auto reload when language changes — browser only, since the backend
+  // isn't reachable during build-time prerendering and baking a failed
+  // fetch into the static HTML flashes an error state before hydration.
   constructor() {
     effect(() => {
-      this.fetchMenu(this.langService.currentLang());
+      const lang = this.langService.currentLang();
+      if (this.isBrowser) {
+        this.fetchMenu(lang);
+      }
     });
 
     // Keep the page title and meta description in sync with the active language
