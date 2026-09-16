@@ -148,6 +148,14 @@ a {
   transition: padding 0.35s ease, background-color 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
+/* The header reads as anchored to the window edges, not floating in a
+   centered column like body content — otherwise a wide laptop screen
+   leaves the logo stranded with a huge empty margin beside it. */
+.main-header .container {
+  max-width: 1600px;
+  padding: 0 40px;
+}
+
 .main-header.header-scrolled {
   padding: 12px 0;
   background: rgba(250, 246, 239, 0.88);
@@ -408,6 +416,9 @@ footer {
 
   .main-header {
     padding: 12px 0;
+  }
+  .main-header .container {
+    padding: 0 20px;
   }
   .header-container {
     flex-direction: row;
