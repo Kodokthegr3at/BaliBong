@@ -201,6 +201,7 @@ import { getApiBase } from './api-base';
        instead, so it stays a consistent, sane composition at any width. */
     @media (min-width: 1200px) {
       .hero-photo {
+        width: 100%;
         height: auto;
         aspect-ratio: 2.1 / 1;
         max-height: 900px;

@@ -322,9 +322,9 @@ interface MenuItem {
     }
     .grid-title {
       font-size: 1.8rem;
-      margin-bottom: 24px;
+      max-width: 780px;
+      margin: 0 auto 24px;
       position: relative;
-      display: inline-block;
     }
     .grid-title::after {
       content: '';
@@ -407,7 +407,7 @@ interface MenuItem {
        without a photo per dish, rather than placeholder-icon cards. */
     .menu-rows {
       list-style: none;
-      margin: 0;
+      margin: 0 auto;
       padding: 0;
       max-width: 780px;
     }
