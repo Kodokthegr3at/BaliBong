@@ -53,7 +53,7 @@ import { getApiBase } from './api-base';
         <span class="hero-subtitle">{{ langService.t('hero_subtitle') }}</span>
         <h1 class="hero-headline">{{ langService.t('hero_desc') }}</h1>
         <div class="hero-actions">
-          <a routerLink="/menu" class="btn btn-secondary">
+          <a routerLink="/menu" class="btn btn-primary">
             {{ langService.t('view_menu') }}
           </a>
         </div>

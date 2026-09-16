@@ -1,17 +1,18 @@
 /* Design System for Bali Bong — warm base, three semantic accents */
 :root {
   --ink: #1c1a17;           /* near-black warm charcoal, primary text */
-  --paper: #f5b978;         /* warm orange, page background — matches the storefront sign */
-  --paper-dim: #eda355;     /* deeper orange for alternating sections, never a gradient */
-  --surface: #fff6ea;       /* warm near-white for cards/panels, keeps dense text readable */
-  --line: #d98a3e;          /* hairline borders/dividers */
-  --accent: #a8551f;        /* burnt orange — primary accent: brand, recommended, CTAs */
-  --accent-dim: #c9793f;
+  --paper: #faf6ef;         /* light neutral cream, page background — lets the accent do the work */
+  --paper-dim: #f0e9db;     /* subtle section separation, never a gradient */
+  --surface: #ffffff;       /* card/panel background, keeps dense text sharp */
+  --line: #e6dfcf;          /* hairline borders/dividers */
+  --brand-orange: #c1571a;  /* the storefront sign's orange — used boldly, not as wallpaper */
+  --accent: #c1571a;        /* primary accent: CTAs, active states, links */
+  --accent-dim: #963f11;    /* hover/pressed state, darker not lighter */
   --accent-green: #4c7a3d;  /* available/positive state */
   --accent-green-dim: #6d9c5c;
   --accent-red: #a8362a;    /* sold-out/negative state */
   --accent-red-dim: #c4574a;
-  --muted: #7a4a1f;
+  --muted: #8a7f6c;
 
   /* Back-compat aliases so existing component rules (still written against
      these names) inherit the new restrained palette without a full rewrite. */
@@ -98,11 +99,11 @@ a {
 }
 
 .btn-primary {
-  background-color: var(--ink);
-  color: var(--paper);
+  background-color: var(--accent);
+  color: #fff;
 }
 .btn-primary:hover {
-  background-color: var(--accent);
+  background-color: var(--accent-dim);
 }
 
 .btn-secondary {
@@ -142,17 +143,17 @@ a {
   top: 0;
   z-index: 100;
   background: var(--paper);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 2px solid var(--accent);
   padding: 22px 0;
   transition: padding 0.35s ease, background-color 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
 }
 
 .main-header.header-scrolled {
   padding: 12px 0;
-  background: rgba(245, 185, 120, 0.82);
+  background: rgba(250, 246, 239, 0.88);
   backdrop-filter: blur(14px) saturate(160%);
   -webkit-backdrop-filter: blur(14px) saturate(160%);
-  border-bottom-color: transparent;
+  border-bottom-color: var(--accent);
   box-shadow: 0 12px 30px rgba(28, 26, 23, 0.08);
 }
 
