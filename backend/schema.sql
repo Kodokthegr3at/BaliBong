@@ -56,6 +56,16 @@ CREATE TABLE IF NOT EXISTS qr_codes (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Tabel setting desain (single row, id selalu 1)
+CREATE TABLE IF NOT EXISTS design_settings (
+    id INT PRIMARY KEY DEFAULT 1,
+    background_url TEXT,
+    garuda_url TEXT,
+    barong_url TEXT,
+    updated_at TIMESTAMP DEFAULT NOW(),
+    CHECK (id = 1)
+);
+
 -- Tabel admin user
 CREATE TABLE IF NOT EXISTS admin_users (
     id SERIAL PRIMARY KEY,

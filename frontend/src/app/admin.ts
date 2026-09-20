@@ -1181,11 +1181,7 @@ export class AdminComponent implements OnInit {
     
     // Filter by Category
     if (filterCat !== 'all') {
-      if (filterCat === 5) {
-        items = items.filter(i => i.is_recommended);
-      } else {
-        items = items.filter(i => i.category_id == filterCat);
-      }
+      items = items.filter(i => i.category_id == filterCat);
     }
     
     // Filter by Search Query

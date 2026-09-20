@@ -915,16 +915,17 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   getFoodPlaceholderIcon(slug: string): string {
     const icons: Record<string, string> = {
-      makanan_berat: 'fa-solid fa-bowl-rice',
-      makanan_sayur: 'fa-solid fa-carrot',
+      ayam: 'fa-solid fa-drumstick-bite',
+      sayuran_tahu_tempe: 'fa-solid fa-carrot',
       manisan: 'fa-solid fa-cookie-bite',
-      ala_carte: 'fa-solid fa-egg',
-      rekomendasi: 'fa-solid fa-fire',
-      minuman_ringan: 'fa-solid fa-bottle-water',
-      bir: 'fa-solid fa-wine-bottle',
-      koktail: 'fa-solid fa-martini-glass'
+      camilan: 'fa-solid fa-egg',
+      kambing_sapi: 'fa-solid fa-bowl-food',
+      minuman: 'fa-solid fa-bottle-water',
+      seafood: 'fa-solid fa-shrimp',
+      sate: 'fa-solid fa-fire',
+      nasi_mie_sup: 'fa-solid fa-bowl-rice'
     };
-    return icons[slug] || 'fa-solid fa-shrimp';
+    return icons[slug] || 'fa-solid fa-utensils';
   }
 
   private fetchMenu(lang: LanguageCode) {

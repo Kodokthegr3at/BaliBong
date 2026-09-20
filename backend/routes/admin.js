@@ -10,9 +10,15 @@ const fs = require('fs');
 const path = require('path');
 const db = require('../db');
 
-// Never fall back to a fixed, publicly-known secret: generate a random one if
-// JWT_SECRET isn't configured. Tokens won't survive a restart in that case,
-// which is fine for local testing but must not happen in a real deployment.
+// A per-process random secret is fine for local dev (single process, fallback
+// DB) but breaks auth in a real deployment: Vercel runs multiple concurrent
+// function instances, each would mint its own secret, so a token signed by
+// one instance fails verification on another. DATABASE_URL being set is this
+// codebase's existing signal for "this is a real deployment" (see db.js), so
+// require JWT_SECRET whenever it is.
+if (!process.env.JWT_SECRET && process.env.DATABASE_URL) {
+  throw new Error('JWT_SECRET must be set when DATABASE_URL is configured (real deployment) — a random per-instance secret breaks admin auth across serverless instances.');
+}
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
 if (!process.env.JWT_SECRET) {
   console.warn('⚠️  JWT_SECRET is not set. Using a random secret for this process only — admin sessions will not survive a restart. Set JWT_SECRET in your .env before deploying.');
@@ -177,6 +183,10 @@ router.post('/menu', authenticateToken, async (req, res) => {
   // Translations from body: name_id, desc_id, name_ja, desc_ja, etc.
   const langs = ['id', 'en', 'ja', 'zh', 'ko', 'es'];
 
+  if (isNaN(parseInt(category_id)) || isNaN(parseInt(price))) {
+    return res.status(400).json({ error: 'category_id and price are required and must be numbers' });
+  }
+
   try {
     if (db.useFallback()) {
       const data = readFallback();
@@ -246,6 +256,13 @@ router.put('/menu/:id', authenticateToken, async (req, res) => {
   const { category_id, price, image_url, is_recommended, is_available, allergy_info } = req.body;
   const langs = ['id', 'en', 'ja', 'zh', 'ko', 'es'];
 
+  if (category_id !== undefined && isNaN(parseInt(category_id))) {
+    return res.status(400).json({ error: 'category_id must be a number' });
+  }
+  if (price !== undefined && isNaN(parseInt(price))) {
+    return res.status(400).json({ error: 'price must be a number' });
+  }
+
   try {
     if (db.useFallback()) {
       const data = readFallback();
@@ -257,8 +274,8 @@ router.put('/menu/:id', authenticateToken, async (req, res) => {
 
       data.menu_items[itemIdx] = {
         ...data.menu_items[itemIdx],
-        category_id: parseInt(category_id),
-        price: parseInt(price),
+        category_id: category_id !== undefined ? parseInt(category_id) : data.menu_items[itemIdx].category_id,
+        price: price !== undefined ? parseInt(price) : data.menu_items[itemIdx].price,
         image_url: image_url !== undefined ? image_url : data.menu_items[itemIdx].image_url,
         allergy_info: allergy_info !== undefined ? allergy_info : data.menu_items[itemIdx].allergy_info,
         is_recommended: !!is_recommended,
@@ -294,8 +311,8 @@ router.put('/menu/:id', authenticateToken, async (req, res) => {
       await db.query('BEGIN');
 
       const itemResult = await db.query(
-        `UPDATE menu_items 
-         SET category_id = $1, price = $2, image_url = $3, allergy_info = $4, is_recommended = $5, is_available = $6, updated_at = NOW() 
+        `UPDATE menu_items
+         SET category_id = COALESCE($1, category_id), price = COALESCE($2, price), image_url = COALESCE($3, image_url), allergy_info = COALESCE($4, allergy_info), is_recommended = COALESCE($5, is_recommended), is_available = COALESCE($6, is_available), updated_at = NOW()
          WHERE id = $7 RETURNING *`,
         [category_id, price, image_url, allergy_info, is_recommended, is_available, id]
       );
@@ -491,8 +508,8 @@ router.get('/design', async (req, res) => {
       const data = readFallback();
       res.json(data.design_settings || {});
     } else {
-      // In PostgreSQL, maybe fetch from a design_settings table (mocked here for simplicity if unsupported)
-      res.json({});
+      const result = await db.query('SELECT background_url, garuda_url, barong_url FROM design_settings WHERE id = 1');
+      res.json(result.rows[0] || {});
     }
   } catch (err) {
     console.error('Error fetching design info:', err);
@@ -514,7 +531,16 @@ router.put('/design', authenticateToken, async (req, res) => {
       writeFallback(data);
       res.json({ success: true });
     } else {
-      // No-op for postgres since not fully implemented yet
+      await db.query(
+        `INSERT INTO design_settings (id, background_url, garuda_url, barong_url, updated_at)
+         VALUES (1, $1, $2, $3, NOW())
+         ON CONFLICT (id) DO UPDATE SET
+           background_url = COALESCE($1, design_settings.background_url),
+           garuda_url = COALESCE($2, design_settings.garuda_url),
+           barong_url = COALESCE($3, design_settings.barong_url),
+           updated_at = NOW()`,
+        [background_url, garuda_url, barong_url]
+      );
       res.json({ success: true });
     }
   } catch (err) {
