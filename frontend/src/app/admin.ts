@@ -1282,6 +1282,21 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  // The admin token expires after 12h (see backend/routes/admin.js). Every
+  // authenticated call used to fail silently (console.error) or with a
+  // generic alert on expiry, leaving the admin looking logged in with
+  // permanently empty data and no indication why. Route every 401/403 from
+  // an authenticated call through here so it always drops back to the login
+  // screen with an explanatory message instead.
+  private handleAuthError(err: any): boolean {
+    if (err.status === 401 || err.status === 403) {
+      this.logout();
+      this.loginError.set('Sesi admin sudah habis atau tidak valid. Silakan login kembali.');
+      return true;
+    }
+    return false;
+  }
+
   loadInitialDashboardData() {
     this.loadRestaurantInfoForEdit();
     this.loadAdminMenu();
@@ -1322,6 +1337,7 @@ export class AdminComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
+        if (this.handleAuthError(err)) return;
         alert('Gagal menyimpan: ' + (err.error?.error || err.message));
       }
     });
@@ -1335,6 +1351,7 @@ export class AdminComponent implements OnInit {
         this.menuItems.set(data || []);
       },
       error: (err) => {
+        if (this.handleAuthError(err)) return;
         console.error('Error loading admin menu', err);
       }
     });
@@ -1414,6 +1431,7 @@ export class AdminComponent implements OnInit {
         },
         error: (err) => {
           this.uploadingImage.set(false);
+          if (this.handleAuthError(err)) return;
           console.error(err);
           alert('Gagal mengupload gambar.');
         }
@@ -1461,6 +1479,7 @@ export class AdminComponent implements OnInit {
         },
         error: (err) => {
           this.loading.set(false);
+          if (this.handleAuthError(err)) return;
           alert('Gagal mengupdate menu: ' + (err.error?.error || err.message));
         }
       });
@@ -1474,6 +1493,7 @@ export class AdminComponent implements OnInit {
         },
         error: (err) => {
           this.loading.set(false);
+          if (this.handleAuthError(err)) return;
           alert('Gagal menyimpan menu baru: ' + (err.error?.error || err.message));
         }
       });
@@ -1488,6 +1508,7 @@ export class AdminComponent implements OnInit {
           this.loadAdminMenu();
         },
         error: (err) => {
+          if (this.handleAuthError(err)) return;
           alert('Gagal menghapus: ' + (err.error?.error || err.message));
         }
       });
@@ -1502,6 +1523,7 @@ export class AdminComponent implements OnInit {
         this.qrCodes.set(data || []);
       },
       error: (err) => {
+        if (this.handleAuthError(err)) return;
         console.error('Error loading QR Codes', err);
       }
     });
@@ -1523,6 +1545,7 @@ export class AdminComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
+        if (this.handleAuthError(err)) return;
         alert('Gagal membuat QR Code: ' + (err.error?.error || err.message));
       }
     });
@@ -1638,6 +1661,7 @@ export class AdminComponent implements OnInit {
       },
       error: (err) => {
         this.loading.set(false);
+        if (this.handleAuthError(err)) return;
         alert('Gagal menyimpan desain: ' + (err.error?.error || err.message));
       }
     });
@@ -1665,6 +1689,7 @@ export class AdminComponent implements OnInit {
         },
         error: (err) => {
           this.uploadingDesign.set(false);
+          if (this.handleAuthError(err)) return;
           alert('Gagal mengupload gambar aset.');
         }
       });
