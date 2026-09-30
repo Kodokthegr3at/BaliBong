@@ -1,0 +1,11 @@
+# Secrets live in Vercel env vars, never in the upload
+.env*
+backend/.env
+backend/data_fallback.json
+# Local-only folders
+**/node_modules
+frontend/dist
+frontend/.angular
+.agents
+.claude
+design_handoff_*
