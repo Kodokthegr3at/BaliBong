@@ -1,15 +1,17 @@
-import { Component, OnInit, OnDestroy, inject, signal, effect, computed, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, effect, computed, PLATFORM_ID, HostListener } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { LanguageService, LanguageCode } from './language.service';
+import { SiteHeaderComponent } from './site-header';
 import { getApiBase } from './api-base';
 
 interface Category {
   id: number;
   slug: string;
   name: string;
+  name_ja: string | null;
 }
 
 interface MenuItem {
@@ -20,944 +22,536 @@ interface MenuItem {
   allergy_info: string | null;
   is_recommended: boolean;
   is_available: boolean;
+  spicy_level?: number;
+  is_vegetarian?: boolean;
   name: string;
+  name_ja: string | null;
   description: string;
   category_slug: string;
 }
 
+interface Tag { label: string; cls: string; }
+
+const CART_KEY = 'balibong_cart';
+
 @Component({
   selector: 'app-menu',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink, SiteHeaderComponent],
   template: `
-    <!-- Header -->
-    <header class="main-header" [class.header-scrolled]="headerScrolled()">
-      <div class="container header-container">
-        <a routerLink="/" class="logo">
-          <img src="/public/images/assets/logo.png" alt="BALI BONG Logo" class="header-logo-img">
-        </a>
-        <nav class="nav-links">
-          <a routerLink="/" class="nav-link">{{ langService.t('about_title') }}</a>
-          <a routerLink="/menu" class="nav-link active">{{ langService.t('menu_title') }}</a>
-          <a routerLink="/admin" class="nav-link"><i class="fa-solid fa-lock"></i></a>
-          
-          <div class="lang-switcher">
-            <button class="lang-btn" (click)="langOpen.set(!langOpen())">
-              <span>{{ langService.currentLangCode() }}</span>
-              <i class="fa-solid fa-chevron-down"></i>
-            </button>
-            <div class="lang-dropdown" [class.open]="langOpen()">
-              <button
-                *ngFor="let lang of langService.languages"
-                class="lang-option"
-                [class.active]="langService.currentLang() === lang.code"
-                (click)="selectLanguage(lang.code)"
-              >
-                <span>{{ lang.name }}</span>
-              </button>
-            </div>
+  <div class="bb page">
+    <app-site-header active="menu">
+      <div class="subbar">
+        <div class="bb-wrap subrow">
+          <div class="chips">
+            @for (g of groups(); track g.slug) {
+              <button type="button" class="chip" [class.on]="active() === g.slug" [attr.data-slug]="g.slug" (click)="goTo(g.slug)">{{ g.name }}</button>
+            }
           </div>
-        </nav>
+          <div class="search">
+            <input type="search" [value]="query()" (input)="query.set($any($event.target).value)" [placeholder]="t('search_short')" [attr.aria-label]="t('search_placeholder')">
+            <span class="search-ic"></span>
+          </div>
+        </div>
       </div>
-    </header>
+    </app-site-header>
 
-    <!-- Menu Title -->
-    <section class="menu-hero">
-      <div class="container">
-        <h1 class="menu-hero-title">{{ langService.t('menu_title') }}</h1>
-        <p class="menu-hero-subtitle">{{ langService.t('hero_subtitle') }}</p>
+    <!-- Title -->
+    <section class="bb-wrap intro">
+      <div>
+        <div class="bb-eyebrow-row mb16">
+          <span class="bb-eyebrow">{{ t('hero_subtitle') }}</span>
+          @if (showJp()) { <span class="bb-jp">メニュー</span> }
+        </div>
+        <h1 class="title">{{ t('menu_title') }}</h1>
+      </div>
+      <div class="intro-side">
+        <p>{{ t('menu_hint') }}</p>
+        <div class="meta"><span>{{ t('tax_included') }}</span><span>·</span><span>{{ t('ask_allergy') }}</span></div>
       </div>
     </section>
 
-    <!-- Main Content -->
-    <main class="menu-content container">
-      <!-- Loading state -->
-      <div class="menu-status-state" *ngIf="menuLoading()">
-        <i class="fa-solid fa-spinner fa-spin"></i>
-        <p>{{ langService.t('loading') }}</p>
+    @if (loading()) {
+      <p class="bb-wrap state">{{ t('loading') }}</p>
+    } @else if (loadError()) {
+      <div class="bb-wrap state">
+        <p>{{ t('menu_error') }}</p>
+        <button type="button" class="bb-btn btn-outline" (click)="fetchMenu(lang.currentLang())">{{ t('retry_button') }}</button>
       </div>
-
-      <!-- Error state: never show fabricated menu data on a real failure -->
-      <div class="menu-status-state menu-status-error" *ngIf="!menuLoading() && menuLoadError()">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <p>{{ langService.t('menu_error') }}</p>
-        <button class="btn btn-primary btn-sm" (click)="retryFetchMenu()">
-          <i class="fa-solid fa-rotate-right"></i> {{ langService.t('retry_button') }}
-        </button>
-      </div>
-
-      <ng-container *ngIf="!menuLoading() && !menuLoadError()">
-      <!-- Category Tabs -->
-      <div class="category-tabs-wrapper">
-        <div class="category-tabs">
-          <button
-            class="category-tab"
-            [class.active]="activeCategorySlug() === 'all'"
-            (click)="setActiveCategory('all')"
-          >
-            {{ langService.t('all_categories') }}
-          </button>
-
-          <button
-            *ngFor="let cat of categories()"
-            class="category-tab"
-            [class.active]="activeCategorySlug() === cat.slug"
-            (click)="setActiveCategory(cat.slug)"
-          >
-            {{ cat.name }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Recommended Spotlight: one feature photo + an elegant text list, not repeated placeholder cards -->
-      <div class="spotlight-section" [class.category-fade-out]="categoryTransitioning()" *ngIf="recommendedItems().length > 0 && activeCategorySlug() === 'all'">
-        <div class="spotlight-header">
-          <h2>{{ langService.t('recommended_label') }}</h2>
-        </div>
-
-        <div class="spotlight-layout">
-          <div class="spotlight-photo">
-            <img src="/public/images/assets/dish-featured.webp" alt="Hidangan rekomendasi Bali Bong">
+    } @else {
+      <!-- Signature -->
+      @if (!needle() && featured().length) {
+        <section class="bb-wrap feat-pad">
+          <div class="feat">
+            @for (f of featured(); track f.id) {
+              <button type="button" class="feat-card" (click)="openDetail(f)">
+                <div class="feat-img bb-ph">
+                  @if (f.image_url) { <img [src]="f.image_url" [alt]="f.name" loading="lazy"> }
+                  <span class="feat-badge">{{ t('signature_tag') }}</span>
+                  <span class="feat-plus" aria-hidden="true">+</span>
+                </div>
+                <div class="feat-meta">
+                  <span class="feat-name">{{ f.name }}</span>
+                  <span class="feat-price">{{ yen(f.price) }}</span>
+                </div>
+              </button>
+            }
           </div>
-          <ul class="spotlight-list">
-            <li *ngFor="let item of recommendedItems()" (click)="openItemDetail(item)" [class.sold-out-row]="!item.is_available">
-              <div class="spotlight-list-row">
-                <span class="spotlight-list-name">{{ item.name }}</span>
-                <span class="spotlight-list-price">¥ {{ formatPrice(item.price) }}</span>
-              </div>
-              <p class="spotlight-list-desc">{{ item.description }}</p>
-              <span class="sold-out-badge" *ngIf="!item.is_available">{{ langService.t('sold_out') }}</span>
-            </li>
-          </ul>
-        </div>
-      </div>
+        </section>
+      }
 
-      <!-- Menu listing: typography-led rows, the standard format for a restaurant menu without a photo per dish -->
-      <div class="menu-list-section" [class.category-fade-out]="categoryTransitioning()">
-        <h2 class="grid-title" *ngIf="activeCategorySlug() !== 'all'">
-          {{ getActiveCategoryName() }}
-        </h2>
-        <h2 class="grid-title" *ngIf="activeCategorySlug() === 'all'">
-          {{ langService.t('all_categories') }}
-        </h2>
-
-        <ul class="menu-rows" *ngIf="filteredItems().length > 0; else noItemsTemp">
-          <li
-            *ngFor="let item of filteredItems()"
-            class="menu-row"
-            [class.sold-out-row]="!item.is_available"
-            (click)="openItemDetail(item)"
-          >
-            <img *ngIf="item.image_url" [src]="item.image_url" class="menu-row-thumb" [alt]="item.name">
-            <div class="menu-row-body">
-              <div class="menu-row-top">
-                <h3 class="menu-row-name">{{ item.name }}</h3>
-                <span class="menu-row-dots"></span>
-                <span class="menu-row-price">¥ {{ formatPrice(item.price) }}</span>
-              </div>
-              <p class="menu-row-desc">{{ item.description }}</p>
-              <div class="menu-row-tags" *ngIf="item.is_recommended || !item.is_available || item.allergy_info || isSpicy(item.name)">
-                <span class="tag tag-rec" *ngIf="item.is_recommended"><i class="fa-solid fa-star"></i> {{ langService.t('recommended_label') }}</span>
-                <span class="tag tag-spicy" *ngIf="isSpicy(item.name)">🌶️ {{ langService.t('spicy_label') }}</span>
-                <span class="tag tag-soldout" *ngIf="!item.is_available">{{ langService.t('sold_out') }}</span>
-                <span class="tag tag-allergy" *ngIf="item.allergy_info"><i class="fa-solid fa-triangle-exclamation"></i> {{ item.allergy_info }}</span>
-              </div>
-            </div>
-          </li>
-        </ul>
-      </div>
-      </ng-container>
-    </main>
-
-    <ng-template #noItemsTemp>
-      <div class="no-items">
-        <i class="fa-solid fa-circle-info"></i>
-        <p>Tidak ada hidangan yang cocok dengan filter atau pencarian Anda.</p>
-      </div>
-    </ng-template>
-
-    <!-- Item Detail Modal -->
-    <div class="modal-backdrop" *ngIf="selectedItem()" (click)="closeItemDetail()">
-      <div class="modal-card detail-modal" (click)="$event.stopPropagation()">
-        <button class="close-btn" (click)="closeItemDetail()"><i class="fa-solid fa-xmark"></i></button>
-        
-        <div class="detail-content">
-          <div class="detail-image" [style.background-image]="selectedItem()?.image_url ? 'url(' + selectedItem()?.image_url + ')' : null" [style.background-size]="'cover'" [style.background-position]="'center'">
-            <i *ngIf="!selectedItem()?.image_url" [class]="getFoodPlaceholderIcon(selectedItem()?.category_slug || '')"></i>
-            <span class="recommended-badge" *ngIf="selectedItem()?.is_recommended">
-              <i class="fa-solid fa-star"></i>
-            </span>
+      <main class="bb-wrap">
+        @if (!groups().length) {
+          <div class="empty">
+            <p>{{ t('no_match') }}</p>
+            <button type="button" class="bb-btn btn-outline" (click)="query.set('')">{{ t('clear_search') }}</button>
           </div>
-          
-          <div class="detail-info">
-            <h2 class="detail-title">{{ selectedItem()?.name }}</h2>
-            <div class="detail-price-status">
-              <span class="detail-price">¥ {{ formatPrice(selectedItem()?.price) }}</span>
-              <span class="status-badge" [class.badge-available]="selectedItem()?.is_available" [class.badge-unavailable]="!selectedItem()?.is_available">
-                {{ selectedItem()?.is_available ? langService.t('available') : langService.t('sold_out') }}
-              </span>
-            </div>
-            
-            <p class="detail-desc">{{ selectedItem()?.description }}</p>
-            
-            <div class="detail-allergy" *ngIf="selectedItem()?.allergy_info">
-              <h4><i class="fa-solid fa-triangle-exclamation"></i> Informasi Alergi</h4>
-              <p>{{ selectedItem()?.allergy_info }}</p>
-            </div>
-          </div>
+        }
+        <div class="groups">
+          @for (g of groups(); track g.slug) {
+            <section [id]="g.slug" class="group">
+              <div class="group-head">
+                <div class="group-title">
+                  <span class="num">{{ g.num }}</span>
+                  <h2>{{ g.name }}</h2>
+                  @if (showJp() && g.name_ja) { <span class="bb-jp jp14">{{ g.name_ja }}</span> }
+                </div>
+                <span class="count">{{ fmt('dish_count', g.items.length) }}</span>
+              </div>
+              <div class="items">
+                @for (it of g.items; track it.id) {
+                  <button type="button" class="item" [class.out]="!it.is_available" (click)="openDetail(it)">
+                    <div class="thumb bb-ph">
+                      @if (it.image_url) { <img [src]="it.image_url" [alt]="it.name" loading="lazy"> }
+                      @if (cart()[it.id]) { <span class="qty-badge">{{ cart()[it.id] }}</span> }
+                    </div>
+                    <div class="item-body">
+                      <div class="item-top">
+                        <span class="item-name">{{ it.name }}</span>
+                        <span class="leader"></span>
+                        <span class="item-price">{{ yen(it.price) }}</span>
+                      </div>
+                      @if (showJp() && it.name_ja && it.name_ja !== it.name) { <span class="bb-jp">{{ it.name_ja }}</span> }
+                      @if (it.description) { <span class="item-desc">{{ it.description }}</span> }
+                      @if (it.tags.length) {
+                        <div class="tags">
+                          @for (tg of it.tags; track tg.label) { <span class="bb-tag" [class]="tg.cls">{{ tg.label }}</span> }
+                        </div>
+                      }
+                    </div>
+                  </button>
+                }
+              </div>
+            </section>
+          }
         </div>
-      </div>
-    </div>
+      </main>
+    }
 
-    <!-- Footer -->
-    <footer>
-      <div class="container footer-grid">
-        <div class="footer-info">
-          <h3>BALI BONG</h3>
-          <p>{{ langService.t('footer_tagline') }}</p>
-        </div>
-        <div class="footer-links">
-          <h4>{{ langService.t('footer_nav_title') }}</h4>
-          <ul>
-            <li><a routerLink="/">{{ langService.t('about_title') }}</a></li>
-            <li><a routerLink="/menu">{{ langService.t('menu_title') }}</a></li>
-            <li><a routerLink="/admin">{{ langService.t('admin_panel') }}</a></li>
-          </ul>
-        </div>
-        <div class="footer-hours">
-          <h4>{{ langService.t('hours_title') }}</h4>
-          <p *ngIf="restaurantHours()">{{ restaurantHours() }}</p>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 Bali Bong. {{ langService.t('all_rights') }}</p>
+    <footer class="bb-wrap foot">
+      <span>© 2026 Bali Bong. {{ t('all_rights') }}</span>
+      <div class="foot-links">
+        <a routerLink="/">{{ t('home_tab') }}</a>
+        <a routerLink="/admin">{{ t('admin_tab') }}</a>
       </div>
     </footer>
+
+    <!-- Floating order bar -->
+    @if (cartCount() > 0 && !cartOpen() && !detail()) {
+      <div class="bar-wrap">
+        <button type="button" class="bar" (click)="cartOpen.set(true)">
+          <span class="bar-l"><span class="bar-n">{{ cartCount() }}</span>{{ t('order_list') }}</span>
+          <span class="bar-total">{{ yen(cartTotal()) }}</span>
+        </button>
+      </div>
+    }
+
+    <!-- Detail sheet -->
+    @if (detail(); as d) {
+      <div class="overlay" (click)="closeAll()">
+        <div class="sheet" role="dialog" aria-modal="true" [attr.aria-label]="d.name" (click)="$event.stopPropagation()">
+          <div class="sheet-img bb-ph">
+            @if (d.image_url) { <img [src]="d.image_url" [alt]="d.name"> }
+            <button type="button" class="x x-img" [attr.aria-label]="t('close')" (click)="closeAll()">×</button>
+          </div>
+          <div class="sheet-body">
+            @if (d.tags.length) {
+              <div class="tags mb14">
+                @for (tg of d.tags; track tg.label) { <span class="bb-tag" [class]="tg.cls">{{ tg.label }}</span> }
+              </div>
+            }
+            <h3 class="sheet-name">{{ d.name }}</h3>
+            @if (showJp() && d.name_ja && d.name_ja !== d.name) { <div class="bb-jp jp15">{{ d.name_ja }}</div> }
+            @if (d.description) { <p class="sheet-desc">{{ d.description }}</p> }
+            @if (d.allergy_info) { <p class="allergy"><span class="bb-mono">{{ t('allergy_label') }}</span> {{ d.allergy_info }}</p> }
+            <div class="add-row">
+              <div class="stepper">
+                <button type="button" aria-label="−" (click)="decDraft()">−</button>
+                <span>{{ draft() }}</span>
+                <button type="button" aria-label="+" (click)="draft.set(draft() + 1)">+</button>
+              </div>
+              <button type="button" class="add" [disabled]="!d.is_available && !cart()[d.id]" (click)="saveDraft()">
+                <span>{{ !d.is_available && !cart()[d.id] ? t('sold_out') : cart()[d.id] ? t('update_list') : t('add_to_list') }}</span>
+                <span>{{ yen(draft() * d.price) }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Order list sheet -->
+    @if (cartOpen()) {
+      <div class="overlay" (click)="closeAll()">
+        <div class="sheet sheet-pad" role="dialog" aria-modal="true" [attr.aria-label]="t('order_list')" (click)="$event.stopPropagation()">
+          <div class="cart-head">
+            <div>
+              <h3 class="cart-title">{{ t('order_list') }}</h3>
+              @if (showJp()) { <div class="bb-jp jp14 mt6">ご注文リスト</div> }
+            </div>
+            <button type="button" class="x x-line" [attr.aria-label]="t('close')" (click)="closeAll()">×</button>
+          </div>
+          <p class="cart-help">{{ t('show_staff') }}</p>
+          <div class="lines">
+            @for (c of cartLines(); track c.item.id) {
+              <div class="line">
+                <div class="line-name">
+                  <div class="serif22">{{ c.item.name }}</div>
+                  @if (c.item.name_ja && c.item.name_ja !== c.item.name) { <div class="bb-jp">{{ c.item.name_ja }}</div> }
+                </div>
+                <div class="stepper sm">
+                  <button type="button" aria-label="−" (click)="setQty(c.item.id, c.qty - 1)">−</button>
+                  <span>{{ c.qty }}</span>
+                  <button type="button" aria-label="+" (click)="setQty(c.item.id, c.qty + 1)">+</button>
+                </div>
+                <span class="line-total">{{ yen(c.qty * c.item.price) }}</span>
+              </div>
+            }
+          </div>
+          <div class="sum">
+            <span>{{ fmt('total_items', cartCount()) }}</span>
+            <span class="sum-n">{{ yen(cartTotal()) }}</span>
+          </div>
+          <button type="button" class="clear" (click)="clearCart()">{{ t('clear_list') }}</button>
+        </div>
+      </div>
+    }
+  </div>
   `,
   styles: [`
-    .menu-hero {
-      padding: 56px 0 36px;
-      text-align: center;
-      border-bottom: 1px solid var(--line);
-      margin-bottom: 32px;
-    }
-    .menu-hero-title {
-      font-family: var(--font-display);
-      font-size: 2.4rem;
-      font-weight: 700;
-      color: var(--ink);
-      margin-bottom: 8px;
-    }
-    .menu-hero-subtitle {
-      font-size: 0.8rem;
-      color: var(--muted);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      font-weight: 600;
-    }
+    .page { padding-bottom: 120px; }
+    .mb14 { margin-bottom: 14px; } .mb16 { margin-bottom: 16px; } .mt6 { margin-top: 6px; }
+    .jp14 { font-size: 14px; } .jp15 { font-size: 15px; margin-bottom: 16px; }
 
-    /* Category Tabs — flat underline tabs, no pills or glass blur */
-    .category-tabs-wrapper {
-      position: sticky;
-      top: 60px;
-      z-index: 90;
-      background: var(--paper);
-      border-bottom: 1px solid var(--line);
-      margin-bottom: 40px;
-    }
-    .category-tabs {
-      display: flex;
-      gap: 4px;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .category-tabs::-webkit-scrollbar {
-      display: none;
-    }
-    .category-tab {
-      padding: 14px 16px;
-      border: none;
-      border-bottom: 2px solid transparent;
-      background: transparent;
-      font-family: var(--font-sans);
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: var(--muted);
-      cursor: pointer;
-      white-space: nowrap;
-      transition: var(--transition);
-    }
-    .category-tab:hover {
-      color: var(--ink);
-    }
-    .category-tab.active {
-      color: var(--ink);
-      border-bottom-color: var(--accent);
-    }
+    /* Sub-bar: category chips + search */
+    .subbar { border-top: 1px solid rgba(42,33,27,.1); }
+    .subrow { padding-top: 10px; padding-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+    .chips { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; flex: 1; min-width: 0; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip { flex: none; height: 38px; padding: 0 14px; border-radius: 999px; border: 0; background: transparent; color: var(--ink); font: 600 13px var(--sans); cursor: pointer; white-space: nowrap; }
+    .chip:hover { background: var(--hover-soft); }
+    .chip.on { background: var(--ink); color: var(--bg); }
+    .search { position: relative; flex: none; }
+    .search input { height: 38px; width: min(200px, 36vw); padding: 0 14px 0 34px; border-radius: 999px; border: 1px solid rgba(42,33,27,.16); background: var(--surface); font: 500 14px var(--sans); color: var(--ink); outline: none; -webkit-appearance: none; appearance: none; }
+    .search input:focus { border-color: var(--ink); }
+    .search input::placeholder { color: var(--muted); }
+    .search-ic { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); width: 11px; height: 11px; border: 1.5px solid var(--muted); border-radius: 50%; pointer-events: none; }
 
-    .scroll-reveal {
-      opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-      will-change: opacity, transform;
-    }
-    .scroll-reveal.is-visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    /* Intro */
+    .intro { padding-top: clamp(40px, 6vw, 80px); padding-bottom: clamp(24px, 3vw, 40px); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 28px; }
+    .title { font-size: clamp(72px, 11vw, 160px); line-height: .88; letter-spacing: -0.03em; }
+    .intro-side { max-width: 380px; display: flex; flex-direction: column; gap: 14px; }
+    .intro-side p { font-size: 15px; line-height: 1.65; color: var(--ink-2); }
+    .meta { display: flex; flex-wrap: wrap; gap: 14px; font: 400 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 
-    /* Category switch: a deliberate fade tied to the click, not a scroll-in
-       effect — the content isn't being scrolled to, it's being swapped. */
-    .spotlight-section, .menu-list-section {
-      opacity: 1;
-      transition: opacity 0.16s ease;
-    }
-    .category-fade-out {
-      opacity: 0;
-    }
+    .state { padding-top: 80px; padding-bottom: 80px; text-align: center; font-size: 16px; color: var(--ink-2); }
+    .state p { margin-bottom: 16px; }
+    .btn-outline { height: 44px; padding: 0 20px; border: 1px solid var(--ink); background: transparent; color: var(--ink); letter-spacing: 0; }
+    .btn-outline:hover { background: var(--ink); color: var(--bg); }
 
-    /* Content Area */
-    .menu-content {
-      min-height: 500px;
-    }
-    .grid-title {
-      font-size: 1.8rem;
-      max-width: 780px;
-      margin: 0 auto 24px;
-      position: relative;
-    }
-    .grid-title::after {
-      content: '';
-      position: absolute;
-      bottom: -6px;
-      left: 0;
-      width: 40px;
-      height: 3px;
-      background: var(--secondary-color);
-    }
+    /* Signature cards */
+    .feat-pad { padding-bottom: clamp(48px, 6vw, 80px); }
+    .feat { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; }
+    .feat-card { position: relative; text-align: left; border: 0; padding: 0; background: transparent; cursor: pointer; color: var(--ink); }
+    .feat-card:hover { transform: translateY(-3px); }
+    .feat-img { position: relative; aspect-ratio: 4 / 5; border-radius: 22px; overflow: hidden; }
+    .feat-badge { position: absolute; left: 14px; top: 14px; padding: 5px 10px; border-radius: 999px; background: var(--accent); color: var(--cream); font-size: 11px; font-weight: 700; letter-spacing: .04em; }
+    .feat-plus { position: absolute; right: 14px; bottom: 14px; width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .feat-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 4px 0; }
+    .feat-name { font-family: var(--serif); font-size: 26px; line-height: 1.1; }
+    .feat-price { font-size: 15px; font-weight: 700; white-space: nowrap; }
 
-    /* Recommended spotlight: one real photo + an elegant text list */
-    .spotlight-section {
-      margin-bottom: 64px;
-    }
-    .spotlight-header {
-      margin-bottom: 28px;
-    }
-    .spotlight-header h2 {
-      font-size: 1.4rem;
-      color: var(--ink);
-    }
-    .spotlight-layout {
-      display: grid;
-      grid-template-columns: 0.85fr 1.15fr;
-      gap: 40px;
-      align-items: stretch;
-      border: 1px solid var(--line);
-      overflow: hidden;
-    }
-    .spotlight-photo {
-      min-height: 280px;
-    }
-    .spotlight-photo img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .spotlight-list {
-      list-style: none;
-      padding: 32px 32px 32px 0;
-      margin: 0;
-    }
-    .spotlight-list li {
-      padding: 16px 0;
-      border-bottom: 1px solid var(--line);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .spotlight-list li:first-child { padding-top: 0; }
-    .spotlight-list li:last-child { border-bottom: none; padding-bottom: 0; }
-    .spotlight-list li:hover .spotlight-list-name { color: var(--accent); }
-    .spotlight-list-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 16px;
-    }
-    .spotlight-list-name {
-      font-family: var(--font-display);
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--ink);
-      transition: var(--transition);
-    }
-    .spotlight-list-price {
-      font-weight: 700;
-      color: var(--ink);
-      white-space: nowrap;
-      font-variant-numeric: tabular-nums;
-    }
-    .spotlight-list-desc {
-      margin-top: 4px;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
+    /* Category sections */
+    .empty { padding: 80px 0; text-align: center; }
+    .empty p { font-family: var(--serif); font-size: 36px; margin-bottom: 16px; }
+    .groups { display: flex; flex-direction: column; gap: clamp(56px, 7vw, 96px); }
+    .group { scroll-margin-top: 150px; }
+    .group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid var(--ink); }
+    .group-title { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+    .num { font: 400 12px var(--mono); color: var(--accent); }
+    .group-title h2 { font-size: clamp(36px, 4.4vw, 56px); line-height: 1; letter-spacing: -0.015em; }
+    .count { font-size: 13px; color: var(--muted); white-space: nowrap; }
+    .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); column-gap: clamp(32px, 5vw, 72px); }
+    .item { display: flex; gap: 18px; width: calc(100% + 16px); padding: 22px 8px; margin: 0 -8px; border: 0; border-bottom: 1px solid rgba(42,33,27,.1); border-radius: 0; background: transparent; text-align: left; cursor: pointer; color: var(--ink); }
+    .item:hover { background: rgba(233,223,208,.5); }
+    .item.out { opacity: .55; }
+    .thumb { position: relative; flex: none; width: clamp(84px, 10vw, 112px); aspect-ratio: 1; border-radius: 16px; }
+    .thumb img { border-radius: 16px; }
+    .qty-badge { position: absolute; top: -6px; right: -6px; min-width: 26px; height: 26px; padding: 0 7px; border-radius: 999px; background: var(--accent); color: var(--cream); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 3px var(--bg); }
+    .item-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+    .item-top { display: flex; align-items: baseline; gap: 12px; }
+    .item-name { font-family: var(--serif); font-size: 25px; line-height: 1.1; min-width: 0; }
+    .leader { flex: 1; min-width: 16px; border-bottom: 1px dotted rgba(42,33,27,.3); transform: translateY(-5px); }
+    .item-price { font-size: 16px; font-weight: 700; white-space: nowrap; }
+    .item-desc { font-size: 14px; line-height: 1.55; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 
-    /* Menu listing: typography-led rows — the standard format for a menu
-       without a photo per dish, rather than placeholder-icon cards. */
-    .menu-rows {
-      list-style: none;
-      margin: 0 auto;
-      padding: 0;
-      max-width: 780px;
-    }
-    .menu-row {
-      display: flex;
-      gap: 20px;
-      padding: 22px 4px;
-      border-bottom: 1px solid var(--line);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .menu-row:first-child { padding-top: 4px; }
-    .menu-row:hover {
-      background: var(--paper-dim);
-      padding-left: 16px;
-      padding-right: 16px;
-      margin: 0 -16px;
-    }
-    .menu-row-thumb {
-      width: 68px;
-      height: 68px;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-    .menu-row-body {
-      flex-grow: 1;
-      min-width: 0;
-    }
-    .menu-row-top {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-    }
-    .menu-row-name {
-      font-family: var(--font-display);
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--ink);
-      white-space: nowrap;
-    }
-    .menu-row-dots {
-      flex-grow: 1;
-      border-bottom: 1px dotted var(--line);
-      transform: translateY(-4px);
-    }
-    .menu-row-price {
-      font-weight: 700;
-      color: var(--ink);
-      white-space: nowrap;
-      font-variant-numeric: tabular-nums;
-    }
-    .menu-row-desc {
-      margin-top: 4px;
-      font-size: 0.88rem;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-    .menu-row-tags {
-      margin-top: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .tag {
-      font-size: 0.74rem;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .tag-rec {
-      color: var(--accent);
-    }
-    .tag-spicy {
-      color: var(--accent-red);
-    }
-    .tag-soldout {
-      color: var(--accent-red);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .tag-allergy {
-      color: var(--muted);
-    }
-    .sold-out-row {
-      opacity: 0.55;
-    }
+    .foot { margin-top: clamp(64px, 8vw, 120px); border-top: 1px solid var(--line); padding-top: 32px; padding-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; font-size: 13px; color: var(--muted); }
+    .foot-links { display: flex; gap: 20px; }
+    .foot-links a { color: var(--ink-2); }
+    .foot-links a:hover { color: var(--accent); }
 
-    .no-items {
-      text-align: center;
-      padding: 60px 0;
-      color: var(--text-muted);
-    }
-    .no-items i {
-      font-size: 2.5rem;
-      margin-bottom: 16px;
-    }
+    /* Floating bar */
+    .bar-wrap { position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; padding: 16px clamp(16px, 4vw, 48px) calc(16px + env(safe-area-inset-bottom)); display: flex; justify-content: center; pointer-events: none; }
+    .bar { pointer-events: auto; width: min(560px, 100%); height: 64px; padding: 0 10px 0 24px; border: 0; border-radius: 999px; background: var(--ink); color: var(--bg); display: flex; align-items: center; justify-content: space-between; gap: 16px; cursor: pointer; box-shadow: 0 20px 40px -12px rgba(42,33,27,.5); animation: bbUp .35s cubic-bezier(.2,.8,.2,1); }
+    .bar:hover { background: #3a2e25; }
+    .bar-l { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 600; }
+    .bar-n { min-width: 28px; height: 28px; padding: 0 8px; border-radius: 999px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 13px; }
+    .bar-total { height: 44px; padding: 0 20px; border-radius: 999px; background: var(--bg); color: var(--ink); display: flex; align-items: center; font-size: 15px; font-weight: 700; }
 
-    .menu-status-state {
-      text-align: center;
-      padding: 100px 0;
-      color: var(--text-muted);
-    }
-    .menu-status-state i {
-      font-size: 2.5rem;
-      margin-bottom: 16px;
-      display: block;
-      color: var(--primary-color);
-    }
-    .menu-status-state p {
-      margin-bottom: 20px;
-      font-size: 1.05rem;
-    }
-    .menu-status-error i {
-      color: var(--accent-color);
-    }
-
-    @media (max-width: 768px) {
-      .menu-hero {
-        padding: 40px 0 60px;
-      }
-      .menu-hero-title {
-        font-size: 2.2rem;
-      }
-      .menu-hero-subtitle {
-        font-size: 0.95rem;
-        margin-bottom: 24px;
-      }
-      .category-tabs-wrapper {
-        margin: -20px auto 32px;
-        padding: 0 16px;
-        position: sticky;
-        top: 60px; /* Offset for mobile header */
-        z-index: 90;
-      }
-      .category-tab {
-        padding: 10px 20px;
-        font-size: 0.9rem;
-      }
-      .spotlight-header h2 {
-        font-size: 1.3rem;
-      }
-      .spotlight-layout {
-        grid-template-columns: 1fr;
-      }
-      .spotlight-photo {
-        min-height: 200px;
-      }
-      .spotlight-list {
-        padding: 24px 20px;
-      }
-      .menu-row {
-        padding: 18px 2px;
-        gap: 14px;
-      }
-      .menu-row-thumb {
-        width: 56px;
-        height: 56px;
-      }
-      .menu-row-name {
-        font-size: 1rem;
-      }
-      .menu-row-price {
-        font-size: 0.95rem;
-      }
-      .menu-row-desc {
-        font-size: 0.84rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .menu-row-top, .spotlight-list-row {
-        flex-wrap: wrap;
-      }
-      .menu-row-name, .spotlight-list-name {
-        white-space: normal;
-      }
-      .menu-row-dots {
-        display: none;
-      }
-      .detail-modal {
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        max-height: 100vh;
-        border-radius: 0;
-        display: flex;
-        flex-direction: column;
-      }
-      .detail-content {
-        flex-direction: column;
-      }
-      .detail-image {
-        width: 100%;
-        height: 300px;
-        border-radius: 0;
-      }
-      .detail-info {
-        padding: 24px;
-      }
-    }
-
-    /* Modal Backdrop */
-    .modal-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(28, 26, 23, 0.5);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-card {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      position: relative;
-      width: 100%;
-      max-width: 800px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .close-btn {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: var(--surface);
-      border: 1px solid var(--line);
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: var(--ink);
-      z-index: 10;
-      transition: var(--transition);
-    }
-    .close-btn:hover {
-      border-color: var(--ink);
-    }
-    
-    .detail-content {
-      display: flex;
-      flex-direction: column;
-    }
-    
-    @media (min-width: 768px) {
-      .detail-content {
-        flex-direction: row;
-      }
-      .detail-image {
-        width: 45%;
-        min-height: 400px;
-      }
-      .detail-info {
-        width: 55%;
-        padding: 40px 32px;
-      }
-    }
-    
-    .detail-image {
-      background-color: #f5f5f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 5rem;
-      color: #ddd;
-      position: relative;
-      height: 300px;
-    }
-    
-    .detail-info {
-      padding: 32px 24px;
-    }
-    
-    .detail-title {
-      font-size: 1.8rem;
-      color: var(--ink);
-      margin-bottom: 16px;
-      line-height: 1.2;
-    }
-
-    .detail-price-status {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-      padding-bottom: 24px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .detail-price {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--ink);
-    }
-
-    .detail-desc {
-      font-size: 1.05rem;
-      line-height: 1.8;
-      color: var(--muted);
-      margin-bottom: 32px;
-    }
-
-    .detail-allergy {
-      border-left: 2px solid var(--accent);
-      padding: 12px 16px;
-    }
-    .detail-allergy h4 {
-      color: var(--ink);
-      font-size: 0.9rem;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .detail-allergy p {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin: 0;
-    }
-
-    .status-badge {
-      font-size: 0.85rem;
-      font-weight: 600;
-    }
-    .badge-available {
-      color: var(--accent-green);
-    }
-    .badge-unavailable {
-      color: var(--accent-red);
-    }
+    /* Sheets */
+    .overlay { position: fixed; inset: 0; z-index: 80; background: rgba(26,18,12,.5); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); display: flex; align-items: flex-end; justify-content: center; animation: bbFade .2s ease; }
+    .sheet { width: min(640px, 100%); max-height: 92vh; overflow: auto; overscroll-behavior: contain; background: var(--bg); border-radius: 28px 28px 0 0; animation: bbUp .3s cubic-bezier(.2,.8,.2,1); padding-bottom: env(safe-area-inset-bottom); }
+    .sheet-pad { padding: 28px clamp(20px, 4vw, 36px) calc(28px + env(safe-area-inset-bottom)); }
+    .sheet-img { position: relative; aspect-ratio: 16 / 10; }
+    .x { width: 44px; height: 44px; border-radius: 50%; font: 500 22px var(--sans); color: var(--ink); cursor: pointer; flex: none; }
+    .x-img { position: absolute; top: 16px; right: 16px; border: 0; background: rgba(246,241,232,.92); }
+    .x-line { border: 1px solid rgba(42,33,27,.16); background: transparent; }
+    .sheet-body { padding: 28px clamp(20px, 4vw, 36px); }
+    .sheet-name { margin-bottom: 6px; font-size: 44px; line-height: 1; }
+    .sheet-desc { margin-bottom: 28px; font-size: 16px; line-height: 1.65; color: var(--ink-2); }
+    .allergy { margin: -12px 0 28px; font-size: 14px; color: var(--ink-2); }
+    .add-row { display: flex; align-items: center; gap: 12px; }
+    .stepper { display: flex; align-items: center; height: 56px; border-radius: 999px; border: 1px solid rgba(42,33,27,.2); flex: none; }
+    .stepper button { width: 52px; height: 54px; border: 0; background: transparent; font: 500 22px var(--sans); color: var(--ink); cursor: pointer; }
+    .stepper span { min-width: 28px; text-align: center; font-size: 17px; font-weight: 700; }
+    .stepper.sm { height: 40px; border-color: rgba(42,33,27,.16); }
+    .stepper.sm button { width: 38px; height: 38px; font-size: 18px; }
+    .stepper.sm span { min-width: 20px; font-size: 14px; }
+    .add { flex: 1; min-width: 0; height: 56px; border: 0; border-radius: 999px; background: var(--accent); color: var(--cream); font: 700 15px var(--sans); cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 24px; }
+    .add:hover { background: var(--accent-hover); }
+    .add:disabled { background: var(--muted); cursor: not-allowed; }
+    .cart-head { display: flex; justify-content: space-between; align-items: start; gap: 16px; margin-bottom: 8px; }
+    .cart-title { font-size: 40px; line-height: 1; }
+    .cart-help { margin-bottom: 20px; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+    .lines { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+    .line { display: flex; align-items: center; gap: 14px; padding: 16px 0; border-bottom: 1px solid rgba(42,33,27,.1); }
+    .line-name { flex: 1; min-width: 0; }
+    .serif22 { font-family: var(--serif); font-size: 22px; line-height: 1.15; }
+    .line-total { width: 76px; text-align: right; font-size: 15px; font-weight: 700; }
+    .sum { display: flex; justify-content: space-between; align-items: baseline; padding: 22px 0 24px; font-size: 15px; color: var(--ink-2); }
+    .sum-n { font-family: var(--serif); font-size: 40px; line-height: 1; color: var(--ink); }
+    .clear { width: 100%; height: 52px; border-radius: 999px; border: 1px solid rgba(42,33,27,.2); background: transparent; font: 600 14px var(--sans); color: var(--ink); cursor: pointer; }
+    .clear:hover { border-color: var(--ink); }
   `]
 })
 export class MenuComponent implements OnInit, OnDestroy {
-  langService = inject(LanguageService);
+  readonly lang = inject(LanguageService);
   private readonly http = inject(HttpClient);
   private readonly titleService = inject(Title);
   private readonly meta = inject(Meta);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  langOpen = signal(false);
+  readonly t = (key: string) => this.lang.t(key);
+  readonly fmt = (key: string, n: number) => this.lang.t(key).replace('{n}', String(n));
+  readonly yen = (n: number) => '¥' + n.toLocaleString('ja-JP');
+  readonly showJp = computed(() => this.lang.currentLang() !== 'ja');
 
   readonly categories = signal<Category[]>([]);
-  readonly menuItems = signal<MenuItem[]>([]);
-  readonly activeCategorySlug = signal<string>('all');
-  readonly designSettings = signal<any>(null);
-  readonly selectedItem = signal<MenuItem | null>(null);
-  readonly menuLoading = signal<boolean>(true);
-  readonly menuLoadError = signal<boolean>(false);
-  readonly restaurantHours = signal<string>('');
+  readonly items = signal<MenuItem[]>([]);
+  readonly loading = signal(true);
+  readonly loadError = signal(false);
 
-  private observer: any = null;
+  readonly query = signal('');
+  readonly active = signal('');
+  readonly cart = signal<Record<number, number>>(this.loadCart());
+  readonly detailId = signal<number | null>(null);
+  readonly draft = signal(1);
+  readonly cartOpen = signal(false);
 
-  // Auto reload when language changes — browser only, since the backend
-  // isn't reachable during build-time prerendering and baking a failed
-  // fetch into the static HTML flashes an error state before hydration.
+  readonly needle = computed(() => this.query().trim().toLowerCase());
+
+  private tagsFor(i: MenuItem): Tag[] {
+    const tags: Tag[] = [];
+    if (i.is_recommended) tags.push({ label: this.t('signature_tag'), cls: 'bb-tag bb-tag-sig' });
+    const spicy = Math.min(3, i.spicy_level || 0);
+    if (spicy > 0) tags.push({ label: '🌶'.repeat(spicy) + ' ' + this.t('spicy_label'), cls: 'bb-tag bb-tag-spicy' });
+    if (i.is_vegetarian) tags.push({ label: this.t('vegetarian'), cls: 'bb-tag bb-tag-veg' });
+    if (!i.is_available) tags.push({ label: this.t('sold_out'), cls: 'bb-tag bb-tag-out' });
+    return tags;
+  }
+
+  private readonly views = computed(() => this.items().map(i => ({ ...i, tags: this.tagsFor(i) })));
+  private readonly byId = computed(() => new Map(this.views().map(i => [i.id, i])));
+
+  readonly featured = computed(() => this.views().filter(i => i.is_recommended));
+
+  readonly groups = computed(() => {
+    const q = this.needle();
+    const pool = q
+      ? this.views().filter(i => `${i.name} ${i.description || ''} ${i.name_ja || ''}`.toLowerCase().includes(q))
+      : this.views();
+    return this.categories()
+      .map((c, idx) => ({ ...c, num: String(idx + 1).padStart(2, '0'), items: pool.filter(i => i.category_id === c.id) }))
+      .filter(g => g.items.length);
+  });
+
+  // Cart ids whose item no longer exists (deleted in /admin) are skipped, not counted.
+  readonly cartLines = computed(() => {
+    const byId = this.byId();
+    return Object.entries(this.cart())
+      .map(([id, qty]) => ({ item: byId.get(+id)!, qty }))
+      .filter(l => l.item);
+  });
+  readonly cartCount = computed(() => this.cartLines().reduce((a, l) => a + l.qty, 0));
+  readonly cartTotal = computed(() => this.cartLines().reduce((a, l) => a + l.qty * l.item.price, 0));
+
+  readonly detail = computed(() => {
+    const id = this.detailId();
+    return id === null ? null : this.byId().get(id) ?? null;
+  });
+
   constructor() {
+    // Browser only: the backend isn't reachable during build-time prerendering.
     effect(() => {
-      const lang = this.langService.currentLang();
-      if (this.isBrowser) {
-        this.fetchMenu(lang);
-        this.fetchHours(lang);
-      }
+      const lang = this.lang.currentLang();
+      if (this.isBrowser) this.fetchMenu(lang);
     });
 
-    // Keep the page title and meta description in sync with the active language
     effect(() => {
-      const title = this.langService.t('menu_seo_title');
-      const description = this.langService.t('menu_seo_desc');
+      const title = this.lang.t('menu_seo_title');
+      const description = this.lang.t('menu_seo_desc');
       this.titleService.setTitle(title);
       this.meta.updateTag({ name: 'description', content: description });
       this.meta.updateTag({ property: 'og:title', content: title });
       this.meta.updateTag({ property: 'og:description', content: description });
     });
 
-    // Re-attach observer whenever items list changes
     effect(() => {
-      const slug = this.activeCategorySlug();
-      const items = this.filteredItems();
-      const recs = this.recommendedItems();
-      if (typeof window !== 'undefined') {
-        setTimeout(() => this.setupScrollObserver(), 50); // Wait for DOM render
+      const cart = this.cart();
+      if (!this.isBrowser) return;
+      try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch { /* private mode: list just won't persist */ }
+    });
+
+    // Lock page scroll behind an open sheet.
+    effect(() => {
+      const locked = this.detailId() !== null || this.cartOpen();
+      if (this.isBrowser) document.body.style.overflow = locked ? 'hidden' : '';
+    });
+
+    // Keep the scroll-spy state valid when the visible groups change (search, reload).
+    effect(() => {
+      const groups = this.groups();
+      if (this.isBrowser) setTimeout(() => this.onScroll());
+      else if (groups.length) this.active.set(groups[0].slug);
+    });
+  }
+
+  private loadCart(): Record<number, number> {
+    if (typeof window === 'undefined') return {};
+    try {
+      const raw = JSON.parse(localStorage.getItem(CART_KEY) || '{}');
+      const cart: Record<number, number> = {};
+      for (const [id, qty] of Object.entries(raw)) {
+        if (Number.isInteger(qty) && (qty as number) > 0) cart[+id] = qty as number;
       }
-    });
-  }
-
-  setupScrollObserver() {
-    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) return;
-    
-    if (!this.observer) {
-      this.observer = new IntersectionObserver((entries) => {
-        let delay = 0;
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            setTimeout(() => {
-              entry.target.classList.add('is-visible');
-            }, delay);
-            delay += 80; // Staggered delay for elements entering together
-            this.observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+      return cart;
+    } catch {
+      return {};
     }
-    
-    document.querySelectorAll('.scroll-reveal:not(.is-visible)').forEach(el => {
-      this.observer.observe(el);
-    });
   }
-
-  readonly headerScrolled = signal(false);
-  private onWindowScroll = () => {
-    this.headerScrolled.set(window.scrollY > 24);
-  };
 
   ngOnInit() {
-    this.fetchDesignSettings();
-    if (typeof window !== 'undefined') {
-      window.addEventListener('scroll', this.onWindowScroll, { passive: true });
-      this.onWindowScroll();
-    }
+    if (this.isBrowser) window.addEventListener('scroll', this.onScroll, { passive: true });
   }
 
   ngOnDestroy() {
-    if (typeof window !== 'undefined') {
-      window.removeEventListener('scroll', this.onWindowScroll);
+    if (this.isBrowser) {
+      window.removeEventListener('scroll', this.onScroll);
+      document.body.style.overflow = '';
     }
   }
 
-  fetchDesignSettings() {
-    const apiBase = getApiBase();
-    this.http.get<any>(`${apiBase}/admin/design`).subscribe({
-      next: (data) => this.designSettings.set(data),
-      error: (err) => console.error('Error fetching design', err)
-    });
-  }
-
-  selectLanguage(lang: LanguageCode) {
-    this.langService.setLanguage(lang);
-    this.langOpen.set(false);
-  }
-
-  readonly categoryTransitioning = signal(false);
-
-  // Category switches used to swap content instantly, which read as a glitch
-  // rather than a deliberate change. Fade out, swap the underlying data, then
-  // fade back in — one intentional motion tied to the click instead of a jump cut.
-  setActiveCategory(slug: string) {
-    if (this.activeCategorySlug() === slug) return;
-    this.categoryTransitioning.set(true);
-    setTimeout(() => {
-      this.activeCategorySlug.set(slug);
-      requestAnimationFrame(() => this.categoryTransitioning.set(false));
-    }, 160);
-  }
-
-  getActiveCategoryName(): string {
-    const slug = this.activeCategorySlug();
-    if (slug === 'all') return this.langService.t('all_categories');
-    return this.categories().find(c => c.slug === slug)?.name || slug;
-  }
-
-  private readonly spicyKeywords = ['pedas', 'spicy', 'スパイシー', '辣', '매콤', 'picante'];
-  isSpicy(name: string): boolean {
-    const lower = name.toLowerCase();
-    return this.spicyKeywords.some(k => lower.includes(k));
-  }
-
-  // Filter items dynamically based on category
-  readonly filteredItems = computed(() => {
-    let items = this.menuItems();
-    const activeSlug = this.activeCategorySlug();
-
-    if (activeSlug !== 'all') {
-      items = items.filter(i => i.category_slug === activeSlug);
+  // Scroll-spy: the active chip is the last section whose top has passed 180px.
+  private readonly onScroll = () => {
+    const groups = this.groups();
+    if (!groups.length) return;
+    let cur = groups[0].slug;
+    for (const g of groups) {
+      const el = document.getElementById(g.slug);
+      if (el && el.getBoundingClientRect().top < 180) cur = g.slug;
     }
+    if (cur !== this.active()) {
+      this.active.set(cur);
+      const chip = document.querySelector<HTMLElement>(`.chip[data-slug="${cur}"]`);
+      chip?.parentElement?.scrollTo({ left: chip.offsetLeft - 16, behavior: 'smooth' });
+    }
+  };
 
-    return items;
-  });
-
-  // Recommended items spotlight list
-  readonly recommendedItems = computed(() => {
-    return this.menuItems().filter(i => i.is_recommended);
-  });
-
-  formatPrice(price: number | undefined | null): string {
-    if (price === undefined || price === null) return '0';
-    // Standard IDR format. In Indonesian PRD, e.g. 1.280 which represents 1,280 JPY (but stated as IDR 1.280, representing 1.280 k IDR or JPY equivalent. Let's format it as is with dot grouping, e.g. 990 or 1.280).
-    return price.toLocaleString('id-ID');
+  goTo(slug: string) {
+    const el = document.getElementById(slug);
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 150, behavior: 'smooth' });
   }
 
-  openItemDetail(item: MenuItem) {
-    this.selectedItem.set(item);
+  openDetail(item: MenuItem) {
+    this.detailId.set(item.id);
+    this.draft.set(this.cart()[item.id] || 1);
   }
 
-  closeItemDetail() {
-    this.selectedItem.set(null);
+  // Items already on the list may go down to 0 (saving 0 removes them); new items start at 1.
+  decDraft() {
+    const min = this.cart()[this.detailId()!] ? 0 : 1;
+    this.draft.set(Math.max(min, this.draft() - 1));
   }
 
-  getFoodPlaceholderIcon(slug: string): string {
-    const icons: Record<string, string> = {
-      ayam: 'fa-solid fa-drumstick-bite',
-      sayuran_tahu_tempe: 'fa-solid fa-carrot',
-      manisan: 'fa-solid fa-cookie-bite',
-      camilan: 'fa-solid fa-egg',
-      kambing_sapi: 'fa-solid fa-bowl-food',
-      minuman: 'fa-solid fa-bottle-water',
-      seafood: 'fa-solid fa-shrimp',
-      sate: 'fa-solid fa-fire',
-      nasi_mie_sup: 'fa-solid fa-bowl-rice'
-    };
-    return icons[slug] || 'fa-solid fa-utensils';
+  saveDraft() {
+    this.setQty(this.detailId()!, this.draft());
+    this.detailId.set(null);
   }
 
-  private fetchMenu(lang: LanguageCode) {
-    this.menuLoading.set(true);
-    this.menuLoadError.set(false);
-    const apiBase = getApiBase();
-    this.http.get<{ categories: Category[], items: MenuItem[] }>(`${apiBase}/menu?lang=${lang}`).subscribe({
+  setQty(id: number, qty: number) {
+    const cart = { ...this.cart() };
+    if (qty <= 0) delete cart[id]; else cart[id] = qty;
+    this.cart.set(cart);
+    if (!Object.keys(cart).length) this.cartOpen.set(false);
+  }
+
+  clearCart() {
+    this.cart.set({});
+    this.cartOpen.set(false);
+  }
+
+  @HostListener('document:keydown.escape')
+  closeAll() {
+    this.detailId.set(null);
+    this.cartOpen.set(false);
+  }
+
+  fetchMenu(lang: LanguageCode) {
+    this.loading.set(true);
+    this.loadError.set(false);
+    this.http.get<{ categories: Category[]; items: MenuItem[] }>(`${getApiBase()}/menu?lang=${lang}`).subscribe({
       next: (data) => {
         this.categories.set(data.categories || []);
-        this.menuItems.set(data.items || []);
-        this.menuLoading.set(false);
+        this.items.set(data.items || []);
+        this.loading.set(false);
       },
       error: (err) => {
-        // Never show fabricated menu data to a real customer: prices and
-        // availability here are what someone orders and pays for, so a
-        // failed fetch must surface as an error state, not silent mock data.
+        // Never show fabricated menu data: prices here are what a guest orders and pays.
         console.error('Error fetching menu from backend', err);
-        this.menuLoading.set(false);
-        this.menuLoadError.set(true);
+        this.loading.set(false);
+        this.loadError.set(true);
       }
-    });
-  }
-
-  retryFetchMenu() {
-    this.fetchMenu(this.langService.currentLang());
-  }
-
-  private fetchHours(lang: LanguageCode) {
-    const apiBase = getApiBase();
-    this.http.get<{ hours?: string }>(`${apiBase}/restaurant-info?lang=${lang}`).subscribe({
-      next: (data) => this.restaurantHours.set(data.hours || ''),
-      error: (err) => console.error('Error fetching restaurant hours', err)
     });
   }
 }

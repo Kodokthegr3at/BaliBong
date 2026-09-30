@@ -33,9 +33,15 @@ CREATE TABLE IF NOT EXISTS menu_items (
     allergy_info TEXT,
     is_recommended BOOLEAN DEFAULT FALSE,
     is_available BOOLEAN DEFAULT TRUE,
+    spicy_level SMALLINT DEFAULT 0 CHECK (spicy_level BETWEEN 0 AND 3),
+    is_vegetarian BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Migrasi untuk database yang dibuat sebelum kolom di atas ada
+ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS spicy_level SMALLINT DEFAULT 0 CHECK (spicy_level BETWEEN 0 AND 3);
+ALTER TABLE menu_items ADD COLUMN IF NOT EXISTS is_vegetarian BOOLEAN DEFAULT FALSE;
 
 -- Tabel terjemahan nama & deskripsi menu (5 bahasa)
 CREATE TABLE IF NOT EXISTS menu_item_translations (

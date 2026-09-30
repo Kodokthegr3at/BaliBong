@@ -100,6 +100,13 @@ router.post('/auth/login', loginLimiter, async (req, res) => {
   }
 });
 
+// Spicy level is 0–3 (number of chili marks on the menu); undefined = not sent.
+function clampSpicy(v) {
+  if (v === undefined || v === null || v === '') return undefined;
+  const n = parseInt(v);
+  return isNaN(n) ? undefined : Math.min(3, Math.max(0, n));
+}
+
 const ALLOWED_IMAGE_TYPES = { png: 'png', jpeg: 'jpg', jpg: 'jpg', webp: 'webp', gif: 'gif' };
 
 // POST /api/admin/upload-image
@@ -179,7 +186,8 @@ router.get('/menu', authenticateToken, async (req, res) => {
 
 // POST /api/admin/menu (Admin: Create new menu item)
 router.post('/menu', authenticateToken, async (req, res) => {
-  const { category_id, price, image_url, is_recommended, is_available, allergy_info } = req.body;
+  const { category_id, price, image_url, is_recommended, is_available, allergy_info, is_vegetarian } = req.body;
+  const spicy_level = clampSpicy(req.body.spicy_level);
   // Translations from body: name_id, desc_id, name_ja, desc_ja, etc.
   const langs = ['id', 'en', 'ja', 'zh', 'ko', 'es'];
 
@@ -200,6 +208,8 @@ router.post('/menu', authenticateToken, async (req, res) => {
         allergy_info: allergy_info || null,
         is_recommended: !!is_recommended,
         is_available: is_available !== undefined ? !!is_available : true,
+        spicy_level: spicy_level ?? 0,
+        is_vegetarian: !!is_vegetarian,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       };
@@ -224,9 +234,9 @@ router.post('/menu', authenticateToken, async (req, res) => {
       await db.query('BEGIN');
       
       const itemResult = await db.query(
-        `INSERT INTO menu_items (category_id, price, image_url, allergy_info, is_recommended, is_available) 
-         VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-        [category_id, price, image_url, allergy_info, is_recommended, is_available]
+        `INSERT INTO menu_items (category_id, price, image_url, allergy_info, is_recommended, is_available, spicy_level, is_vegetarian) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *`,
+        [category_id, price, image_url, allergy_info, is_recommended, is_available, spicy_level ?? 0, !!is_vegetarian]
       );
       const newItem = itemResult.rows[0];
 
@@ -253,7 +263,8 @@ router.post('/menu', authenticateToken, async (req, res) => {
 // PUT /api/admin/menu/:id (Admin: Update menu item)
 router.put('/menu/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const { category_id, price, image_url, is_recommended, is_available, allergy_info } = req.body;
+  const { category_id, price, image_url, is_recommended, is_available, allergy_info, is_vegetarian } = req.body;
+  const spicy_level = clampSpicy(req.body.spicy_level);
   const langs = ['id', 'en', 'ja', 'zh', 'ko', 'es'];
 
   if (category_id !== undefined && isNaN(parseInt(category_id))) {
@@ -280,6 +291,8 @@ router.put('/menu/:id', authenticateToken, async (req, res) => {
         allergy_info: allergy_info !== undefined ? allergy_info : data.menu_items[itemIdx].allergy_info,
         is_recommended: !!is_recommended,
         is_available: is_available !== undefined ? !!is_available : data.menu_items[itemIdx].is_available,
+        spicy_level: spicy_level ?? data.menu_items[itemIdx].spicy_level ?? 0,
+        is_vegetarian: is_vegetarian !== undefined ? !!is_vegetarian : !!data.menu_items[itemIdx].is_vegetarian,
         updated_at: new Date().toISOString()
       };
 
@@ -312,9 +325,9 @@ router.put('/menu/:id', authenticateToken, async (req, res) => {
 
       const itemResult = await db.query(
         `UPDATE menu_items
-         SET category_id = COALESCE($1, category_id), price = COALESCE($2, price), image_url = COALESCE($3, image_url), allergy_info = COALESCE($4, allergy_info), is_recommended = COALESCE($5, is_recommended), is_available = COALESCE($6, is_available), updated_at = NOW()
+         SET category_id = COALESCE($1, category_id), price = COALESCE($2, price), image_url = COALESCE($3, image_url), allergy_info = COALESCE($4, allergy_info), is_recommended = COALESCE($5, is_recommended), is_available = COALESCE($6, is_available), spicy_level = COALESCE($8, spicy_level), is_vegetarian = COALESCE($9, is_vegetarian), updated_at = NOW()
          WHERE id = $7 RETURNING *`,
-        [category_id, price, image_url, allergy_info, is_recommended, is_available, id]
+        [category_id, price, image_url, allergy_info, is_recommended, is_available, id, spicy_level, is_vegetarian]
       );
 
       if (itemResult.rows.length === 0) {

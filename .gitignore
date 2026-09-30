@@ -29,5 +29,9 @@ update_db_about.js
 # Agent folders
 .agent/
 .agents/
+.claude/
+
+# design handoff / prompt bundles (never commit)
+design_handoff_*/
 .vercel
 .env*

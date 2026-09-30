@@ -129,10 +129,12 @@ async function query(text, params) {
       const lang = params && params.length > 0 ? params[0] : 'id';
       const rows = data.menu_categories.map(c => {
         const trans = data.menu_category_translations.find(t => t.category_id === c.id && t.lang === lang);
+        const ja = data.menu_category_translations.find(t => t.category_id === c.id && t.lang === 'ja');
         return {
           id: c.id,
           slug: c.slug,
-          name: trans ? trans.name : c.slug
+          name: trans ? trans.name : c.slug,
+          name_ja: ja ? ja.name : null
         };
       });
       return { rows };
@@ -144,10 +146,12 @@ async function query(text, params) {
       const lang = params && params.length > 0 ? params[0] : 'id';
       const rows = data.menu_items.map(item => {
         const trans = data.menu_item_translations.find(t => t.menu_item_id === item.id && t.lang === lang);
+        const ja = data.menu_item_translations.find(t => t.menu_item_id === item.id && t.lang === 'ja');
         const cat = data.menu_categories.find(c => c.id === item.category_id);
         return {
           ...item,
           name: trans ? trans.name : `Item ${item.id}`,
+          name_ja: ja ? ja.name : null,
           description: trans ? trans.description : '',
           category_slug: cat ? cat.slug : ''
         };

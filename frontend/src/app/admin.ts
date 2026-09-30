@@ -23,6 +23,8 @@ interface AdminMenuItem {
   allergy_info?: string | null;
   is_recommended: boolean;
   is_available: boolean;
+  spicy_level?: number;
+  is_vegetarian?: boolean;
   name_id?: string;
   desc_id?: string;
   name_en?: string;
@@ -443,6 +445,21 @@ interface AdminMenuItem {
                       <input type="checkbox" name="modalAvailable" [(ngModel)]="modalItem.is_available" />
                       <span>Tersedia (Ready)</span>
                     </label>
+
+                    <label class="checkbox-label">
+                      <input type="checkbox" name="modalVegetarian" [(ngModel)]="modalItem.is_vegetarian" />
+                      <span>Vegetarian</span>
+                    </label>
+
+                    <div class="form-group">
+                      <label>Tingkat Pedas</label>
+                      <select name="modalSpicy" [(ngModel)]="modalItem.spicy_level">
+                        <option [ngValue]="0">Tidak pedas</option>
+                        <option [ngValue]="1">🌶 Sedikit</option>
+                        <option [ngValue]="2">🌶🌶 Sedang</option>
+                        <option [ngValue]="3">🌶🌶🌶 Sangat pedas</option>
+                      </select>
+                    </div>
                   </div>
 
                   <!-- Languages Tabs inside modal -->
@@ -1385,6 +1402,8 @@ export class AdminComponent implements OnInit {
       allergy_info: null,
       is_recommended: false,
       is_available: true,
+      spicy_level: 0,
+      is_vegetarian: false,
       name_id: '', desc_id: '',
       name_en: '', desc_en: '',
       name_ja: '', desc_ja: '',

@@ -3,7 +3,8 @@
     <router-outlet />
   </main>
 
-  <!-- Mobile Bottom Navigation -->
+  <!-- Mobile Bottom Navigation (admin only; public pages use the redesigned header) -->
+  @if (isAdmin()) {
   <nav class="mobile-bottom-nav">
     <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="bottom-nav-item">
       <div class="bottom-nav-icon-wrapper">
@@ -24,4 +25,5 @@
       <span>{{ langService.t('admin_tab') }}</span>
     </a>
   </nav>
+  }
 </div>
