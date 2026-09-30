@@ -676,6 +676,9 @@ footer {
   border-radius: 999px; font-size: 14px; font-weight: 600; letter-spacing: 0.02em;
   cursor: pointer; border: 0; white-space: nowrap;
 }
+/* Admin toast (lives here to keep admin.ts under the component style budget) */
+.ap-toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 90; max-width: calc(100% - 32px); padding: 14px 22px; border-radius: 999px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; box-shadow: 0 20px 40px -12px rgba(42,33,27,.5); animation: bbFade .2s ease; }
+.ap-toast.err { background: var(--accent-deep); }
 @keyframes bbUp { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 @keyframes bbFade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {

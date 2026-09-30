@@ -289,7 +289,7 @@ router.put('/menu/:id', authenticateToken, async (req, res) => {
         price: price !== undefined ? parseInt(price) : data.menu_items[itemIdx].price,
         image_url: image_url !== undefined ? image_url : data.menu_items[itemIdx].image_url,
         allergy_info: allergy_info !== undefined ? allergy_info : data.menu_items[itemIdx].allergy_info,
-        is_recommended: !!is_recommended,
+        is_recommended: is_recommended !== undefined ? !!is_recommended : data.menu_items[itemIdx].is_recommended,
         is_available: is_available !== undefined ? !!is_available : data.menu_items[itemIdx].is_available,
         spicy_level: spicy_level ?? data.menu_items[itemIdx].spicy_level ?? 0,
         is_vegetarian: is_vegetarian !== undefined ? !!is_vegetarian : !!data.menu_items[itemIdx].is_vegetarian,
@@ -452,6 +452,28 @@ router.post('/qr', authenticateToken, async (req, res) => {
     res.status(201).json(newQr);
   } catch (err) {
     console.error('Error generating QR code:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+// DELETE /api/admin/qr/:id (Admin: Remove a table QR code, e.g. one printed with a wrong link)
+router.delete('/qr/:id', authenticateToken, async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ error: 'Invalid id' });
+  try {
+    if (db.useFallback()) {
+      const data = readFallback();
+      const before = data.qr_codes.length;
+      data.qr_codes = data.qr_codes.filter(q => q.id !== id);
+      if (data.qr_codes.length === before) return res.status(404).json({ error: 'QR code not found' });
+      writeFallback(data);
+    } else {
+      const result = await db.query('DELETE FROM qr_codes WHERE id = $1 RETURNING id', [id]);
+      if (result.rows.length === 0) return res.status(404).json({ error: 'QR code not found' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error deleting QR code:', err);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });

@@ -1,11 +1,11 @@
-import { Component, OnInit, inject, signal, effect, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, computed, HostListener, ChangeDetectorRef } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { LanguageService, LanguageCode } from './language.service';
 import { getApiBase } from './api-base';
+import { toInfoRows, HOURS_SEPARATOR, CONTACT_SEPARATOR } from './info-rows';
 
 interface QrCode {
   id: number;
@@ -14,6 +14,8 @@ interface QrCode {
   qr_image_url: string;
   created_at: string;
 }
+
+interface Category { id: number; name: string; }
 
 interface AdminMenuItem {
   id?: number;
@@ -39,1367 +41,748 @@ interface AdminMenuItem {
   desc_es?: string;
 }
 
+type Tab = 'info' | 'menu' | 'qr';
+type TextKind = 'name' | 'desc';
+
+const TOKEN_KEY = 'balibong_token';
+// Vercel rejects request bodies over 4.5 MB and base64 adds ~33%.
+const MAX_UPLOAD_BYTES = 3 * 1024 * 1024;
+
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink],
   template: `
-    <!-- Header -->
-    <header class="main-header">
-      <div class="container header-container">
-        <a routerLink="/" class="logo">
-          <img src="/public/images/assets/logo.png" alt="BALI BONG Logo" class="header-logo-img">
-        </a>
-        <nav class="nav-links">
-          <a routerLink="/" class="nav-link">{{ langService.t('about_title') }}</a>
-          <a routerLink="/menu" class="nav-link">{{ langService.t('menu_title') }}</a>
-          <a routerLink="/admin" class="nav-link active"><i class="fa-solid fa-lock"></i></a>
-          
-          <button *ngIf="isLoggedIn()" (click)="logout()" class="btn btn-outline btn-sm">
-            <i class="fa-solid fa-right-from-bracket"></i> {{ langService.t('admin_logout') }}
-          </button>
+  <div class="bb">
+    <header class="ap-hdr">
+      <div class="bb-wrap ap-hdr-row">
+        <a routerLink="/" class="ap-logo"><img src="/public/images/assets/logo.png" alt="BALI BONG"></a>
+        <nav class="ap-nav">
+          <a routerLink="/">Beranda</a>
+          <a routerLink="/menu">Menu</a>
+          @if (isLoggedIn()) {
+            <button type="button" class="ap-btn ap-btn-line ap-btn-sm" (click)="logout()">Keluar</button>
+          }
         </nav>
       </div>
     </header>
 
-    <main class="admin-main container">
-      <!-- 1. LOGIN SCREEN -->
-      <div class="login-wrapper" *ngIf="!isLoggedIn()">
-        <div class="login-card glass-panel">
-          <div class="login-header">
-            <i class="fa-solid fa-shield-halved login-icon"></i>
-            <h2>{{ langService.t('admin_login') }}</h2>
-            <p>Akses khusus pengelola restoran Bali Bong</p>
-          </div>
-          
-          <form (submit)="login($event)" class="login-form">
-            <div class="form-group">
-              <label for="email">{{ langService.t('email_placeholder') }}</label>
-              <input 
-                type="email" 
-                id="email" 
-                name="email" 
-                [(ngModel)]="loginEmail" 
-                [placeholder]="langService.t('email_placeholder')" 
-                required
-              />
-            </div>
-            
-            <div class="form-group">
-              <label for="password">{{ langService.t('password_placeholder') }}</label>
-              <input 
-                type="password" 
-                id="password" 
-                name="password" 
-                [(ngModel)]="loginPassword" 
-                [placeholder]="langService.t('password_placeholder')" 
-                required
-              />
-            </div>
-            
-            <div class="error-message" *ngIf="loginError()">
-              <i class="fa-solid fa-circle-exclamation"></i> {{ loginError() }}
-            </div>
-            
-            <button type="submit" class="btn btn-primary w-full" [disabled]="loading()">
-              <span *ngIf="loading()"><i class="fa-solid fa-spinner fa-spin"></i> Loading...</span>
-              <span *ngIf="!loading()">{{ langService.t('login_btn') }}</span>
+    <main class="bb-wrap ap-main">
+      @if (!isLoggedIn()) {
+        <!-- LOGIN -->
+        <div class="ap-login">
+          <span class="bb-eyebrow">Panel Admin</span>
+          <h1 class="ap-login-title">Login Admin</h1>
+          <p class="ap-muted">Akses khusus pengelola restoran Bali Bong.</p>
+          <form (submit)="login($event)" class="ap-stack">
+            <label class="ap-field">
+              <span>Email</span>
+              <input class="ap-input" type="email" name="email" autocomplete="username" [(ngModel)]="loginEmail" required>
+            </label>
+            <label class="ap-field">
+              <span>Kata sandi</span>
+              <input class="ap-input" type="password" name="password" autocomplete="current-password" [(ngModel)]="loginPassword" required>
+            </label>
+            @if (loginError()) { <p class="ap-error" role="alert">{{ loginError() }}</p> }
+            <button type="submit" class="ap-btn ap-btn-accent ap-btn-lg" [disabled]="saving()">
+              {{ saving() ? 'Memproses…' : 'Masuk' }}
             </button>
           </form>
         </div>
-      </div>
-
-      <!-- 2. ADMIN PANEL DASHBOARD -->
-      <div class="dashboard-wrapper" *ngIf="isLoggedIn()">
-        <div class="dashboard-header">
-          <h1>{{ langService.t('admin_panel') }}</h1>
-          <p>Kelola menu digital, info restoran, dan generator QR Code meja.</p>
+      } @else {
+        <!-- DASHBOARD -->
+        <div class="ap-head">
+          <span class="bb-eyebrow">Panel Admin</span>
+          <h1 class="ap-title">Kelola Bali Bong</h1>
         </div>
 
-        <!-- Tab Links -->
-        <div class="tab-links">
-          <button class="tab-link" [class.active]="activeTab() === 'info'" (click)="activeTab.set('info')">
-            <i class="fa-solid fa-circle-info"></i> {{ langService.t('restaurant_info_tab') }}
-          </button>
-          <button class="tab-link" [class.active]="activeTab() === 'menu'" (click)="activeTab.set('menu')">
-            <i class="fa-solid fa-utensils"></i> {{ langService.t('menu_items_tab') }}
-          </button>
-          <button class="tab-link" [class.active]="activeTab() === 'qr'" (click)="activeTab.set('qr')">
-            <i class="fa-solid fa-qrcode"></i> {{ langService.t('qr_codes_tab') }}
-          </button>
-          <button class="tab-link" [class.active]="activeTab() === 'design'" (click)="activeTab.set('design')">
-            <i class="fa-solid fa-palette"></i> Desain Web
-          </button>
+        <div class="ap-tabs" role="tablist">
+          <button type="button" role="tab" [class.on]="activeTab() === 'info'" (click)="switchTab('info')">Info Restoran</button>
+          <button type="button" role="tab" [class.on]="activeTab() === 'menu'" (click)="switchTab('menu')">Menu</button>
+          <button type="button" role="tab" [class.on]="activeTab() === 'qr'" (click)="switchTab('qr')">QR Code Meja</button>
         </div>
 
-        <!-- TAB CONTENT: RESTAURANT INFO -->
-        <div class="tab-content glass-panel" *ngIf="activeTab() === 'info'">
-          <div class="info-editor-header">
-            <h2>Ubah Informasi Restoran</h2>
-            <div class="info-lang-switcher">
-              <label>Pilih Bahasa Edit:</label>
-              <select [(ngModel)]="infoEditLang" (change)="loadRestaurantInfoForEdit()">
-                <option *ngFor="let l of langService.languages" [value]="l.code">{{ l.name }}</option>
-              </select>
-            </div>
-          </div>
-          
-          <form (submit)="saveRestaurantInfo($event)" class="info-form">
-            <div class="form-group">
-              <label>Tentang Kami (About)</label>
-              <textarea name="infoAbout" [(ngModel)]="infoAbout" rows="5" required></textarea>
-            </div>
-            
-            <div class="form-group">
-              <label>Akses Transportasi (Transportation)</label>
-              <textarea name="infoTransport" [(ngModel)]="infoTransport" rows="4" required></textarea>
-            </div>
-            
-            <div class="form-group">
-              <label>Kontak & Informasi (Contact)</label>
-              <textarea name="infoContact" [(ngModel)]="infoContact" rows="3" required></textarea>
-            </div>
-            
-            <div class="form-group">
-              <label>Jam Operasional (Hours)</label>
-              <textarea name="infoHours" [(ngModel)]="infoHours" rows="2" required></textarea>
-            </div>
-            
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary" [disabled]="loading()">
-                <i class="fa-solid fa-floppy-disk"></i> {{ langService.t('save') }}
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <!-- TAB CONTENT: MENU MANAGEMENT -->
-        <div class="tab-content glass-panel" *ngIf="activeTab() === 'menu'">
-          <div class="menu-manager-header" style="flex-direction: column; align-items: stretch; gap: 16px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-              <h2>Daftar Hidangan Restoran</h2>
-              <button class="btn btn-primary btn-sm" (click)="openAddModal()">
-                <i class="fa-solid fa-plus"></i> {{ langService.t('add_item') }}
-              </button>
-            </div>
-            
-            <div class="admin-toolbar">
-              <div class="admin-search-wrapper">
-                <i class="fa-solid fa-search admin-search-icon"></i>
-                <input 
-                  type="text" 
-                  [(ngModel)]="adminSearchQuery" 
-                  (ngModelChange)="onAdminSearchChange($event)"
-                  placeholder="Cari nama menu..." 
-                  class="admin-search-input"
-                />
+        <!-- TAB: RESTAURANT INFO -->
+        @if (activeTab() === 'info') {
+          <section class="ap-panel">
+            <div class="ap-panel-head">
+              <div>
+                <h2 class="ap-h2">Informasi Restoran</h2>
+                <p class="ap-muted">Teks ini tampil di Beranda. Setiap bahasa disimpan terpisah.</p>
               </div>
-
-              <div class="admin-category-tabs">
-                <button 
-                  class="admin-cat-tab" 
-                  [class.active]="adminFilterCategory() === 'all'" 
-                  (click)="adminFilterCategory.set('all')"
-                >
-                  <i class="fa-solid fa-border-all"></i> Semua
-                </button>
-                <button
-                  class="admin-cat-tab"
-                  [class.active]="adminFilterCategory() === 1"
-                  (click)="adminFilterCategory.set(1)"
-                >
-                  <i class="fa-solid fa-drumstick-bite"></i> Ayam
-                </button>
-                <button
-                  class="admin-cat-tab"
-                  [class.active]="adminFilterCategory() === 2"
-                  (click)="adminFilterCategory.set(2)"
-                >
-                  <i class="fa-solid fa-leaf"></i> Sayuran & Tahu-Tempe
-                </button>
-                <button
-                  class="admin-cat-tab"
-                  [class.active]="adminFilterCategory() === 3"
-                  (click)="adminFilterCategory.set(3)"
-                >
-                  <i class="fa-solid fa-ice-cream"></i> Manisan
-                </button>
-                <button
-                  class="admin-cat-tab"
-                  [class.active]="adminFilterCategory() === 4"
-                  (click)="adminFilterCategory.set(4)"
-                >
-                  <i class="fa-solid fa-utensils"></i> Camilan
-                </button>
-                <button
-                  class="admin-cat-tab"
-                  [class.active]="adminFilterCategory() === 5"
-                  (click)="adminFilterCategory.set(5)"
-                >
-                  <i class="fa-solid fa-bone"></i> Kambing & Sapi
-                </button>
-                <button
-                  class="admin-cat-tab"
-                  [class.active]="adminFilterCategory() === 6"
-                  (click)="adminFilterCategory.set(6)"
-                >
-                  <i class="fa-solid fa-mug-hot"></i> Minuman
-                </button>
-                <button
-                  class="admin-cat-tab"
-                  [class.active]="adminFilterCategory() === 7"
-                  (click)="adminFilterCategory.set(7)"
-                >
-                  <i class="fa-solid fa-shrimp"></i> Seafood
-                </button>
-                <button
-                  class="admin-cat-tab"
-                  [class.active]="adminFilterCategory() === 8"
-                  (click)="adminFilterCategory.set(8)"
-                >
-                  <i class="fa-solid fa-fire"></i> Sate
-                </button>
-                <button
-                  class="admin-cat-tab"
-                  [class.active]="adminFilterCategory() === 9"
-                  (click)="adminFilterCategory.set(9)"
-                >
-                  <i class="fa-solid fa-bowl-rice"></i> Nasi, Mie & Sup
-                </button>
+              <div class="ap-chips">
+                @for (l of lang.languages; track l.code) {
+                  <button type="button" class="ap-chip" [class.on]="infoEditLang === l.code" (click)="switchInfoLang(l.code)">{{ l.code.toUpperCase() }}</button>
+                }
               </div>
             </div>
-          </div>
 
-          <!-- Menu Items Table -->
-          <div class="table-responsive">
-            <table class="admin-table">
-              <thead>
-                <tr>
-                  <th>Nama Hidangan (ID)</th>
-                  <th>Kategori</th>
-                  <th>Harga</th>
-                  <th>Status</th>
-                  <th>Aksi</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let item of filteredAdminMenuItems(); let idx = index" class="animate-pop-in" [style.animation-delay]="(idx * 0.05) + 's'">
-                  <td class="font-semibold">{{ item.name_id }}</td>
-                  <td data-label="Kategori">{{ getCategoryLabel(item.category_id) }}</td>
-                  <td data-label="Harga">¥ {{ formatPrice(item.price) }}</td>
-                  <td data-label="Status">
-                    <span class="status-badge" [class.badge-available]="item.is_available" [class.badge-unavailable]="!item.is_available">
-                      {{ item.is_available ? 'Tersedia' : 'Habis' }}
-                    </span>
-                    <span class="rec-badge" *ngIf="item.is_recommended">
-                      <i class="fa-solid fa-star"></i> Rekomendasi
-                    </span>
-                  </td>
-                  <td data-label="Aksi">
-                    <div class="table-actions">
-                      <button (click)="openEditModal(item)" class="action-btn edit-btn" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                      <button (click)="deleteMenuItem(item.id!)" class="action-btn delete-btn" title="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+            <form (submit)="saveRestaurantInfo($event)" class="ap-stack">
+              <label class="ap-field">
+                <span>Tentang Kami</span>
+                <textarea class="ap-input" name="infoAbout" [(ngModel)]="infoAbout" rows="6"></textarea>
+              </label>
+              <label class="ap-field">
+                <span>Akses & Transportasi</span>
+                <textarea class="ap-input" name="infoTransport" [(ngModel)]="infoTransport" rows="3"></textarea>
+              </label>
+              <div class="ap-grid2">
+                <label class="ap-field">
+                  <span>Jam Operasional</span>
+                  <textarea class="ap-input" name="infoHours" [(ngModel)]="infoHours" rows="4"></textarea>
+                  <small class="ap-hint">Satu baris per jadwal, format <b>Hari: jam</b>. Pisahkan dengan baris baru atau titik.</small>
+                  @if (hoursPreview().length) {
+                    <div class="ap-preview-rows">
+                      @for (r of hoursPreview(); track $index) { <div><span>{{ r.label }}</span><b>{{ r.value }}</b></div> }
                     </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+                  }
+                </label>
+                <label class="ap-field">
+                  <span>Kontak</span>
+                  <textarea class="ap-input" name="infoContact" [(ngModel)]="infoContact" rows="4"></textarea>
+                  <small class="ap-hint">Format <b>Label: nilai</b>, pisahkan dengan baris baru atau tanda <b>|</b>.</small>
+                  @if (contactPreview().length) {
+                    <div class="ap-preview-rows">
+                      @for (r of contactPreview(); track $index) { <div><span>{{ r.label }}</span><b>{{ r.value }}</b></div> }
+                    </div>
+                  }
+                </label>
+              </div>
+              <div class="ap-actions">
+                @if (infoDirty()) { <span class="ap-muted">Ada perubahan yang belum disimpan</span> }
+                <button type="submit" class="ap-btn ap-btn-accent" [disabled]="saving() || !infoDirty()">Simpan</button>
+              </div>
+            </form>
+          </section>
+        }
 
-        <!-- TAB CONTENT: QR CODE MANAGEMENT -->
-        <div class="tab-content glass-panel" *ngIf="activeTab() === 'qr'">
-          <div class="qr-manager-header">
-            <h2>Generator QR Code Meja</h2>
-            <p>Cetak QR Code dan letakkan di meja makan agar pelanggan dapat langsung mengakses Menu Digital.</p>
-          </div>
+        <!-- TAB: MENU -->
+        @if (activeTab() === 'menu') {
+          <section class="ap-panel">
+            <div class="ap-panel-head">
+              <div>
+                <h2 class="ap-h2">Daftar Hidangan</h2>
+                <p class="ap-muted">{{ menuItems().length }} hidangan · {{ soldOutCount() }} habis</p>
+              </div>
+              <button type="button" class="ap-btn ap-btn-dark" (click)="openAddModal()">+ Tambah Menu</button>
+            </div>
 
-          <div class="qr-grid-layout">
-            <!-- Form to Generate -->
-            <div class="qr-form-card">
-              <h3>Buat QR Code Baru</h3>
-              <form (submit)="generateQrCode($event)" class="qr-form">
-                <div class="form-group">
-                  <label for="tableLabel">Label Meja (misal: Meja 1)</label>
-                  <input type="text" name="qrTableLabel" [(ngModel)]="qrTableLabel" id="tableLabel" placeholder="Meja 1" required />
-                </div>
-                
-                <div class="form-group">
-                  <label for="targetUrl">Link Target Menu</label>
-                  <input type="url" name="qrTargetUrl" [(ngModel)]="qrTargetUrl" id="targetUrl" placeholder="http://localhost:4200/menu" required />
-                  <small class="form-help">Link ini akan ditanam di dalam QR Code</small>
-                </div>
-                
-                <button type="submit" class="btn btn-primary w-full" [disabled]="loading()">
-                  <i class="fa-solid fa-qrcode"></i> {{ langService.t('generate_qr') }}
-                </button>
+            <div class="ap-toolbar">
+              <input class="ap-input ap-search" type="search" placeholder="Cari nama menu…" [ngModel]="adminSearchQuery()" (ngModelChange)="adminSearchQuery.set($event)">
+              <div class="ap-chips ap-scroll">
+                <button type="button" class="ap-chip" [class.on]="adminFilterCategory() === 'all'" (click)="adminFilterCategory.set('all')">Semua</button>
+                @for (c of categories(); track c.id) {
+                  <button type="button" class="ap-chip" [class.on]="adminFilterCategory() === c.id" (click)="adminFilterCategory.set(c.id)">{{ c.name }}</button>
+                }
+              </div>
+            </div>
+
+            @if (menuLoading()) {
+              <p class="ap-empty">Memuat…</p>
+            } @else if (!filteredAdminMenuItems().length) {
+              <p class="ap-empty">Tidak ada hidangan yang cocok.</p>
+            } @else {
+              <ul class="ap-list">
+                @for (item of filteredAdminMenuItems(); track item.id) {
+                  <li class="ap-row" [class.out]="!item.is_available">
+                    <div class="ap-thumb bb-ph">
+                      @if (item.image_url) { <img [src]="item.image_url" [alt]="item.name_id" loading="lazy"> }
+                    </div>
+                    <div class="ap-row-main">
+                      <div class="ap-row-name">{{ item.name_id }}</div>
+                      <div class="ap-row-meta">
+                        <span>{{ categoryName(item.category_id) }}</span>
+                        @if (item.is_recommended) { <span class="bb-tag bb-tag-sig">Andalan</span> }
+                        @if (item.spicy_level) { <span class="bb-tag bb-tag-spicy">{{ chili(item.spicy_level) }}</span> }
+                        @if (item.is_vegetarian) { <span class="bb-tag bb-tag-veg">Vegetarian</span> }
+                      </div>
+                    </div>
+                    <div class="ap-row-price">{{ yen(item.price) }}</div>
+                    <button type="button" class="ap-switch" [class.on]="item.is_available" (click)="toggleAvailable(item)"
+                      [attr.aria-pressed]="item.is_available" [title]="item.is_available ? 'Tandai habis' : 'Tandai tersedia'">
+                      <span class="ap-knob"></span>{{ item.is_available ? 'Tersedia' : 'Habis' }}
+                    </button>
+                    <div class="ap-row-actions">
+                      <button type="button" class="ap-icon" (click)="openEditModal(item)" title="Edit" aria-label="Edit"><i class="fa-solid fa-pen"></i></button>
+                      <button type="button" class="ap-icon danger" (click)="deleteMenuItem(item)" title="Hapus" aria-label="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+        }
+
+        <!-- TAB: QR -->
+        @if (activeTab() === 'qr') {
+          <section class="ap-panel">
+            <div class="ap-panel-head">
+              <div>
+                <h2 class="ap-h2">QR Code Meja</h2>
+                <p class="ap-muted">Cetak dan letakkan di meja agar tamu langsung membuka menu digital.</p>
+              </div>
+            </div>
+            <div class="ap-qr-layout">
+              <form (submit)="generateQrCode($event)" class="ap-stack ap-card">
+                <h3 class="ap-h3">Buat QR baru</h3>
+                <label class="ap-field">
+                  <span>Label meja</span>
+                  <input class="ap-input" type="text" name="qrTableLabel" [(ngModel)]="qrTableLabel" placeholder="Meja 1" required>
+                </label>
+                <label class="ap-field">
+                  <span>Link tujuan</span>
+                  <input class="ap-input" type="url" name="qrTargetUrl" [(ngModel)]="qrTargetUrl" required>
+                  <small class="ap-hint">Biasanya halaman menu situs ini.</small>
+                </label>
+                <button type="submit" class="ap-btn ap-btn-accent" [disabled]="saving()">Buat QR Code</button>
               </form>
-            </div>
 
-            <!-- List of QR Codes -->
-            <div class="qr-list-card">
-              <h3>Daftar QR Code Aktif</h3>
-              <div class="qr-items-list" *ngIf="qrCodes().length > 0; else noQrTemp">
-                <div *ngFor="let qr of qrCodes()" class="qr-item-row">
-                  <div class="qr-item-thumb">
-                    <img [src]="qr.qr_image_url" alt="QR Thumbnail" />
-                  </div>
-                  <div class="qr-item-info">
-                    <h4>{{ qr.table_label }}</h4>
-                    <p class="qr-url">{{ qr.target_url }}</p>
-                  </div>
-                  <div class="qr-item-actions">
-                    <button (click)="printQrCode(qr)" class="btn btn-secondary btn-sm">
-                      <i class="fa-solid fa-print"></i> Cetak
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <ng-template #noQrTemp>
-                <div class="no-qr-placeholder">
-                  <i class="fa-solid fa-circle-info"></i>
-                  <p>Belum ada QR Code meja yang dibuat.</p>
-                </div>
-              </ng-template>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB CONTENT: DESIGN SETTINGS -->
-        <div class="tab-content glass-panel" *ngIf="activeTab() === 'design'">
-          <div class="info-editor-header">
-            <h2>Pengaturan Latar Belakang</h2>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Ubah gambar latar belakang (pattern) website Bali Bong.</p>
-          </div>
-
-          <form (submit)="saveDesignSettings($event)" class="info-form">
-            <div class="form-group">
-              <label>Gambar Latar Belakang (Pattern)</label>
-              <input type="file" (change)="onDesignImageUpload($event, 'background_url')" accept="image/*" />
-              <div *ngIf="uploadingDesign()">Uploading...</div>
-              <img *ngIf="designBgUrl" [src]="designBgUrl" style="max-width: 100%; max-height: 150px; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc;" />
-            </div>
-
-            <div class="form-actions mt-2">
-              <button type="submit" class="btn btn-primary" [disabled]="loading()">
-                <i class="fa-solid fa-floppy-disk"></i> Simpan Desain
-              </button>
-            </div>
-          </form>
-        </div>
-
-      </div>
-          <!-- Add/Edit Modal (Embedded for simplicity & styling) -->
-          <div class="modal-backdrop" *ngIf="showMenuModal()">
-            <div class="modal-card">
-              <div class="modal-header">
-                <h3>{{ editingItem()?.id ? 'Edit Hidangan' : 'Tambah Hidangan Baru' }}</h3>
-                <button class="close-btn" (click)="closeMenuModal()"><i class="fa-solid fa-xmark"></i></button>
-              </div>
-              
-              <div class="modal-body-split">
-                <form (submit)="saveMenuItem($event)" class="modal-form">
-                  <div class="modal-grid-2">
-                    <div class="form-group">
-                      <label>Kategori</label>
-                      <select name="modalCategory" [(ngModel)]="modalItem.category_id" required>
-                        <option [value]="1">Ayam</option>
-                        <option [value]="2">Sayuran & Tahu-Tempe</option>
-                        <option [value]="3">Manisan</option>
-                        <option [value]="4">Camilan</option>
-                        <option [value]="5">Kambing & Sapi</option>
-                        <option [value]="6">Minuman</option>
-                        <option [value]="7">Seafood</option>
-                        <option [value]="8">Sate</option>
-                        <option [value]="9">Nasi, Mie & Sup</option>
-                      </select>
-                    </div>
-                    
-                    <div class="form-group">
-                      <label>Harga (Yen)</label>
-                      <input type="number" name="modalPrice" [(ngModel)]="modalItem.price" required />
-                    </div>
-                  </div>
-
-                  <div class="modal-grid-2">
-                    <div class="form-group">
-                      <label>Upload Gambar Menu</label>
-                      <input type="file" (change)="onImageUpload($event)" accept="image/*" />
-                      <div *ngIf="uploadingImage()">Uploading...</div>
-                      <img *ngIf="modalItem.image_url" [src]="modalItem.image_url" style="max-width: 100%; max-height: 120px; margin-top: 10px; border-radius: 8px;" />
-                    </div>
-                    
-                    <div class="form-group">
-                      <label>Info Alergi</label>
-                      <input type="text" name="modalAllergy" [(ngModel)]="modalItem.allergy_info" placeholder="Contoh: Kacang, Susu" />
-                    </div>
-                  </div>
-
-                  <div class="modal-grid-2 checkbox-grid">
-                    <label class="checkbox-label">
-                      <input type="checkbox" name="modalRecommended" [(ngModel)]="modalItem.is_recommended" />
-                      <span>Rekomendasi Unggulan</span>
-                    </label>
-                    
-                    <label class="checkbox-label">
-                      <input type="checkbox" name="modalAvailable" [(ngModel)]="modalItem.is_available" />
-                      <span>Tersedia (Ready)</span>
-                    </label>
-
-                    <label class="checkbox-label">
-                      <input type="checkbox" name="modalVegetarian" [(ngModel)]="modalItem.is_vegetarian" />
-                      <span>Vegetarian</span>
-                    </label>
-
-                    <div class="form-group">
-                      <label>Tingkat Pedas</label>
-                      <select name="modalSpicy" [(ngModel)]="modalItem.spicy_level">
-                        <option [ngValue]="0">Tidak pedas</option>
-                        <option [ngValue]="1">🌶 Sedikit</option>
-                        <option [ngValue]="2">🌶🌶 Sedang</option>
-                        <option [ngValue]="3">🌶🌶🌶 Sangat pedas</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <!-- Languages Tabs inside modal -->
-                  <div class="modal-lang-tabs">
-                    <span class="modal-lang-label">Terjemahan Nama & Deskripsi:</span>
-                    <div class="lang-tab-bar">
-                      <button 
-                        type="button"
-                        *ngFor="let l of langService.languages"
-                        class="lang-tab-btn"
-                        [class.active]="modalActiveLang() === l.code"
-                        (click)="modalActiveLang.set(l.code)"
-                      >
-                        {{ l.code.toUpperCase() }}
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Language Form Fields -->
-                  <div class="lang-fields-container">
-                    <div *ngIf="modalActiveLang() === 'id'" class="form-group">
-                      <label>Nama Menu (Indonesia)</label>
-                      <input type="text" name="name_id" [(ngModel)]="modalItem.name_id" required />
-                      <label class="mt-2">Deskripsi (Indonesia)</label>
-                      <textarea name="desc_id" [(ngModel)]="modalItem.desc_id" rows="3"></textarea>
-                    </div>
-                    
-                    <div *ngIf="modalActiveLang() === 'en'" class="form-group">
-                      <label>Nama Menu (Inggris)</label>
-                      <input type="text" name="name_en" [(ngModel)]="modalItem.name_en" />
-                      <label class="mt-2">Deskripsi (Inggris)</label>
-                      <textarea name="desc_en" [(ngModel)]="modalItem.desc_en" rows="3"></textarea>
-                    </div>
-
-                    <div *ngIf="modalActiveLang() === 'ja'" class="form-group">
-                      <label>Nama Menu (Jepang)</label>
-                      <input type="text" name="name_ja" [(ngModel)]="modalItem.name_ja" />
-                      <label class="mt-2">Deskripsi (Jepang)</label>
-                      <textarea name="desc_ja" [(ngModel)]="modalItem.desc_ja" rows="3"></textarea>
-                    </div>
-                    
-                    <div *ngIf="modalActiveLang() === 'zh'" class="form-group">
-                      <label>Nama Menu (Mandarin)</label>
-                      <input type="text" name="name_zh" [(ngModel)]="modalItem.name_zh" />
-                      <label class="mt-2">Deskripsi (Mandarin)</label>
-                      <textarea name="desc_zh" [(ngModel)]="modalItem.desc_zh" rows="3"></textarea>
-                    </div>
-                    
-                    <div *ngIf="modalActiveLang() === 'ko'" class="form-group">
-                      <label>Nama Menu (Korea)</label>
-                      <input type="text" name="name_ko" [(ngModel)]="modalItem.name_ko" />
-                      <label class="mt-2">Deskripsi (Korea)</label>
-                      <textarea name="desc_ko" [(ngModel)]="modalItem.desc_ko" rows="3"></textarea>
-                    </div>
-                    
-                    <div *ngIf="modalActiveLang() === 'es'" class="form-group">
-                      <label>Nama Menu (Spanyol)</label>
-                      <input type="text" name="name_es" [(ngModel)]="modalItem.name_es" />
-                      <label class="mt-2">Deskripsi (Spanyol)</label>
-                      <textarea name="desc_es" [(ngModel)]="modalItem.desc_es" rows="3"></textarea>
-                    </div>
-                  </div>
-
-                  <div class="modal-actions">
-                    <button type="button" class="btn btn-outline btn-sm" (click)="closeMenuModal()">Batal</button>
-                    <button type="submit" class="btn btn-primary btn-sm" [disabled]="loading()">
-                      <i class="fa-solid fa-floppy-disk"></i> {{ langService.t('save') }}
-                    </button>
-                  </div>
-                </form>
-
-                <!-- Live Preview Card -->
-                <div class="preview-panel">
-                  <h4 style="margin-bottom: 12px; color: var(--text-muted);">Tampilan Preview Menu:</h4>
-                  <div class="menu-card" style="box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-radius: 16px; overflow: hidden; background: #fff; border: 1px solid #eaeaea;">
-                    <div class="menu-card-img" style="height: 180px; background: #f5f5f5; position: relative;">
-                      <img *ngIf="modalItem.image_url" [src]="modalItem.image_url" style="width: 100%; height: 100%; object-fit: cover;" />
-                      <div *ngIf="!modalItem.image_url" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #ccc;">
-                        <i class="fa-solid fa-image fa-3x"></i>
-                      </div>
-                      <div class="rec-badge-overlay" *ngIf="modalItem.is_recommended" style="position: absolute; top: 12px; left: 12px; background: var(--secondary-color); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">
-                        <i class="fa-solid fa-star"></i> Rekomendasi
-                      </div>
-                    </div>
-                    <div class="menu-card-body" style="padding: 16px;">
-                      <h3 style="font-size: 1.1rem; margin-bottom: 8px; color: var(--primary-color);">{{ getPreviewName() || 'Nama Hidangan' }}</h3>
-                      <p style="font-size: 0.85rem; color: #666; margin-bottom: 12px; min-height: 40px;">{{ getPreviewDesc() || 'Deskripsi akan muncul di sini...' }}</p>
-                      
-                      <div *ngIf="modalItem.allergy_info" style="font-size: 0.8rem; background: #FFF4E5; color: #D35400; padding: 6px 10px; border-radius: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid fa-triangle-exclamation"></i> {{ modalItem.allergy_info }}
-                      </div>
-
-                      <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div style="font-size: 1.2rem; font-weight: bold; color: var(--text-dark);">¥ {{ formatPrice(modalItem.price) }}</div>
-                        <div style="font-size: 0.8rem; color: {{ modalItem.is_available ? 'green' : 'red' }}">{{ modalItem.is_available ? 'Tersedia' : 'Habis' }}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div>
+                @if (!qrCodes().length) {
+                  <p class="ap-empty">Belum ada QR Code meja.</p>
+                } @else {
+                  <ul class="ap-qr-list">
+                    @for (qr of qrCodes(); track qr.id) {
+                      <li class="ap-qr">
+                        <img [src]="qr.qr_image_url" [alt]="'QR ' + qr.table_label">
+                        <div class="ap-qr-info">
+                          <b>{{ qr.table_label }}</b>
+                          <span class="ap-url">{{ qr.target_url }}</span>
+                          @if (isForeignUrl(qr.target_url)) {
+                            <span class="ap-warn">Link ini tidak mengarah ke situs ini — sebaiknya hapus dan buat ulang.</span>
+                          }
+                        </div>
+                        <div class="ap-row-actions">
+                          <button type="button" class="ap-btn ap-btn-line ap-btn-sm" (click)="printQrCode(qr)">Cetak</button>
+                          <button type="button" class="ap-icon danger" (click)="deleteQrCode(qr)" title="Hapus" aria-label="Hapus"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                      </li>
+                    }
+                  </ul>
+                }
               </div>
             </div>
-          </div>
-
+          </section>
+        }
+      }
     </main>
+
+    <!-- ADD / EDIT MODAL -->
+    @if (showMenuModal()) {
+      <div class="ap-overlay" (click)="closeMenuModal()">
+        <div class="ap-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+          <div class="ap-modal-head">
+            <h2 class="ap-h2">{{ modalItem.id ? 'Edit Hidangan' : 'Tambah Hidangan' }}</h2>
+            <button type="button" class="ap-x" aria-label="Tutup" (click)="closeMenuModal()">×</button>
+          </div>
+
+          <div class="ap-modal-body">
+            <form (submit)="saveMenuItem($event)" class="ap-stack" id="menuForm">
+              <div class="ap-grid2">
+                <label class="ap-field">
+                  <span>Kategori</span>
+                  <select class="ap-input" name="modalCategory" [(ngModel)]="modalItem.category_id">
+                    @for (c of categories(); track c.id) { <option [ngValue]="c.id">{{ c.name }}</option> }
+                  </select>
+                </label>
+                <label class="ap-field">
+                  <span>Harga (¥, termasuk pajak)</span>
+                  <input class="ap-input" type="number" min="0" step="1" name="modalPrice" [(ngModel)]="modalItem.price">
+                </label>
+              </div>
+
+              <div class="ap-field">
+                <span>Foto hidangan</span>
+                <div class="ap-upload">
+                  <div class="ap-thumb ap-thumb-lg bb-ph">
+                    @if (modalItem.image_url) { <img [src]="modalItem.image_url" alt=""> }
+                  </div>
+                  <div class="ap-stack-sm">
+                    <label class="ap-btn ap-btn-line ap-btn-sm ap-file">
+                      {{ uploadingImage() ? 'Mengupload…' : (modalItem.image_url ? 'Ganti foto' : 'Pilih foto') }}
+                      <input type="file" accept="image/png,image/jpeg,image/webp" (change)="onImageUpload($event)" [disabled]="uploadingImage()">
+                    </label>
+                    @if (modalItem.image_url) {
+                      <button type="button" class="ap-link" (click)="modalItem.image_url = ''">Hapus foto</button>
+                    }
+                    <small class="ap-hint">JPG/PNG/WebP, maks. 3 MB.</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ap-toggles">
+                <label class="ap-check"><input type="checkbox" name="modalRecommended" [(ngModel)]="modalItem.is_recommended"> Andalan</label>
+                <label class="ap-check"><input type="checkbox" name="modalAvailable" [(ngModel)]="modalItem.is_available"> Tersedia</label>
+                <label class="ap-check"><input type="checkbox" name="modalVegetarian" [(ngModel)]="modalItem.is_vegetarian"> Vegetarian</label>
+              </div>
+
+              <div class="ap-field">
+                <span>Tingkat pedas</span>
+                <div class="ap-seg">
+                  @for (lvl of [0, 1, 2, 3]; track lvl) {
+                    <button type="button" [class.on]="(modalItem.spicy_level || 0) === lvl" (click)="modalItem.spicy_level = lvl">{{ lvl === 0 ? 'Tidak' : chili(lvl) }}</button>
+                  }
+                </div>
+              </div>
+
+              <label class="ap-field">
+                <span>Info alergi</span>
+                <input class="ap-input" type="text" name="modalAllergy" [(ngModel)]="modalItem.allergy_info" placeholder="Contoh: kacang, susu">
+              </label>
+
+              <div class="ap-field">
+                <span>Nama & deskripsi</span>
+                <div class="ap-chips">
+                  @for (l of lang.languages; track l.code) {
+                    <button type="button" class="ap-chip" [class.on]="modalActiveLang() === l.code" (click)="modalActiveLang.set(l.code)">
+                      {{ l.code.toUpperCase() }}@if (!getText('name', l.code)) {<span class="ap-dot" title="Belum diisi"></span>}
+                    </button>
+                  }
+                </div>
+                <input class="ap-input" type="text" [placeholder]="'Nama (' + langName(modalActiveLang()) + ')'"
+                  [value]="getText('name', modalActiveLang())" (input)="setText('name', modalActiveLang(), $any($event.target).value)">
+                <textarea class="ap-input" rows="3" [placeholder]="'Deskripsi (' + langName(modalActiveLang()) + ')'"
+                  [value]="getText('desc', modalActiveLang())" (input)="setText('desc', modalActiveLang(), $any($event.target).value)"></textarea>
+                @if (modalActiveLang() !== 'id') { <small class="ap-hint">Kosong = memakai teks Bahasa Indonesia.</small> }
+              </div>
+
+              @if (modalError()) { <p class="ap-error" role="alert">{{ modalError() }}</p> }
+            </form>
+
+            <!-- Preview: same look as a row on /menu -->
+            <aside class="ap-preview">
+              <span class="bb-mono">Pratinjau di menu</span>
+              <div class="ap-pv-row" [class.out]="!modalItem.is_available">
+                <div class="ap-pv-thumb bb-ph">@if (modalItem.image_url) { <img [src]="modalItem.image_url" alt=""> }</div>
+                <div class="ap-pv-body">
+                  <div class="ap-pv-top">
+                    <span class="ap-pv-name">{{ getText('name', modalActiveLang()) || modalItem.name_id || 'Nama hidangan' }}</span>
+                    <span class="ap-pv-leader"></span>
+                    <span class="ap-pv-price">{{ yen(modalItem.price) }}</span>
+                  </div>
+                  @if (modalItem.name_ja && modalActiveLang() !== 'ja') { <span class="bb-jp">{{ modalItem.name_ja }}</span> }
+                  <span class="ap-pv-desc">{{ getText('desc', modalActiveLang()) || modalItem.desc_id || 'Deskripsi hidangan…' }}</span>
+                  <div class="ap-row-meta">
+                    @if (modalItem.is_recommended) { <span class="bb-tag bb-tag-sig">Andalan</span> }
+                    @if (modalItem.spicy_level) { <span class="bb-tag bb-tag-spicy">{{ chili(modalItem.spicy_level) }} Pedas</span> }
+                    @if (modalItem.is_vegetarian) { <span class="bb-tag bb-tag-veg">Vegetarian</span> }
+                    @if (!modalItem.is_available) { <span class="bb-tag bb-tag-out">Habis</span> }
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <div class="ap-modal-foot">
+            <button type="button" class="ap-btn ap-btn-line" (click)="closeMenuModal()">Batal</button>
+            <button type="submit" form="menuForm" class="ap-btn ap-btn-accent" [disabled]="saving() || uploadingImage()">{{ saving() ? 'Menyimpan…' : 'Simpan' }}</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    @if (toast(); as t) {
+      <div class="ap-toast" [class.err]="t.error" role="status">{{ t.msg }}</div>
+    }
+  </div>
   `,
   styles: [`
-    .admin-main {
-      padding: 60px 0;
-      min-height: 80vh;
-    }
-    
-    /* Login */
-    .login-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 40px 0;
-    }
-    .login-card {
-      width: 100%;
-      max-width: 450px;
-      padding: 48px 40px;
-      background: var(--surface-light);
-      border-radius: var(--border-radius-lg);
-      box-shadow: var(--box-shadow);
-      border: 1px solid rgba(28, 26, 23, 0.08);
-    }
-    .login-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-    .login-icon {
-      font-size: 3rem;
-      color: var(--primary-color);
-      margin-bottom: 16px;
-    }
-    .login-header h2 {
-      font-size: 1.8rem;
-      margin-bottom: 8px;
-    }
-    .login-header p {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-    
-    /* Dashboard */
-    .dashboard-header {
-      margin-bottom: 32px;
-    }
-    .dashboard-header h1 {
-      font-size: 2.2rem;
-      margin-bottom: 8px;
-    }
-    .dashboard-header p {
-      color: var(--text-muted);
-    }
+    /* Header */
+    .ap-hdr { position: sticky; top: 0; z-index: 50; background: rgba(246,241,232,.88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid rgba(42,33,27,.08); }
+    .ap-hdr-row { padding-top: 14px; padding-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .ap-logo img { height: 40px; width: auto; }
+    .ap-nav { display: flex; align-items: center; gap: clamp(14px, 3vw, 28px); font-size: 14px; font-weight: 500; }
+    .ap-nav a { color: var(--ink); }
+    .ap-nav a:hover { color: var(--accent); }
 
-    /* Tabs */
-    .tab-links {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-      padding: 8px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      position: sticky;
-      top: 60px; /* offset on mobile */
-      z-index: 60;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(12px);
-      border-radius: 40px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      border: 1px solid rgba(28, 26, 23, 0.05);
-    }
-    .tab-links::-webkit-scrollbar {
-      display: none;
-    }
-    .tab-link {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border: none;
-      background: transparent;
-      font-family: var(--font-sans);
-      font-weight: 600;
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      border-radius: 30px;
-      transition: var(--transition);
-      white-space: nowrap;
-    }
-    .tab-link:hover {
-      color: var(--primary-color);
-    }
-    .tab-link.active {
-      color: white;
-      background: var(--primary-color);
-      box-shadow: 0 4px 10px rgba(28, 26, 23, 0.2);
-    }
+    .ap-main { padding-top: clamp(32px, 5vw, 64px); padding-bottom: 96px; }
+    .ap-muted { color: var(--ink-3); font-size: 14px; line-height: 1.5; }
+    .ap-hint { color: var(--muted); font-size: 12px; line-height: 1.5; }
+    .ap-hint b { font-weight: 600; color: var(--ink-3); }
+    .ap-error { color: var(--accent-deep); background: #f3dccb; padding: 10px 14px; border-radius: 12px; font-size: 14px; }
+    .ap-empty { padding: 48px 0; text-align: center; color: var(--ink-3); }
 
-    .tab-content {
-      padding: 40px;
-      background: var(--surface-light);
-      border-radius: var(--border-radius-md);
-      box-shadow: var(--box-shadow);
-      border: 1px solid rgba(28, 26, 23, 0.06);
-    }
+    /* Buttons */
+    .ap-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 999px; border: 1px solid transparent; font: 600 14px var(--sans); cursor: pointer; white-space: nowrap; }
+    .ap-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .ap-btn-sm { height: 36px; padding: 0 14px; font-size: 13px; }
+    .ap-btn-lg { height: 52px; width: 100%; font-size: 15px; }
+    .ap-btn-accent { background: var(--accent); color: var(--cream); }
+    .ap-btn-accent:hover:not(:disabled) { background: var(--accent-hover); }
+    .ap-btn-dark { background: var(--ink); color: var(--bg); }
+    .ap-btn-dark:hover { background: var(--accent); }
+    .ap-btn-line { background: transparent; color: var(--ink); border-color: rgba(42,33,27,.2); }
+    .ap-btn-line:hover { border-color: var(--ink); }
+    .ap-link { background: none; border: 0; padding: 0; color: var(--accent); font: 600 13px var(--sans); cursor: pointer; text-align: left; }
+    .ap-icon { width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(42,33,27,.14); background: transparent; color: var(--ink-2); cursor: pointer; font-size: 13px; }
+    .ap-icon:hover { border-color: var(--ink); color: var(--ink); }
+    .ap-icon.danger:hover { color: var(--accent); }
 
     /* Forms */
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-bottom: 24px;
-    }
-    .form-group label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: var(--primary-color);
-    }
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      padding: 12px 16px;
-      border-radius: var(--border-radius-sm);
-      border: 1px solid rgba(28, 26, 23, 0.15);
-      font-family: var(--font-sans);
-      font-size: 0.95rem;
-      background: #FFFFFF;
-      transition: var(--transition);
-    }
-    .form-group input:focus,
-    .form-group textarea:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: var(--secondary-color);
-      box-shadow: 0 0 0 3px rgba(107, 66, 38, 0.15);
-    }
-    .w-full {
-      width: 100%;
-    }
-    .error-message {
-      background: rgba(211, 84, 0, 0.1);
-      color: var(--accent-color);
-      padding: 12px;
-      border-radius: var(--border-radius-sm);
-      margin-bottom: 24px;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .ap-stack { display: flex; flex-direction: column; gap: 18px; }
+    .ap-stack-sm { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .ap-field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+    .ap-field > span:first-child { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+    .ap-input { width: 100%; padding: 12px 14px; border-radius: 14px; border: 1px solid rgba(42,33,27,.16); background: var(--surface); font: 500 15px var(--sans); color: var(--ink); outline: none; line-height: 1.5; }
+    .ap-input:focus { border-color: var(--ink); }
+    textarea.ap-input { resize: vertical; }
+    select.ap-input { height: 48px; }
+    .ap-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 18px; }
+    .ap-actions { display: flex; justify-content: flex-end; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .ap-preview-rows { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 14px; background: var(--bg-alt); font-size: 13px; }
+    .ap-preview-rows div { display: flex; justify-content: space-between; gap: 12px; }
+    .ap-preview-rows span { color: var(--ink-3); }
+    .ap-preview-rows b { font-weight: 600; text-align: right; }
+
+    /* Login */
+    .ap-login { max-width: 420px; margin: clamp(24px, 6vw, 64px) auto 0; padding: clamp(28px, 5vw, 44px); background: var(--surface); border: 1px solid rgba(42,33,27,.08); border-radius: 28px; display: flex; flex-direction: column; gap: 10px; }
+    .ap-login-title { font-size: 44px; line-height: 1; }
+    .ap-login form { margin-top: 18px; }
+
+    /* Dashboard */
+    .ap-head { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+    .ap-title { font-size: clamp(44px, 6vw, 80px); line-height: .95; letter-spacing: -0.02em; }
+    .ap-tabs { display: flex; gap: 4px; margin-bottom: 20px; overflow-x: auto; scrollbar-width: none; }
+    .ap-tabs button { flex: none; height: 42px; padding: 0 18px; border-radius: 999px; border: 0; background: transparent; color: var(--ink); font: 600 14px var(--sans); cursor: pointer; }
+    .ap-tabs button:hover { background: var(--hover-soft); }
+    .ap-tabs button.on { background: var(--ink); color: var(--bg); }
+    .ap-panel { background: var(--surface); border: 1px solid rgba(42,33,27,.08); border-radius: 28px; padding: clamp(20px, 3.5vw, 40px); }
+    .ap-panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 24px; }
+    .ap-h2 { font-size: clamp(30px, 3.4vw, 40px); line-height: 1; margin-bottom: 6px; }
+    .ap-h3 { font-size: 26px; line-height: 1; }
+    .ap-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ap-scroll { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+    .ap-chip { position: relative; flex: none; height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(42,33,27,.12); background: transparent; color: var(--ink); font: 600 13px var(--sans); cursor: pointer; white-space: nowrap; }
+    .ap-chip:hover { background: var(--hover-soft); }
+    .ap-chip.on { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+    .ap-dot { position: absolute; top: 4px; right: 5px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+    /* Menu list */
+    .ap-toolbar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
+    .ap-search { max-width: 360px; border-radius: 999px; padding: 10px 18px; }
+    .ap-list { list-style: none; margin: 0; padding: 0; }
+    .ap-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto auto auto; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(42,33,27,.08); }
+    .ap-row.out .ap-thumb, .ap-row.out .ap-row-main { opacity: .5; }
+    .ap-thumb { width: 56px; height: 56px; border-radius: 12px; overflow: hidden; }
+    .ap-thumb-lg { width: 96px; height: 96px; border-radius: 16px; flex: none; }
+    .ap-row-name { font-family: var(--serif); font-size: 22px; line-height: 1.15; }
+    .ap-row-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 4px; font-size: 13px; color: var(--muted); }
+    .ap-row-price { font-weight: 700; font-size: 15px; white-space: nowrap; }
+    .ap-row-actions { display: flex; gap: 6px; align-items: center; }
+    .ap-switch { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px 0 4px; border-radius: 999px; border: 1px solid rgba(42,33,27,.14); background: transparent; font: 600 12px var(--sans); color: var(--ink-3); cursor: pointer; min-width: 104px; }
+    .ap-knob { width: 24px; height: 24px; border-radius: 50%; background: #d9cbb8; }
+    .ap-switch.on { color: #2f4a33; background: #dde6d6; border-color: transparent; }
+    .ap-switch.on .ap-knob { background: #2f4a33; }
+    @media (max-width: 720px) {
+      .ap-row { grid-template-columns: 56px minmax(0, 1fr) auto; row-gap: 10px; }
+      .ap-row-price { grid-column: 3; grid-row: 1; }
+      .ap-switch { grid-column: 2; }
+      .ap-row-actions { grid-column: 3; justify-self: end; }
     }
 
-    /* Info Tab Specifics */
-    .info-editor-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      padding-bottom: 16px;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-    .info-lang-switcher {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .info-lang-switcher label {
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .info-lang-switcher select {
-      padding: 8px 12px;
-      border-radius: 20px;
-      border: 1px solid rgba(0,0,0,0.15);
-    }
+    /* QR */
+    .ap-qr-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 24px; align-items: start; }
+    .ap-card { padding: 24px; border-radius: 22px; background: var(--bg); }
+    .ap-qr-list { list-style: none; margin: 0; padding: 0; }
+    .ap-qr { display: flex; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid rgba(42,33,27,.08); }
+    .ap-qr img { width: 64px; height: 64px; border-radius: 10px; background: #fff; flex: none; }
+    .ap-qr-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+    .ap-url { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
+    .ap-warn { font-size: 12px; color: var(--accent-deep); font-weight: 600; }
 
-    /* Menu Tab Specifics */
-    .menu-manager-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-    .table-responsive {
-      overflow-x: auto;
-    }
-    .admin-table {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: left;
-    }
-    .admin-table th,
-    .admin-table td {
-      padding: 16px 20px;
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-    .admin-table th {
-      background: rgba(28, 26, 23, 0.02);
-      color: var(--primary-color);
-      font-weight: 700;
-    }
-    .admin-table tbody tr:hover {
-      background: rgba(28, 26, 23, 0.01);
-    }
-    .font-semibold {
-      font-weight: 600;
-    }
-    .status-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .badge-available {
-      background: rgba(28, 26, 23, 0.1);
-      color: var(--primary-color);
-    }
-    .badge-unavailable {
-      background: rgba(211, 84, 0, 0.1);
-      color: var(--accent-color);
-    }
-    .rec-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      margin-left: 8px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: var(--secondary-dark);
-    }
-    .table-actions {
-      display: flex;
-      gap: 8px;
-    }
-    .action-btn {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: none;
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .edit-btn {
-      background: rgba(107, 66, 38, 0.1);
-      color: var(--secondary-dark);
-    }
-    .edit-btn:hover {
-      background: var(--secondary-color);
-      color: white;
-    }
-    .delete-btn {
-      background: rgba(211, 84, 0, 0.1);
-      color: var(--accent-color);
-    }
-    .delete-btn:hover {
-      background: var(--accent-color);
-      color: white;
-    }
+    /* Modal */
+    .ap-overlay { position: fixed; inset: 0; z-index: 80; background: rgba(26,18,12,.5); backdrop-filter: blur(3px); display: flex; align-items: flex-end; justify-content: center; animation: bbFade .2s ease; }
+    .ap-modal { width: min(980px, 100%); max-height: 94vh; display: flex; flex-direction: column; background: var(--bg); border-radius: 28px 28px 0 0; animation: bbUp .3s cubic-bezier(.2,.8,.2,1); }
+    @media (min-width: 900px) { .ap-overlay { align-items: center; padding: 24px; } .ap-modal { border-radius: 28px; } }
+    .ap-modal-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 24px clamp(20px, 3vw, 32px) 12px; }
+    .ap-x { width: 44px; height: 44px; border-radius: 50%; border: 1px solid rgba(42,33,27,.16); background: transparent; font: 500 22px var(--sans); color: var(--ink); cursor: pointer; flex: none; }
+    .ap-modal-body { overflow: auto; overscroll-behavior: contain; padding: 8px clamp(20px, 3vw, 32px) 24px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 360px); gap: 32px; align-items: start; }
+    @media (max-width: 860px) { .ap-modal-body { grid-template-columns: 1fr; } .ap-preview { order: -1; } }
+    .ap-modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 16px clamp(20px, 3vw, 32px) calc(16px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(42,33,27,.1); }
+    .ap-upload { display: flex; align-items: center; gap: 16px; }
+    .ap-file { position: relative; overflow: hidden; }
+    .ap-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .ap-toggles { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ap-check { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(42,33,27,.14); font-size: 14px; font-weight: 600; cursor: pointer; background: var(--surface); }
+    .ap-check input { width: 16px; height: 16px; accent-color: var(--accent); }
+    .ap-seg { display: flex; border: 1px solid rgba(42,33,27,.16); border-radius: 999px; padding: 3px; width: fit-content; background: var(--surface); }
+    .ap-seg button { height: 34px; padding: 0 14px; border: 0; border-radius: 999px; background: transparent; font: 600 13px var(--sans); color: var(--ink); cursor: pointer; }
+    .ap-seg button.on { background: var(--ink); color: var(--bg); }
 
-    /* Modal Styling */
-    .modal-backdrop {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-      backdrop-filter: blur(4px);
-    }
-    .modal-card {
-      background: #FFFFFF;
-      border-radius: var(--border-radius-lg);
-      width: 100%;
-      max-width: 900px;
-      max-height: 100%;
-      overflow-y: auto;
-      padding: 32px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-      margin: 0;
-    }
-    .modal-body-split {
-      display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 32px;
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      padding-bottom: 12px;
-    }
-    .close-btn {
-      background: transparent;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: var(--text-muted);
-    }
-    .modal-grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .checkbox-grid {
-      display: flex;
-      gap: 24px;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    .checkbox-label input {
-      width: 18px;
-      height: 18px;
-    }
-    .modal-lang-tabs {
-      margin-bottom: 16px;
-    }
-    .modal-lang-label {
-      font-weight: 600;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      display: block;
-      margin-bottom: 8px;
-    }
-    .lang-tab-bar {
-      display: flex;
-      gap: 6px;
-    }
-    .lang-tab-btn {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid rgba(0,0,0,0.1);
-      background: #F3EFE6;
-      cursor: pointer;
-      font-size: 1.1rem;
-      transition: var(--transition);
-      outline: none;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .lang-tab-btn.active {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
-      color: white;
-    }
-    .admin-cat-tab {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      border-radius: 50px;
-      background: white;
-      border: 1px solid rgba(28, 26, 23, 0.15);
-      color: var(--primary-color);
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: var(--transition);
-      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-    }
-    .admin-cat-tab:hover {
-      background: rgba(107, 66, 38, 0.1);
-      transform: translateY(-2px);
-    }
-    .admin-cat-tab.active {
-      background: var(--primary-color);
-      color: white;
-      border-color: var(--primary-color);
-      box-shadow: 0 4px 15px rgba(28, 26, 23, 0.2);
-    }
-    .admin-toolbar {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      margin-bottom: 24px;
-      position: sticky;
-      top: 110px; /* Offset to stick below tab-links on mobile */
-      z-index: 50;
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(12px);
-      padding: 12px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-    .admin-category-tabs {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      scrollbar-width: thin;
-    }
-    .admin-search-wrapper {
-      position: relative;
-      width: 100%;
-      max-width: 400px;
-    }
-    .admin-search-icon {
-      position: absolute;
-      left: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--text-muted);
-    }
-    .admin-search-input {
-      width: 100%;
-      padding: 12px 16px 12px 42px;
-      border-radius: 50px;
-      border: 1px solid rgba(28, 26, 23, 0.15);
-      background: white;
-      font-size: 0.95rem;
-      transition: all 0.3s;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-    }
-    .admin-search-input:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(107, 66, 38, 0.15);
-    }
-    @media (min-width: 768px) {
-      .admin-toolbar {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        top: 130px; /* Offset to stick below tab-links on PC */
-        padding: 16px 0;
-      }
-      .admin-category-tabs {
-        flex-wrap: wrap;
-        padding-bottom: 0;
-      }
-    }
-    .lang-fields-container {
-      background: #FAF8F5;
-      padding: 20px;
-      border-radius: var(--border-radius-sm);
-      margin-bottom: 24px;
-      border: 1px solid rgba(28, 26, 23, 0.05);
-    }
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      border-top: 1px solid rgba(0,0,0,0.05);
-      padding-top: 20px;
-    }
-    .mt-2 {
-      margin-top: 12px;
-    }
+    /* Preview */
+    .ap-preview { position: sticky; top: 0; display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 22px; background: var(--bg-alt); }
+    .ap-pv-row { display: flex; gap: 14px; }
+    .ap-pv-row.out { opacity: .55; }
+    .ap-pv-thumb { flex: none; width: 84px; height: 84px; border-radius: 14px; overflow: hidden; }
+    .ap-pv-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+    .ap-pv-top { display: flex; align-items: baseline; gap: 8px; }
+    .ap-pv-name { font-family: var(--serif); font-size: 22px; line-height: 1.1; min-width: 0; overflow-wrap: anywhere; }
+    .ap-pv-leader { flex: 1; min-width: 12px; border-bottom: 1px dotted rgba(42,33,27,.3); transform: translateY(-5px); }
+    .ap-pv-price { font-weight: 700; white-space: nowrap; }
+    .ap-pv-desc { font-size: 13px; line-height: 1.5; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    /* QR Tab Specifics */
-    .qr-manager-header {
-      margin-bottom: 32px;
-    }
-    .qr-grid-layout {
-      display: grid;
-      grid-template-columns: 0.8fr 1.2fr;
-      gap: 40px;
-    }
-    .qr-form-card,
-    .qr-list-card {
-      border: 1px solid rgba(0, 0, 0, 0.05);
-      padding: 24px;
-      border-radius: var(--border-radius-md);
-      background: rgba(28, 26, 23, 0.01);
-    }
-    .qr-form-card h3,
-    .qr-list-card h3 {
-      font-size: 1.2rem;
-      margin-bottom: 20px;
-      border-bottom: 1px solid rgba(0,0,0,0.05);
-      padding-bottom: 10px;
-      color: var(--primary-color);
-    }
-    .form-help {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-    .qr-items-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      max-height: 400px;
-      overflow-y: auto;
-    }
-    .qr-item-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px;
-      background: white;
-      border-radius: var(--border-radius-sm);
-      border: 1px solid rgba(0,0,0,0.05);
-    }
-    .qr-item-thumb {
-      width: 60px;
-      height: 60px;
-      border-radius: 4px;
-      overflow: hidden;
-      border: 1px solid #ddd;
-    }
-    .qr-item-thumb img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .qr-item-info {
-      flex-grow: 1;
-    }
-    .qr-item-info h4 {
-      font-size: 1rem;
-      color: var(--primary-color);
-    }
-    .qr-url {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      word-break: break-all;
-    }
-    .no-qr-placeholder {
-      text-align: center;
-      padding: 40px 0;
-      color: var(--text-muted);
-    }
-    .no-qr-placeholder i {
-      font-size: 2rem;
-      margin-bottom: 12px;
-    }
-
-    @media (max-width: 900px) {
-      .qr-grid-layout {
-        grid-template-columns: 1fr;
-        gap: 32px;
-      }
-      .tab-content {
-        padding: 24px;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .modal-backdrop {
-        align-items: flex-start;
-        padding: 16px 12px 80px 12px;
-      }
-      .modal-card {
-        padding: 20px;
-        margin: 0;
-        width: 100%;
-        max-height: 100%;
-      }
-      .modal-grid-2 {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-      .modal-body-split {
-        grid-template-columns: 1fr;
-      }
-      .checkbox-grid {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-      .admin-table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-      }
-      .info-editor-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-    }
   `]
 })
 export class AdminComponent implements OnInit {
-  langService = inject(LanguageService);
+  readonly lang = inject(LanguageService);
   private readonly http = inject(HttpClient);
   private readonly titleService = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly api = getApiBase();
+  // The app is zoneless: plain fields changed in async callbacks need an explicit re-render.
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  // States
-  readonly isLoggedIn = signal<boolean>(false);
-  readonly activeTab = signal<'info' | 'menu' | 'qr' | 'design'>('info');
+  readonly isLoggedIn = signal(false);
+  readonly activeTab = signal<Tab>('info');
+  readonly saving = signal(false);
+  readonly toast = signal<{ msg: string; error: boolean } | null>(null);
+  private toastTimer: ReturnType<typeof setTimeout> | undefined;
 
-  // Loaders
-  readonly loading = signal<boolean>(false);
-
-  // Login variables
+  // Login
   loginEmail = '';
   loginPassword = '';
-  readonly loginError = signal<string>('');
+  readonly loginError = signal('');
 
-  // Info Editor Variables
-  // Info Editor Variables
+  // Restaurant info
   infoEditLang: LanguageCode = 'id';
   infoAbout = '';
   infoTransport = '';
   infoContact = '';
   infoHours = '';
+  private infoSnapshot = JSON.stringify(['', '', '', '']); // matches the empty form until data loads
 
-  // Menu Manager Variables
+  // Menu
+  readonly categories = signal<Category[]>([]);
   readonly menuItems = signal<AdminMenuItem[]>([]);
-  readonly showMenuModal = signal<boolean>(false);
-  readonly editingItem = signal<AdminMenuItem | null>(null);
-  readonly uploadingImage = signal<boolean>(false);
+  readonly menuLoading = signal(false);
+  readonly showMenuModal = signal(false);
+  readonly uploadingImage = signal(false);
   readonly modalActiveLang = signal<LanguageCode>('id');
-  
-  adminFilterCategory = signal<number | 'all'>('all');
-  adminSearchQuery = signal<string>('');
-
-  readonly filteredAdminMenuItems = computed(() => {
-    let items = this.menuItems();
-    const filterCat = this.adminFilterCategory();
-    
-    // Filter by Category
-    if (filterCat !== 'all') {
-      items = items.filter(i => i.category_id == filterCat);
-    }
-    
-    // Filter by Search Query
-    const query = this.adminSearchQuery().toLowerCase().trim();
-    if (query) {
-      items = items.filter(i => {
-        return (i.name_id && i.name_id.toLowerCase().includes(query)) ||
-               (i.name_en && i.name_en.toLowerCase().includes(query)) ||
-               (i.name_ja && i.name_ja.toLowerCase().includes(query)) ||
-               (i.name_es && i.name_es.toLowerCase().includes(query));
-      });
-    }
-
-    return items;
-  });
-
-  onAdminSearchChange(query: string) {
-    this.adminSearchQuery.set(query);
-  }
-
+  readonly modalError = signal('');
+  readonly adminFilterCategory = signal<number | 'all'>('all');
+  readonly adminSearchQuery = signal('');
   modalItem: AdminMenuItem = this.getEmptyModalItem();
 
-  // QR Code Manager Variables
+  // QR
   readonly qrCodes = signal<QrCode[]>([]);
   qrTableLabel = '';
-  qrTargetUrl = 'http://localhost:4200/menu';
-  designBgUrl = '';
-  designGarudaUrl = '';
-  designBarongUrl = '';
-  uploadingDesign = signal<boolean>(false);
+  qrTargetUrl = typeof window !== 'undefined' ? `${window.location.origin}/menu` : '';
+
+  readonly soldOutCount = computed(() => this.menuItems().filter(i => !i.is_available).length);
+
+  readonly filteredAdminMenuItems = computed(() => {
+    const cat = this.adminFilterCategory();
+    const q = this.adminSearchQuery().toLowerCase().trim();
+    return this.menuItems().filter(i =>
+      (cat === 'all' || i.category_id === cat) &&
+      (!q || [i.name_id, i.name_en, i.name_ja, i.name_zh, i.name_ko, i.name_es].some(n => n?.toLowerCase().includes(q)))
+    );
+  });
 
   constructor() {
-    // Admin panel is a private management interface, not a page for search results
+    // Private management page: keep it out of search results.
     this.titleService.setTitle('Admin — BALI BONG');
     this.meta.updateTag({ name: 'robots', content: 'noindex, nofollow' });
 
+    // Each tab loads its own data when opened (and on login).
     effect(() => {
-      if (this.isLoggedIn()) {
-        const tab = this.activeTab();
-        if (tab === 'info') this.loadRestaurantInfoForEdit();
-        if (tab === 'menu') this.loadAdminMenu();
-        if (tab === 'qr') this.loadQrCodes();
-        if (tab === 'design') this.loadDesignSettings();
-      }
-    }, { allowSignalWrites: true });
+      if (!this.isLoggedIn()) return;
+      const tab = this.activeTab();
+      if (tab === 'info') this.loadRestaurantInfoForEdit();
+      if (tab === 'menu') this.loadAdminMenu();
+      if (tab === 'qr') this.loadQrCodes();
+    });
   }
 
   ngOnInit() {
-    this.checkLoginStatus();
-  }
-
-  checkLoginStatus() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      const token = localStorage.getItem('balibong_token');
-      if (token) {
-        this.isLoggedIn.set(true);
-        this.loadInitialDashboardData();
-      }
+    if (typeof window === 'undefined') return;
+    // A stored token can be expired; showing the dashboard anyway meant the
+    // first failed save threw away whatever the admin had just typed.
+    if (this.tokenValid(localStorage.getItem(TOKEN_KEY))) {
+      this.isLoggedIn.set(true);
+      this.loadCategories();
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
     }
   }
 
+  @HostListener('document:keydown.escape')
+  onEscape() {
+    if (this.showMenuModal()) this.closeMenuModal();
+  }
+
+  // --- helpers ---
+  yen(n: number | null | undefined): string {
+    return '¥' + (Number(n) || 0).toLocaleString('ja-JP');
+  }
+  chili(level: number): string {
+    return '🌶'.repeat(Math.min(3, level));
+  }
+  categoryName(id: number): string {
+    return this.categories().find(c => c.id === id)?.name ?? '—';
+  }
+  langName(code: LanguageCode): string {
+    return this.lang.languages.find(l => l.code === code)?.name ?? code;
+  }
+  getText(kind: TextKind, code: LanguageCode): string {
+    return (this.modalItem as any)[`${kind}_${code}`] || '';
+  }
+  setText(kind: TextKind, code: LanguageCode, value: string) {
+    (this.modalItem as any)[`${kind}_${code}`] = value;
+  }
+  hoursPreview() { return toInfoRows(this.infoHours, HOURS_SEPARATOR); }
+  contactPreview() { return toInfoRows(this.infoContact, CONTACT_SEPARATOR); }
+  isForeignUrl(url: string): boolean {
+    try { return new URL(url).origin !== window.location.origin; } catch { return true; }
+  }
+
+  private notify(msg: string, error = false) {
+    clearTimeout(this.toastTimer);
+    this.toast.set({ msg, error });
+    this.toastTimer = setTimeout(() => this.toast.set(null), 3200);
+  }
+
+  private tokenValid(token: string | null): boolean {
+    if (!token) return false;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+      return !payload.exp || payload.exp * 1000 > Date.now();
+    } catch {
+      return false;
+    }
+  }
+
+  private headers() {
+    return { headers: new HttpHeaders({ Authorization: `Bearer ${localStorage.getItem(TOKEN_KEY) ?? ''}` }) };
+  }
+
+  // Every 401/403 means the 12h token expired: drop back to login with a reason.
+  private fail(err: any, what: string) {
+    this.saving.set(false);
+    if (err.status === 401 || err.status === 403) {
+      this.logout();
+      this.loginError.set('Sesi admin sudah habis. Silakan login kembali.');
+      return;
+    }
+    console.error(what, err);
+    this.notify(`${what}: ${err.error?.error || err.message || 'kesalahan jaringan'}`, true);
+  }
+
+  // --- auth ---
   login(event: Event) {
     event.preventDefault();
-    this.loading.set(true);
+    this.saving.set(true);
     this.loginError.set('');
-
-    const apiBase = getApiBase();
-    this.http.post<any>(`${apiBase}/admin/auth/login`, {
-      email: this.loginEmail,
-      password: this.loginPassword
-    }).subscribe({
+    this.http.post<{ token: string }>(`${this.api}/admin/auth/login`, { email: this.loginEmail, password: this.loginPassword }).subscribe({
       next: (data) => {
-        this.loading.set(false);
-        if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.setItem('balibong_token', data.token);
-        }
+        this.saving.set(false);
+        localStorage.setItem(TOKEN_KEY, data.token);
+        this.loginPassword = '';
+        this.cdr.markForCheck();
         this.isLoggedIn.set(true);
-        this.loadInitialDashboardData();
+        this.loadCategories();
       },
       error: (err) => {
-        this.loading.set(false);
-        this.loginError.set(err.error?.error || 'Kombinasi email dan password salah.');
+        this.saving.set(false);
+        this.loginError.set(err.status === 429
+          ? 'Terlalu banyak percobaan login. Coba lagi dalam 15 menit.'
+          : err.error?.error || 'Kombinasi email dan password salah.');
       }
     });
   }
 
   logout() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.removeItem('balibong_token');
-    }
+    localStorage.removeItem(TOKEN_KEY);
     this.isLoggedIn.set(false);
+    this.showMenuModal.set(false);
   }
 
-  private getAuthHeaders() {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('balibong_token') : '';
-    return new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
+  switchTab(tab: Tab) {
+    if (tab === this.activeTab()) return;
+    if (this.activeTab() === 'info' && this.infoDirty() && !confirm('Perubahan info restoran belum disimpan. Tinggalkan?')) return;
+    this.activeTab.set(tab);
   }
 
-  // The admin token expires after 12h (see backend/routes/admin.js). Every
-  // authenticated call used to fail silently (console.error) or with a
-  // generic alert on expiry, leaving the admin looking logged in with
-  // permanently empty data and no indication why. Route every 401/403 from
-  // an authenticated call through here so it always drops back to the login
-  // screen with an explanatory message instead.
-  private handleAuthError(err: any): boolean {
-    if (err.status === 401 || err.status === 403) {
-      this.logout();
-      this.loginError.set('Sesi admin sudah habis atau tidak valid. Silakan login kembali.');
-      return true;
-    }
-    return false;
+  // --- restaurant info ---
+  private infoState() {
+    return JSON.stringify([this.infoAbout, this.infoTransport, this.infoContact, this.infoHours]);
+  }
+  infoDirty(): boolean {
+    return this.infoState() !== this.infoSnapshot;
   }
 
-  loadInitialDashboardData() {
+  switchInfoLang(code: LanguageCode) {
+    if (code === this.infoEditLang) return;
+    if (this.infoDirty() && !confirm('Perubahan belum disimpan. Pindah bahasa dan buang perubahan?')) return;
+    this.infoEditLang = code;
     this.loadRestaurantInfoForEdit();
-    this.loadAdminMenu();
-    this.loadQrCodes();
   }
 
-  // --- TAB 1: RESTAURANT INFO ---
   loadRestaurantInfoForEdit() {
-    const apiBase = getApiBase();
-    this.http.get<any>(`${apiBase}/restaurant-info?lang=${this.infoEditLang}`).subscribe({
+    const lang = this.infoEditLang;
+    this.http.get<any>(`${this.api}/restaurant-info?lang=${lang}`).subscribe({
       next: (data) => {
+        if (lang !== this.infoEditLang) return; // a newer language was picked meanwhile
         this.infoAbout = data.about || '';
         this.infoTransport = data.transportation || '';
         this.infoContact = data.contact || '';
         this.infoHours = data.hours || '';
+        this.infoSnapshot = this.infoState();
+        this.cdr.markForCheck();
       },
-      error: (err) => {
-        console.error('Error fetching info for edit', err);
-      }
+      error: (err) => this.fail(err, 'Gagal memuat info restoran')
     });
   }
 
   saveRestaurantInfo(event: Event) {
     event.preventDefault();
-    this.loading.set(true);
-    const apiBase = getApiBase();
-    
-    this.http.put<any>(`${apiBase}/admin/restaurant-info`, {
+    this.saving.set(true);
+    const sent = this.infoState();
+    this.http.put(`${this.api}/admin/restaurant-info`, {
       lang: this.infoEditLang,
       about: this.infoAbout,
       transportation: this.infoTransport,
       contact: this.infoContact,
       hours: this.infoHours
-    }, { headers: this.getAuthHeaders() }).subscribe({
+    }, this.headers()).subscribe({
       next: () => {
-        this.loading.set(false);
-        alert('Informasi Restoran berhasil disimpan!');
+        this.saving.set(false);
+        this.infoSnapshot = sent;
+        this.cdr.markForCheck();
+        this.notify(`Info restoran (${this.infoEditLang.toUpperCase()}) tersimpan`);
       },
-      error: (err) => {
-        this.loading.set(false);
-        if (this.handleAuthError(err)) return;
-        alert('Gagal menyimpan: ' + (err.error?.error || err.message));
-      }
+      error: (err) => this.fail(err, 'Gagal menyimpan info')
     });
   }
 
-  // --- TAB 2: MENU ITEMS CRUD ---
+  // --- menu ---
+  private loadCategories() {
+    this.http.get<{ categories: Category[] }>(`${this.api}/menu?lang=id`).subscribe({
+      next: (data) => this.categories.set((data.categories || []).map(c => ({ id: c.id, name: c.name }))),
+      error: (err) => console.error('Error loading categories', err)
+    });
+  }
+
   loadAdminMenu() {
-    const apiBase = getApiBase();
-    this.http.get<AdminMenuItem[]>(`${apiBase}/admin/menu`, { headers: this.getAuthHeaders() }).subscribe({
+    this.menuLoading.set(true);
+    this.http.get<AdminMenuItem[]>(`${this.api}/admin/menu`, this.headers()).subscribe({
       next: (data) => {
         this.menuItems.set(data || []);
+        this.menuLoading.set(false);
       },
       error: (err) => {
-        if (this.handleAuthError(err)) return;
-        console.error('Error loading admin menu', err);
+        this.menuLoading.set(false);
+        this.fail(err, 'Gagal memuat menu');
       }
     });
-  }
-
-  getCategoryLabel(id: number): string {
-    const labels: Record<number, string> = {
-      1: 'Ayam',
-      2: 'Sayuran & Tahu-Tempe',
-      3: 'Manisan',
-      4: 'Camilan',
-      5: 'Kambing & Sapi',
-      6: 'Minuman',
-      7: 'Seafood',
-      8: 'Sate',
-      9: 'Nasi, Mie & Sup'
-    };
-    return labels[id] || 'Menu';
-  }
-
-  formatPrice(price: number | undefined | null): string {
-    if (price === undefined || price === null) return '0';
-    return price.toLocaleString('id-ID');
   }
 
   getEmptyModalItem(): AdminMenuItem {
     return {
-      category_id: 1,
+      category_id: this.categories()[0]?.id ?? 1,
       price: 0,
       image_url: null,
-      allergy_info: null,
+      allergy_info: '',
       is_recommended: false,
       is_available: true,
       spicy_level: 0,
@@ -1413,306 +796,177 @@ export class AdminComponent implements OnInit {
     };
   }
 
-  getPreviewName(): string {
-    const lang = this.modalActiveLang();
-    return (this.modalItem as any)[`name_${lang}`] || this.modalItem.name_id || '';
-  }
-
-  getPreviewDesc(): string {
-    const lang = this.modalActiveLang();
-    return (this.modalItem as any)[`desc_${lang}`] || this.modalItem.desc_id || '';
-  }
-
   openAddModal() {
-    this.editingItem.set(null);
-    this.modalItem = this.getEmptyModalItem();
-    this.modalActiveLang.set('id');
-    this.showMenuModal.set(true);
-  }
-
-  onImageUpload(event: any) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    this.uploadingImage.set(true);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target?.result as string;
-      const apiBase = getApiBase();
-      
-      this.http.post<any>(`${apiBase}/admin/upload-image`, {
-        imageBase64: base64,
-        type: 'menu'
-      }, { headers: this.getAuthHeaders() }).subscribe({
-        next: (res) => {
-          this.uploadingImage.set(false);
-          this.modalItem.image_url = res.imageUrl;
-        },
-        error: (err) => {
-          this.uploadingImage.set(false);
-          if (this.handleAuthError(err)) return;
-          console.error(err);
-          alert('Gagal mengupload gambar.');
-        }
-      });
-    };
-    reader.readAsDataURL(file);
+    this.openModal(this.getEmptyModalItem());
   }
 
   openEditModal(item: AdminMenuItem) {
-    this.editingItem.set(item);
-    this.modalItem = { ...item };
+    this.openModal({ ...item, spicy_level: item.spicy_level ?? 0, is_vegetarian: !!item.is_vegetarian });
+  }
+
+  private openModal(item: AdminMenuItem) {
+    this.modalItem = item;
+    this.modalError.set('');
     this.modalActiveLang.set('id');
     this.showMenuModal.set(true);
   }
 
   closeMenuModal() {
     this.showMenuModal.set(false);
-    this.editingItem.set(null);
+  }
+
+  onImageUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = ''; // allow picking the same file again
+    if (!file) return;
+    if (file.size > MAX_UPLOAD_BYTES) {
+      this.modalError.set('Ukuran foto maksimal 3 MB.');
+      return;
+    }
+    this.modalError.set('');
+    this.uploadingImage.set(true);
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.http.post<{ imageUrl: string }>(`${this.api}/admin/upload-image`, { imageBase64: reader.result, type: 'menu' }, this.headers()).subscribe({
+        next: (res) => {
+          this.uploadingImage.set(false);
+          this.modalItem.image_url = res.imageUrl;
+          this.cdr.markForCheck();
+        },
+        error: (err) => {
+          this.uploadingImage.set(false);
+          this.fail(err, 'Gagal mengupload foto');
+        }
+      });
+    };
+    reader.readAsDataURL(file);
   }
 
   saveMenuItem(event: Event) {
     event.preventDefault();
-    this.loading.set(true);
-    const apiBase = getApiBase();
+    const item = this.modalItem;
+    const price = Number(item.price);
+    if (!(item.name_id || '').trim()) {
+      this.modalActiveLang.set('id');
+      this.modalError.set('Nama menu dalam Bahasa Indonesia wajib diisi.');
+      return;
+    }
+    if (!Number.isInteger(price) || price < 0) {
+      this.modalError.set('Harga harus berupa angka bulat (yen), minimal 0.');
+      return;
+    }
+    this.modalError.set('');
 
-    // Build payload and fallback default translations if empty
-    const payload = { ...this.modalItem };
-    const langs: LanguageCode[] = ['en', 'ja', 'zh', 'ko', 'es'];
-    langs.forEach(lang => {
-      if (!payload[`name_${lang}` as keyof AdminMenuItem]) {
-        (payload as any)[`name_${lang}`] = payload.name_id;
-      }
-      if (!payload[`desc_${lang}` as keyof AdminMenuItem]) {
-        (payload as any)[`desc_${lang}`] = payload.desc_id;
+    // Empty translations fall back to the Indonesian text.
+    const payload: any = { ...item, price, category_id: Number(item.category_id), name_id: item.name_id!.trim() };
+    for (const l of ['en', 'ja', 'zh', 'ko', 'es']) {
+      if (!payload[`name_${l}`]?.trim()) payload[`name_${l}`] = payload.name_id;
+      if (!payload[`desc_${l}`]?.trim()) payload[`desc_${l}`] = payload.desc_id || '';
+    }
+
+    this.saving.set(true);
+    const req = item.id
+      ? this.http.put(`${this.api}/admin/menu/${item.id}`, payload, this.headers())
+      : this.http.post(`${this.api}/admin/menu`, payload, this.headers());
+    req.subscribe({
+      next: () => {
+        this.saving.set(false);
+        this.closeMenuModal();
+        this.notify(`"${payload.name_id}" tersimpan`);
+        this.loadAdminMenu();
+      },
+      error: (err) => this.fail(err, 'Gagal menyimpan menu')
+    });
+  }
+
+  // Quick sold-out toggle straight from the list (optimistic, reverted on failure).
+  toggleAvailable(item: AdminMenuItem) {
+    const next = !item.is_available;
+    const setAvail = (v: boolean) => this.menuItems.update(list => list.map(i => i.id === item.id ? { ...i, is_available: v } : i));
+    setAvail(next);
+    this.http.put(`${this.api}/admin/menu/${item.id}`, { is_available: next }, this.headers()).subscribe({
+      next: () => this.notify(`"${item.name_id}" ${next ? 'tersedia lagi' : 'ditandai habis'}`),
+      error: (err) => {
+        setAvail(!next);
+        this.fail(err, 'Gagal mengubah status');
       }
     });
-
-    if (payload.id) {
-      // Update
-      this.http.put<any>(`${apiBase}/admin/menu/${payload.id}`, payload, { headers: this.getAuthHeaders() }).subscribe({
-        next: () => {
-          this.loading.set(false);
-          this.closeMenuModal();
-          this.loadAdminMenu();
-        },
-        error: (err) => {
-          this.loading.set(false);
-          if (this.handleAuthError(err)) return;
-          alert('Gagal mengupdate menu: ' + (err.error?.error || err.message));
-        }
-      });
-    } else {
-      // Create
-      this.http.post<any>(`${apiBase}/admin/menu`, payload, { headers: this.getAuthHeaders() }).subscribe({
-        next: () => {
-          this.loading.set(false);
-          this.closeMenuModal();
-          this.loadAdminMenu();
-        },
-        error: (err) => {
-          this.loading.set(false);
-          if (this.handleAuthError(err)) return;
-          alert('Gagal menyimpan menu baru: ' + (err.error?.error || err.message));
-        }
-      });
-    }
   }
 
-  deleteMenuItem(id: number) {
-    if (confirm('Apakah Anda yakin ingin menghapus hidangan ini secara permanen?')) {
-      const apiBase = getApiBase();
-      this.http.delete<any>(`${apiBase}/admin/menu/${id}`, { headers: this.getAuthHeaders() }).subscribe({
-        next: () => {
-          this.loadAdminMenu();
-        },
-        error: (err) => {
-          if (this.handleAuthError(err)) return;
-          alert('Gagal menghapus: ' + (err.error?.error || err.message));
-        }
-      });
-    }
-  }
-
-  // --- TAB 3: QR CODES ---
-  loadQrCodes() {
-    const apiBase = getApiBase();
-    this.http.get<QrCode[]>(`${apiBase}/admin/qr`, { headers: this.getAuthHeaders() }).subscribe({
-      next: (data) => {
-        this.qrCodes.set(data || []);
+  deleteMenuItem(item: AdminMenuItem) {
+    if (!confirm(`Hapus "${item.name_id}" secara permanen?`)) return;
+    this.http.delete(`${this.api}/admin/menu/${item.id}`, this.headers()).subscribe({
+      next: () => {
+        this.menuItems.update(list => list.filter(i => i.id !== item.id));
+        this.notify(`"${item.name_id}" dihapus`);
       },
-      error: (err) => {
-        if (this.handleAuthError(err)) return;
-        console.error('Error loading QR Codes', err);
-      }
+      error: (err) => this.fail(err, 'Gagal menghapus menu')
+    });
+  }
+
+  // --- QR ---
+  loadQrCodes() {
+    this.http.get<QrCode[]>(`${this.api}/admin/qr`, this.headers()).subscribe({
+      next: (data) => this.qrCodes.set(data || []),
+      error: (err) => this.fail(err, 'Gagal memuat QR Code')
     });
   }
 
   generateQrCode(event: Event) {
     event.preventDefault();
-    this.loading.set(true);
-    const apiBase = getApiBase();
-
-    this.http.post<any>(`${apiBase}/admin/qr`, {
-      table_label: this.qrTableLabel,
-      target_url: this.qrTargetUrl
-    }, { headers: this.getAuthHeaders() }).subscribe({
+    if (!this.qrTableLabel.trim()) return;
+    this.saving.set(true);
+    this.http.post(`${this.api}/admin/qr`, { table_label: this.qrTableLabel.trim(), target_url: this.qrTargetUrl }, this.headers()).subscribe({
       next: () => {
-        this.loading.set(false);
+        this.saving.set(false);
+        this.notify(`QR "${this.qrTableLabel.trim()}" dibuat`);
         this.qrTableLabel = '';
+        this.cdr.markForCheck();
         this.loadQrCodes();
       },
-      error: (err) => {
-        this.loading.set(false);
-        if (this.handleAuthError(err)) return;
-        alert('Gagal membuat QR Code: ' + (err.error?.error || err.message));
-      }
+      error: (err) => this.fail(err, 'Gagal membuat QR Code')
+    });
+  }
+
+  deleteQrCode(qr: QrCode) {
+    if (!confirm(`Hapus QR "${qr.table_label}"?`)) return;
+    this.http.delete(`${this.api}/admin/qr/${qr.id}`, this.headers()).subscribe({
+      next: () => {
+        this.qrCodes.update(list => list.filter(q => q.id !== qr.id));
+        this.notify(`QR "${qr.table_label}" dihapus`);
+      },
+      error: (err) => this.fail(err, 'Gagal menghapus QR Code')
     });
   }
 
   printQrCode(qr: QrCode) {
-    // Open a new window with a print-friendly preview
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Cetak QR - ${qr.table_label}</title>
-            <style>
-              body {
-                font-family: 'Outfit', sans-serif;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: 100vh;
-                margin: 0;
-                background-color: #ffffff;
-              }
-              .qr-card {
-                border: 4px solid #7D2211;
-                padding: 40px;
-                border-radius: 24px;
-                text-align: center;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                max-width: 400px;
-              }
-              .logo {
-                font-family: 'Outfit', 'Playfair Display', serif;
-                font-size: 2.2rem;
-                font-weight: 700;
-                color: #7D2211;
-                margin-bottom: 8px;
-              }
-              .subtitle {
-                font-size: 0.9rem;
-                color: #E26D3F;
-                text-transform: uppercase;
-                letter-spacing: 2px;
-                margin-bottom: 24px;
-                font-weight: bold;
-              }
-              .qr-image {
-                width: 250px;
-                height: 250px;
-                margin-bottom: 24px;
-              }
-              .table-num {
-                font-size: 1.8rem;
-                font-weight: 800;
-                color: #7D2211;
-                margin-bottom: 8px;
-              }
-              .scan-text {
-                font-size: 0.95rem;
-                color: #767676;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="qr-card">
-              <div class="logo">BALI BONG</div>
-              <div class="subtitle">Scan to View Digital Menu</div>
-              <img class="qr-image" src="${qr.qr_image_url}" />
-              <div class="table-num">${qr.table_label}</div>
-              <div class="scan-text">Silakan pindai untuk melihat menu digital lengkap kami dalam 5 bahasa.</div>
-            </div>
-            <script>
-              window.onload = function() {
-                window.print();
-                // window.close();
-              }
-            </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
+    const w = window.open('', '_blank');
+    if (!w) {
+      this.notify('Pop-up diblokir browser. Izinkan pop-up untuk mencetak.', true);
+      return;
     }
-  }
-
-  // --- TAB 4: DESIGN SETTINGS ---
-  loadDesignSettings() {
-    const apiBase = getApiBase();
-    this.http.get<any>(`${apiBase}/admin/design`).subscribe({
-      next: (data) => {
-        this.designBgUrl = data.background_url || '';
-        this.designGarudaUrl = data.garuda_url || '';
-        this.designBarongUrl = data.barong_url || '';
-      },
-      error: (err) => {
-        console.error('Error loading design settings', err);
-      }
-    });
-  }
-
-  saveDesignSettings(event: Event) {
-    event.preventDefault();
-    this.loading.set(true);
-    const apiBase = getApiBase();
-    this.http.put<any>(`${apiBase}/admin/design`, {
-      background_url: this.designBgUrl,
-      garuda_url: this.designGarudaUrl,
-      barong_url: this.designBarongUrl
-    }, { headers: this.getAuthHeaders() }).subscribe({
-      next: () => {
-        this.loading.set(false);
-        alert('Desain berhasil disimpan! Efek akan terlihat jika halaman di-refresh.');
-      },
-      error: (err) => {
-        this.loading.set(false);
-        if (this.handleAuthError(err)) return;
-        alert('Gagal menyimpan desain: ' + (err.error?.error || err.message));
-      }
-    });
-  }
-
-  onDesignImageUpload(event: any, key: 'background_url' | 'garuda_url' | 'barong_url') {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    this.uploadingDesign.set(true);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const base64 = e.target?.result as string;
-      const apiBase = getApiBase();
-      
-      this.http.post<any>(`${apiBase}/admin/upload-image`, {
-        imageBase64: base64,
-        type: 'assets'
-      }, { headers: this.getAuthHeaders() }).subscribe({
-        next: (res) => {
-          this.uploadingDesign.set(false);
-          if (key === 'background_url') this.designBgUrl = res.imageUrl;
-          if (key === 'garuda_url') this.designGarudaUrl = res.imageUrl;
-          if (key === 'barong_url') this.designBarongUrl = res.imageUrl;
-        },
-        error: (err) => {
-          this.uploadingDesign.set(false);
-          if (this.handleAuthError(err)) return;
-          alert('Gagal mengupload gambar aset.');
-        }
-      });
-    };
-    reader.readAsDataURL(file);
+    const esc = (s: string) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+    w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>QR ${esc(qr.table_label)}</title>
+      <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Manrope:wght@500;600&family=Noto+Serif+JP&display=swap" rel="stylesheet">
+      <style>
+        body { margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #fff; font-family: Manrope, sans-serif; color: #2a211b; }
+        .card { width: 340px; padding: 36px 32px; border-radius: 28px; background: #f6f1e8; text-align: center; }
+        .logo { height: 56px; margin-bottom: 20px; }
+        .qr { width: 230px; height: 230px; padding: 12px; background: #fff; border-radius: 18px; }
+        .table { font-family: 'Instrument Serif', serif; font-size: 44px; line-height: 1; margin: 20px 0 10px; }
+        .scan { font-size: 13px; color: #5a4a3e; line-height: 1.6; }
+        .jp { font-family: 'Noto Serif JP', serif; }
+        @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+      </style></head><body>
+      <div class="card">
+        <img class="logo" src="${window.location.origin}/public/images/assets/logo.png" alt="BALI BONG">
+        <div><img class="qr" src="${qr.qr_image_url}" alt="QR"></div>
+        <div class="table">${esc(qr.table_label)}</div>
+        <div class="scan">Pindai untuk melihat menu · Scan for the menu<br><span class="jp">メニューはこちら</span> · 6 bahasa / languages</div>
+      </div>
+      <script>window.onload = () => setTimeout(() => window.print(), 300);<\/script>
+      </body></html>`);
+    w.document.close();
   }
 }
