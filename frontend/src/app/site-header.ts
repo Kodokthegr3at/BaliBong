@@ -65,7 +65,7 @@ import { LanguageService, LanguageCode } from './language.service';
     .lang-btn:hover { border-color: var(--ink); }
     .caret { font-size: 9px; opacity: 0.6; }
     .lang-menu {
-      position: absolute; right: 0; top: 48px; min-width: 180px; padding: 6px;
+      position: absolute; right: 0; top: 48px; z-index: 70; min-width: 180px; padding: 6px;
       background: var(--surface); border: 1px solid rgba(42, 33, 27, 0.1); border-radius: 14px;
       box-shadow: 0 18px 40px -12px rgba(42, 33, 27, 0.25);
     }
@@ -82,7 +82,11 @@ import { LanguageService, LanguageCode } from './language.service';
     }
     .cta:hover { background: var(--accent); color: #fff; }
     /* Phones: the three links don't fit beside logo + controls; the logo and CTAs still route everywhere. */
-    @media (max-width: 720px) { .nav { display: none; } }
+    @media (max-width: 720px) {
+      .nav { display: none; }
+      .logo img { height: 30px; }
+      .row { gap: 12px; }
+    }
   `]
 })
 export class SiteHeaderComponent {
