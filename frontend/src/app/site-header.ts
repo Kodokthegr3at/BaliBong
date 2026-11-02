@@ -50,7 +50,7 @@ import { LanguageService, LanguageCode } from './language.service';
       border-bottom: 1px solid rgba(42, 33, 27, 0.08);
     }
     .row { padding-top: 14px; padding-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
-    .logo img { height: 40px; width: auto; }
+    .logo img { height: 60px; width: auto; }
     .nav { display: flex; align-items: center; gap: clamp(16px, 3vw, 36px); font-size: 14px; font-weight: 500; letter-spacing: 0.01em; }
     .nav a { color: var(--ink); }
     .nav a:hover { color: var(--accent); }
@@ -84,7 +84,7 @@ import { LanguageService, LanguageCode } from './language.service';
     /* Phones: the three links don't fit beside logo + controls; the logo and CTAs still route everywhere. */
     @media (max-width: 720px) {
       .nav { display: none; }
-      .logo img { height: 30px; }
+      .logo img { height: 44px; }
       .row { gap: 12px; }
     }
   `]

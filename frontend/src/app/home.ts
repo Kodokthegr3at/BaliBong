@@ -17,7 +17,7 @@ interface Dish {
   is_recommended: boolean;
 }
 
-const MAPS_URL = 'https://maps.google.com/?q=バリボン+我孫子+大阪';
+const MAPS_URL = 'https://maps.google.com/?q=バリボン+あびこ+大阪';
 
 @Component({
   selector: 'app-home',
@@ -228,7 +228,7 @@ const MAPS_URL = 'https://maps.google.com/?q=バリボン+我孫子+大阪';
       </div>
       <div class="foot-bottom">
         <span>© 2026 Bali Bong. {{ t('all_rights') }}</span>
-        <span class="bb-jp">バリボン · 大阪 我孫子</span>
+        <span class="bb-jp">バリボン · あびこ、大阪</span>
       </div>
     </footer>
 
@@ -242,7 +242,7 @@ const MAPS_URL = 'https://maps.google.com/?q=バリボン+我孫子+大阪';
   </div>
   `,
   styles: [`
-    .anchor { scroll-margin-top: 80px; }
+    .anchor { scroll-margin-top: 100px; }
     .section { padding-top: clamp(72px, 10vw, 140px); padding-bottom: clamp(72px, 10vw, 140px); }
     .mb16 { margin-bottom: 16px; } .mb20 { margin-bottom: 20px; } .mb28 { margin-bottom: 28px; }
     .nowrap { white-space: nowrap; }

@@ -285,7 +285,7 @@ const CART_KEY = 'balibong_cart';
     .empty { padding: 80px 0; text-align: center; }
     .empty p { font-family: var(--serif); font-size: 36px; margin-bottom: 16px; }
     .groups { display: flex; flex-direction: column; gap: clamp(56px, 7vw, 96px); }
-    .group { scroll-margin-top: 150px; }
+    .group { scroll-margin-top: 170px; }
     .group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 18px; border-bottom: 1px solid var(--ink); }
     .group-title { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
     .num { font: 400 12px var(--mono); color: var(--accent); }
@@ -500,7 +500,7 @@ export class MenuComponent implements OnInit, OnDestroy {
 
   goTo(slug: string) {
     const el = document.getElementById(slug);
-    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 150, behavior: 'smooth' });
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 170, behavior: 'smooth' });
   }
 
   openDetail(item: MenuItem) {
