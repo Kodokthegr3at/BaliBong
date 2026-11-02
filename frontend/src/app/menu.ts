@@ -291,7 +291,7 @@ const CART_KEY = 'balibong_cart';
     .num { font: 400 12px var(--mono); color: var(--accent); }
     .group-title h2 { font-size: clamp(36px, 4.4vw, 56px); line-height: 1; letter-spacing: -0.015em; }
     .count { font-size: 13px; color: var(--muted); white-space: nowrap; }
-    .items { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); column-gap: clamp(32px, 5vw, 72px); }
+    .items { display: grid; grid-template-columns: 1fr 1fr; column-gap: clamp(32px, 5vw, 72px); }
     .item { display: flex; gap: 18px; width: calc(100% + 16px); padding: 22px 8px; margin: 0 -8px; border: 0; border-bottom: 1px solid rgba(42,33,27,.1); border-radius: 0; background: transparent; text-align: left; cursor: pointer; color: var(--ink); }
     .item:hover { background: rgba(233,223,208,.5); }
     .item.out { opacity: .55; }
@@ -354,15 +354,29 @@ const CART_KEY = 'balibong_cart';
     .clear { width: 100%; height: 52px; border-radius: 999px; border: 1px solid rgba(42,33,27,.2); background: transparent; font: 600 14px var(--sans); color: var(--ink); cursor: pointer; }
     .clear:hover { border-color: var(--ink); }
 
-    /* Phones: smaller display type + tighter spacing so more of the menu shows. */
+    /* Phone + tablet: vertical cards (desktop keeps the 2-col list below).
+       Column count stays monotonic as width grows: 2 phone -> 3 tablet -> 2 list. */
+    @media (max-width: 1039px) {
+      .items { grid-template-columns: repeat(3, 1fr); gap: 26px 14px; }
+      .item { flex-direction: column; align-items: stretch; gap: 10px; width: 100%; margin: 0; padding: 0; border-bottom: 0; }
+      .item:hover { background: transparent; }
+      .thumb { width: 100%; aspect-ratio: 1; border-radius: 14px; }
+      .item-top { flex-wrap: wrap; gap: 2px 10px; }
+      .item-name { font-size: 18px; }
+      .leader { display: none; }
+      .item-price { font-size: 14px; }
+      .item-desc { display: none; }
+    }
+
+    /* Phones: 2-col cards + smaller display type. */
     @media (max-width: 600px) {
       .intro { padding-top: 28px; padding-bottom: 18px; gap: 16px; }
       .title { font-size: clamp(52px, 15vw, 72px); }
       .group-title h2 { font-size: clamp(28px, 7.5vw, 40px); }
       .groups { gap: 44px; }
-      .item { padding: 16px 8px; gap: 14px; }
-      .item-name { font-size: 21px; }
       .feat-name { font-size: 22px; }
+      .items { grid-template-columns: 1fr 1fr; gap: 26px 12px; }
+      .item-name { font-size: 17px; }
     }
   `]
 })

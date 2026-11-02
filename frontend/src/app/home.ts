@@ -156,7 +156,6 @@ const MAPS_URL = 'https://maps.google.com/?q=バリボン+あびこ+大阪';
             @if (info().transportation) {
               <p class="panel-p">{{ info().transportation }}</p>
             } @else { <ng-container *ngTemplateOutlet="status" /> }
-            <a [href]="mapsUrl" target="_blank" rel="noopener" class="peach-link">{{ t('map_button') }} ↗</a>
           </div>
           <div class="panel">
             <h3 class="bb-mono panel-k">{{ t('contact_title') }}</h3>
@@ -376,8 +375,6 @@ const MAPS_URL = 'https://maps.google.com/?q=バリボン+あびこ+大阪';
     .hour b { font-weight: 600; color: var(--cream); text-align: right; }
     .station { margin-bottom: 16px; font-family: var(--serif); font-size: 28px; line-height: 1.15; color: var(--cream); }
     .panel-p { margin-bottom: 24px; font-size: 15px; line-height: 1.65; color: #c9c0b2; }
-    .peach-link { font-size: 14px; font-weight: 600; color: var(--peach); border-bottom: 1px solid var(--peach); padding-bottom: 3px; }
-    .peach-link:hover { color: var(--cream); border-color: var(--cream); }
     .contact { display: flex; flex-direction: column; gap: 18px; font-size: 15px; }
     .contact div { display: flex; flex-direction: column; gap: 4px; }
     .contact b { font-weight: 600; color: var(--cream); line-height: 1.5; }

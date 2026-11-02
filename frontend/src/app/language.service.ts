@@ -399,8 +399,8 @@ export class LanguageService {
       signature_title: '来自我们的厨房',
       all_menu: '全部菜单',
       visit_eyebrow: '欢迎光临',
-      visit_title: '我孙子见。',
-      station_name: '我孙子站',
+      visit_title: 'あびこ见。',
+      station_name: 'あびこ站',
       cta_title_a: '饿了吗？完整菜单',
       cta_title_em: '就在这里。',
       menu_hint: '点击菜品查看详情并加入清单。点餐时请向店员出示您的清单。',
@@ -618,19 +618,14 @@ export class LanguageService {
   };
 
   private getInitialLanguage(): LanguageCode {
+    // Default to Japanese; guests pick any other language themselves (choice persists).
     if (typeof window !== 'undefined' && window.localStorage) {
       const stored = localStorage.getItem('balibong_lang') as LanguageCode;
       if (stored && ['id', 'en', 'ja', 'zh', 'ko', 'es'].includes(stored)) {
         return stored;
       }
-
-      // Check browser default
-      const browserLang = navigator.language.split('-')[0] as LanguageCode;
-      if (browserLang && ['id', 'en', 'ja', 'zh', 'ko', 'es'].includes(browserLang)) {
-        return browserLang;
-      }
     }
-    return 'id';
+    return 'ja';
   }
 
   setLanguage(lang: LanguageCode) {
