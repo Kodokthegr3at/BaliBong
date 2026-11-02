@@ -8,7 +8,8 @@ import { provideClientHydration, withEventReplay } from '@angular/platform-brows
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' })),
+    // anchorScrolling is handled in HomeComponent (it must wait for async content before scrolling to a fragment).
+    provideRouter(routes, withInMemoryScrolling({ anchorScrolling: 'disabled', scrollPositionRestoration: 'enabled' })),
     provideClientHydration(withEventReplay()),
     provideHttpClient(withFetch())
   ]

@@ -353,6 +353,17 @@ const CART_KEY = 'balibong_cart';
     .sum-n { font-family: var(--serif); font-size: 40px; line-height: 1; color: var(--ink); }
     .clear { width: 100%; height: 52px; border-radius: 999px; border: 1px solid rgba(42,33,27,.2); background: transparent; font: 600 14px var(--sans); color: var(--ink); cursor: pointer; }
     .clear:hover { border-color: var(--ink); }
+
+    /* Phones: smaller display type + tighter spacing so more of the menu shows. */
+    @media (max-width: 600px) {
+      .intro { padding-top: 28px; padding-bottom: 18px; gap: 16px; }
+      .title { font-size: clamp(52px, 15vw, 72px); }
+      .group-title h2 { font-size: clamp(28px, 7.5vw, 40px); }
+      .groups { gap: 44px; }
+      .item { padding: 16px 8px; gap: 14px; }
+      .item-name { font-size: 21px; }
+      .feat-name { font-size: 22px; }
+    }
   `]
 })
 export class MenuComponent implements OnInit, OnDestroy {

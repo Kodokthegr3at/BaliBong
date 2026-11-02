@@ -1,7 +1,8 @@
-import { Component, inject, signal, effect, computed, PLATFORM_ID } from '@angular/core';
+import { Component, inject, signal, effect, computed, PLATFORM_ID, AfterViewInit, OnDestroy, ElementRef, viewChild } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { isPlatformBrowser, NgTemplateOutlet } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Meta, Title } from '@angular/platform-browser';
 import { LanguageService, LanguageCode } from './language.service';
 import { SiteHeaderComponent } from './site-header';
@@ -77,9 +78,11 @@ const MAPS_URL = 'https://maps.google.com/?q=バリボン+あびこ+大阪';
         <div class="about-grid">
           <figure class="fig wide"><img src="/public/images/assets/interior-bar.webp" alt="Interior Bali Bong"></figure>
           <figure class="fig tall"><img src="/public/images/assets/interior-dining.webp" alt="Ruang makan Bali Bong"></figure>
-          <div class="welcome">
+          <div class="welcome" #welcomeCard>
             <span class="bb-mono welcome-k">Om Swastiastu</span>
             <p>{{ t('welcome_quote') }}</p>
+            <img class="welcome-owner" #ownerImg src="/public/images/assets/owner.png" alt="Owner Bali Bong" loading="lazy">
+            <img class="welcome-table" src="/public/images/assets/table.png" alt="" aria-hidden="true" loading="lazy">
           </div>
         </div>
       </div>
@@ -99,20 +102,29 @@ const MAPS_URL = 'https://maps.google.com/?q=バリボン+あびこ+大阪';
             </div>
             <a routerLink="/menu" class="bb-btn btn-line">{{ t('all_menu') }} →</a>
           </div>
-          <div class="sig-grid">
-            @for (d of dishes(); track d.id) {
-              <a routerLink="/menu" class="dish">
-                <div class="dish-img bb-ph">
-                  @if (d.image_url) { <img [src]="d.image_url" [alt]="d.name" loading="lazy"> }
-                </div>
-                <div class="dish-meta">
-                  <div>
-                    <h3>{{ d.name }}</h3>
-                    <p>{{ d.description }}</p>
+          <div class="sig-carousel">
+            <div class="sig-track" #sigTrack>
+              @for (d of dishes(); track d.id) {
+                <a routerLink="/menu" class="dish">
+                  <div class="dish-img bb-ph">
+                    @if (d.image_url) { <img [src]="d.image_url" [alt]="d.name" loading="lazy"> }
                   </div>
-                  @if (showJp() && d.name_ja && d.name_ja !== d.name) { <span class="bb-jp nowrap">{{ d.name_ja }}</span> }
-                </div>
-              </a>
+                  <div class="dish-meta">
+                    <div>
+                      <h3>{{ d.name }}</h3>
+                      <p>{{ d.description }}</p>
+                    </div>
+                    @if (showJp() && d.name_ja && d.name_ja !== d.name) { <span class="bb-jp nowrap">{{ d.name_ja }}</span> }
+                  </div>
+                </a>
+              }
+            </div>
+            @if (dishes().length > 1) {
+              <div class="sig-dots">
+                @for (d of dishes(); track d.id; let i = $index) {
+                  <button type="button" [class.on]="activeSlide() === i" [attr.aria-label]="'Slide ' + (i + 1)" (click)="goSlide(i)"></button>
+                }
+              </div>
             }
           </div>
         </div>
@@ -295,17 +307,54 @@ const MAPS_URL = 'https://maps.google.com/?q=バリボン+あびこ+大阪';
     .fig img { width: 100%; height: 100%; object-fit: cover; }
     .wide { grid-column: 1 / span 2; aspect-ratio: 16 / 11; }
     .tall { aspect-ratio: 4 / 5; }
-    .welcome { border-radius: 24px; background: var(--accent); color: var(--cream); padding: clamp(20px, 2.4vw, 32px); display: flex; flex-direction: column; justify-content: space-between; aspect-ratio: 4 / 5; }
-    .welcome-k { color: inherit; opacity: .85; }
-    .welcome p { font-family: var(--serif); font-size: clamp(24px, 2.4vw, 34px); line-height: 1.1; }
+    .welcome { position: relative; overflow: hidden; border-radius: 24px; background: var(--accent); color: var(--cream); padding: clamp(20px, 2.4vw, 32px); display: flex; flex-direction: column; gap: 6px; aspect-ratio: 4 / 5; }
+    .welcome-k { position: relative; z-index: 3; color: inherit; opacity: .85; }
+    .welcome p { position: relative; z-index: 3; font-family: var(--serif); font-size: clamp(22px, 2.2vw, 30px); line-height: 1.12; }
+    .welcome-owner {
+      position: absolute; left: 50%; bottom: 12%; transform: translateX(-50%);
+      width: 84%; height: 74%; object-fit: contain; object-position: bottom center;
+      z-index: 1; pointer-events: none; opacity: 0; translate: 0 55%; will-change: translate, opacity;
+    }
+    .welcome-table {
+      position: absolute; left: 50%; bottom: -1%; transform: translateX(-50%);
+      width: 124%; z-index: 2; pointer-events: none;
+    }
+    @media (prefers-reduced-motion: reduce) { .welcome-owner { opacity: 1 !important; translate: 0 0 !important; } }
     @media (max-width: 960px) { .about-text { position: static; } }
+    /* Phones: stack the about grid so the owner card gets full width (it's cramped at half). */
+    @media (max-width: 600px) {
+      .about-grid { grid-template-columns: 1fr; }
+      .wide { grid-column: auto; aspect-ratio: 16 / 10; }
+      .tall { aspect-ratio: 3 / 4; }
+      .welcome { aspect-ratio: 3 / 4; }
+      /* Tighter type + spacing so more content fits per screen. */
+      .section { padding-top: 52px; padding-bottom: 52px; }
+      .hero { min-height: min(68vh, 560px); }
+      .hero-title { font-size: clamp(44px, 13vw, 60px); }
+      .hero-side p { margin-bottom: 20px; }
+      .btns .bb-btn { height: 48px; }
+      .h2, .about-h2 { font-size: clamp(30px, 8vw, 40px); }
+      .about-h2 { margin-bottom: 20px; }
+      .facts > div { padding: 16px 0; }
+      .sig, .visit { padding: 52px 0; }
+      .sig-head { margin-bottom: 28px; }
+      .visit-h2 { margin-bottom: 28px; }
+      .cta { padding: 44px 22px; }
+      .cta h2 { font-size: clamp(32px, 9vw, 46px); }
+    }
 
     /* Signature */
     .sig { background: var(--bg-alt); padding: clamp(72px, 9vw, 120px) 0; }
     .sig-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 48px; }
     .btn-line { height: 48px; padding: 0 22px; border: 1px solid rgba(42,33,27,.25); color: var(--ink); letter-spacing: 0; }
     .btn-line:hover { background: var(--ink); color: var(--bg); }
-    .sig-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; }
+    .sig-carousel { position: relative; }
+    .sig-track { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px 4px; }
+    .sig-track::-webkit-scrollbar { display: none; }
+    .sig-track .dish { flex: 0 0 clamp(280px, 80%, 480px); scroll-snap-align: start; }
+    .sig-dots { display: flex; justify-content: center; gap: 10px; margin-top: 28px; }
+    .sig-dots button { width: 9px; height: 9px; padding: 0; border: 0; border-radius: 999px; background: rgba(42,33,27,.22); cursor: pointer; transition: width .25s ease, background .25s ease; }
+    .sig-dots button.on { width: 26px; background: var(--accent); }
     .dish { display: flex; flex-direction: column; gap: 18px; color: var(--ink); }
     .dish-img { aspect-ratio: 4 / 5; border-radius: 22px; overflow: hidden; }
     .dish-meta { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 4px; }
@@ -376,7 +425,7 @@ const MAPS_URL = 'https://maps.google.com/?q=バリボン+あびこ+大阪';
     .status button { margin-left: 8px; background: none; border: 0; border-bottom: 1px solid currentColor; color: inherit; font: 600 14px var(--sans); cursor: pointer; }
   `]
 })
-export class HomeComponent {
+export class HomeComponent implements AfterViewInit, OnDestroy {
   readonly lang = inject(LanguageService);
   private readonly http = inject(HttpClient);
   private readonly titleService = inject(Title);
@@ -388,9 +437,28 @@ export class HomeComponent {
   // The Japanese secondary labels are redundant when the page is already in Japanese.
   readonly showJp = computed(() => this.lang.currentLang() !== 'ja');
 
+  private readonly route = inject(ActivatedRoute);
+
   readonly info = signal({ about: '', transportation: '', contact: '', hours: '' });
   readonly infoLoadError = signal(false);
   readonly dishes = signal<Dish[]>([]);
+
+  // Fragment scroll (header "Lokasi"/"Tentang") must wait until the async content
+  // that changes page height has loaded, or it lands on the wrong section.
+  readonly infoLoaded = signal(false);
+  readonly dishesLoaded = signal(false);
+  private pendingFragment: string | null = null;
+
+  // Owner photo rises from behind the table as the welcome card scrolls through the viewport.
+  private readonly welcomeRef = viewChild<ElementRef<HTMLElement>>('welcomeCard');
+  private readonly ownerRef = viewChild<ElementRef<HTMLImageElement>>('ownerImg');
+  private ownerScrollCleanup: (() => void) | null = null;
+
+  // Signature dishes auto-sliding carousel.
+  readonly activeSlide = signal(0);
+  private readonly sigTrack = viewChild<ElementRef<HTMLElement>>('sigTrack');
+  private sigTimer: ReturnType<typeof setInterval> | null = null;
+  private slidesReady = false;
 
   readonly hoursRows = computed(() => toInfoRows(this.info().hours, HOURS_SEPARATOR));
   readonly contactRows = computed(() => toInfoRows(this.info().contact, CONTACT_SEPARATOR));
@@ -415,22 +483,125 @@ export class HomeComponent {
       this.meta.updateTag({ property: 'og:title', content: title });
       this.meta.updateTag({ property: 'og:description', content: description });
     });
+
+    // Wire the carousel once the dishes have rendered (they arrive async, after ngAfterViewInit).
+    effect(() => {
+      const ready = this.dishes().length > 1;
+      if (this.isBrowser && ready && !this.slidesReady) {
+        this.slidesReady = true;
+        setTimeout(() => this.startSlides());
+      }
+    });
+
+    // Fragment scrolling, gated on content load (see field comment).
+    if (this.isBrowser) {
+      this.route.fragment.pipe(takeUntilDestroyed()).subscribe(frag => {
+        this.pendingFragment = frag;
+        this.tryScrollToFragment();
+      });
+      effect(() => {
+        if (this.infoLoaded() && this.dishesLoaded()) this.tryScrollToFragment();
+      });
+    }
+  }
+
+  private tryScrollToFragment() {
+    const id = this.pendingFragment;
+    if (!id || !this.infoLoaded() || !this.dishesLoaded()) return;
+    this.pendingFragment = null;
+    requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
+
+  ngAfterViewInit() {
+    if (!this.isBrowser) return;
+    this.setupOwnerParallax();
+  }
+
+  ngOnDestroy() {
+    this.stopSlides();
+    this.ownerScrollCleanup?.();
+  }
+
+  // Scroll-scrubbed reveal: owner opacity/offset track how far the card has entered the viewport.
+  private setupOwnerParallax() {
+    const card = this.welcomeRef()?.nativeElement;
+    const owner = this.ownerRef()?.nativeElement;
+    if (!card || !owner) return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return; // CSS shows it static
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const rect = card.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      // 0 as the card enters from the bottom, 1 once its top passes 35% of the viewport.
+      const p = Math.max(0, Math.min(1, (vh - rect.top) / (vh * 0.65)));
+      owner.style.opacity = String(p);
+      owner.style.translate = `0 ${(1 - p) * 55}%`;
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    this.ownerScrollCleanup = () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+    update();
+  }
+
+  // Native scroll-snap carousel + autoplay. The dot state follows the real
+  // scroll position, so manual swipes and autoplay stay in sync.
+  private startSlides() {
+    const track = this.sigTrack()?.nativeElement;
+    if (!track || this.dishes().length < 2) return;
+    const step = () => {
+      const k = track.children;
+      return k.length > 1 ? (k[1] as HTMLElement).offsetLeft - (k[0] as HTMLElement).offsetLeft : 0;
+    };
+    track.addEventListener('scroll', () => requestAnimationFrame(() => {
+      const s = step();
+      if (s > 0) this.activeSlide.set(Math.round(track.scrollLeft / s));
+    }), { passive: true });
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    const play = () => { this.stopSlides(); this.sigTimer = setInterval(() => this.advance(), 4000); };
+    track.addEventListener('pointerenter', () => this.stopSlides());
+    track.addEventListener('pointerleave', play);
+    play();
+  }
+
+  private stopSlides() { if (this.sigTimer) { clearInterval(this.sigTimer); this.sigTimer = null; } }
+
+  private advance() {
+    const n = this.dishes().length;
+    if (n) this.goSlide((this.activeSlide() + 1) % n);
+  }
+
+  goSlide(i: number) {
+    const track = this.sigTrack()?.nativeElement;
+    const target = track?.children[i] as HTMLElement | undefined;
+    const first = track?.children[0] as HTMLElement | undefined;
+    if (!track || !target || !first) return;
+    track.scrollTo({ left: target.offsetLeft - first.offsetLeft, behavior: 'smooth' });
+    this.activeSlide.set(i);
   }
 
   fetchInfo(lang: LanguageCode) {
     this.infoLoadError.set(false);
     this.http.get<any>(`${getApiBase()}/restaurant-info?lang=${lang}`).subscribe({
-      next: (data) => this.info.set({
-        about: data.about || '',
-        transportation: data.transportation || '',
-        contact: data.contact || '',
-        hours: data.hours || ''
-      }),
+      next: (data) => {
+        this.info.set({
+          about: data.about || '',
+          transportation: data.transportation || '',
+          contact: data.contact || '',
+          hours: data.hours || ''
+        });
+        this.infoLoaded.set(true);
+      },
       error: (err) => {
         // Never substitute fabricated hours/phone/address for a failed fetch —
         // a customer could show up when the restaurant is actually closed.
         console.error('Error fetching restaurant info', err);
         this.infoLoadError.set(true);
+        this.infoLoaded.set(true);
       }
     });
   }
@@ -438,8 +609,14 @@ export class HomeComponent {
   private fetchDishes(lang: LanguageCode) {
     // The signature section is decorative; on failure it simply stays hidden.
     this.http.get<{ items: Dish[] }>(`${getApiBase()}/menu?lang=${lang}`).subscribe({
-      next: (data) => this.dishes.set((data.items || []).filter(i => i.is_recommended).slice(0, 3)),
-      error: (err) => console.error('Error fetching signature dishes', err)
+      next: (data) => {
+        this.dishes.set((data.items || []).filter(i => i.is_recommended).slice(0, 3));
+        this.dishesLoaded.set(true);
+      },
+      error: (err) => {
+        console.error('Error fetching signature dishes', err);
+        this.dishesLoaded.set(true);
+      }
     });
   }
 }
